@@ -1,0 +1,746 @@
+---
+// PERF_OPT: Enabled static prerendering to drastically improve FCP and LCP. Remove if SSR is needed.
+export const prerender = true;
+
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Navbar from "@/components/Navbar.astro";
+import { Image } from "astro:assets";
+import aiReceptionistImg from "../../public/images/AI-Receptionist-3.png";
+import { Footer } from "@/components/Footer";
+import { AreaPartnerBooking } from "@/components/AreaPartnerBooking";
+import { SuburbChecker } from "@/components/SuburbChecker";
+import { generateFAQSchema } from "@/lib/seo-data";
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  name: "Amberly Digital",
+  image: "https://amberlydigital.com.au/og-image.jpg",
+  "@id": "https://amberlydigital.com.au/#localbusiness",
+  url: "https://amberlydigital.com.au",
+  telephone: "1300 AMBERLY",
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "Level 3, 100 George Street",
+    addressLocality: "Sydney",
+    addressRegion: "NSW",
+    postalCode: "2000",
+    addressCountry: "AU",
+  },
+  geo: {
+    "@type": "GeoCoordinates",
+    latitude: -33.8688,
+    longitude: 151.2093,
+  },
+  openingHoursSpecification: {
+    "@type": "OpeningHoursSpecification",
+    dayOfWeek: [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday",
+    ],
+    opens: "00:00",
+    closes: "23:59",
+  },
+  sameAs: [
+    "https://www.facebook.com/amberlydigital",
+    "https://www.linkedin.com/company/amberlydigital",
+  ],
+};
+
+const faqItems = [
+  {
+    q: "Will AI replace my office staff?",
+    a: "No. AI tools are designed to handle repetitive tasks like answering common questions, booking jobs, and collecting customer information, allowing your team to focus on higher-value work.",
+  },
+  {
+    q: "What can an AI Receptionist actually do?",
+    a: "An AI Receptionist can answer calls, qualify leads, collect job details, schedule appointments, and respond to enquiries 24/7—even when you're on-site or after business hours.",
+  },
+  {
+    q: "Can AI help me respond to leads faster?",
+    a: "Yes. AI can instantly reply to missed calls, web enquiries, and form submissions, helping you contact potential customers before they move on to a competitor.",
+  },
+  {
+    q: "Is AI difficult to use?",
+    a: "Not at all. We set everything up for you and integrate it into your existing workflow, so you can start using it without learning complicated software.",
+  },
+  {
+    q: "How much time can AI save my business?",
+    a: "Many tradies spend hours each week answering calls, chasing leads, and handling admin tasks. AI automates much of this work, helping you focus on completing jobs and growing your business.",
+  },
+];
+
+const faqSchemaJson = generateFAQSchema(faqItems);
+---
+
+<BaseLayout>
+  <!-- Schema.org LocalBusiness JSON-LD Dynamic Injection -->
+  <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+  <script type="application/ld+json" set:html={JSON.stringify(faqSchemaJson)} />
+
+  <Navbar />
+  <!-- LIVE ACTIVITY BANNER -->
+  <div
+    class="bg-amber-500 border-b-2 border-slate-950 py-2.5 px-4 text-center text-slate-950 text-xs font-mono font-black uppercase tracking-widest flex items-center justify-center gap-2 flex-wrap"
+  >
+    <svg
+      class="w-4 h-4 text-slate-950 fill-current animate-pulse"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      ><path
+        d="M17.66 11.2C17.43 10.9 17.15 10.64 16.89 10.38C16.22 9.78 15.46 9.35 14.82 8.72C13.33 7.26 13 4.85 13.95 3C13 3.23 12.17 3.75 11.46 4.32C8.87 6.4 7.85 10.07 9.07 13.22C9.11 13.32 9.15 13.42 9.15 13.55C9.15 13.77 9 13.97 8.8 14.05C8.57 14.15 8.33 14.09 8.14 13.93C8.08 13.88 8.04 13.83 8 13.76C6.87 12.33 6.69 10.28 7.45 8.64C5.78 10 4.87 12.3 5 14.47C5.06 14.97 5.12 15.47 5.29 15.97C5.43 16.57 5.7 17.17 6 17.7C7.08 19.43 8.95 20.67 10.96 20.92C13.1 21.19 15.39 20.8 17.03 19.32C18.86 17.66 19.5 15 18.56 12.72L18.43 12.46C18.22 12 17.66 11.2 17.66 11.2Z"
+      ></path></svg
+    >
+    <span
+      >Live Tools Available Now — No Sign-Up Required. Test Your Website
+      Visibility in 10 Seconds.</span
+    >
+    <!-- <a
+      href="/tools"
+      class="ml-2 underline underline-offset-2 hover:text-slate-800 transition-colors"
+      >Try Free →</a
+    > -->
+  </div>
+
+  <!-- CORE HERO SECTION - THE GEOMETRIC BALANCE HERO MATRIX -->
+  <header class="border-b-2 border-slate-950 bg-white" id="agency-hero">
+    <div class="max-w-8xl mx-auto px-6 lg:px-12">
+      <div
+        class="grid grid-cols-1 lg:grid-cols-12 min-h-[580px] items-stretch pt-4 lg:pt-6 pb-12 lg:pb-16 gap-8"
+      >
+        <!-- Left Hero Core Message (7 columns) -->
+        <div
+          class="lg:col-span-7 flex flex-col justify-center relative py-6 pr-0 lg:pr-8"
+        >
+          <h1
+            class="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-black font-display leading-none mb-6 text-slate-950 uppercase tracking-tight"
+          >
+            More than a <span class="text-amber-500">Website.</span>
+          </h1>
+          <p
+            class="text-lg lg:text-2xl text-slate-600 leading-relaxed mb-8 font-medium"
+          >
+            Websites and AI tools designed to help businesses attract customers
+            and automate workflows.
+          </p>
+
+          <!-- Interactive Callout Buttons -->
+          <div class="flex flex-col sm:flex-row items-center gap-4">
+            <a
+              href="#onboarding-form"
+              class="w-full sm:w-auto bg-slate-900 hover:bg-slate-800 text-white font-black py-4 px-8 rounded-none text-xs tracking-widest uppercase transition-all flex items-center justify-center gap-2 border-2 border-slate-950 shadow-[4px_4px_0px_0px_rgba(245,158,11,1)]"
+            >
+              <span>Get Started</span>
+              <svg
+                class="w-4 h-4 shrink-0"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                ><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg
+              >
+            </a>
+            <a
+              href="/tools#sms-responder"
+              class="w-full sm:w-auto bg-slate-100 hover:bg-slate-200 text-slate-900 font-extrabold py-4 px-8 rounded-none text-xs tracking-widest uppercase transition-all text-center border-2 border-slate-900"
+            >
+              Try SMS Reply Bot
+            </a>
+          </div>
+        </div>
+
+        <!-- Compact Search Visibility Scanner Widget (Interactive client component) -->
+        <div
+          class="lg:col-span-5 flex items-center justify-center bg-slate-50 border-2 border-slate-950 p-6 sm:p-8"
+        >
+          <!-- PERF_OPT: Changed to client:visible to unblock mobile main-thread rendering -->
+          <SuburbChecker client:visible />
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- EMERGENCY DISASTER CAPTURE IN SUBURBS MAP MATRICES -->
+  <section class="py-16 bg-white border-b-2 border-slate-950">
+    <div class="max-w-8xl mx-auto px-6 lg:px-12">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-8 items-center">
+        <!-- Left Content (7 columns) -->
+        <div class="lg:col-span-7 space-y-8">
+          <div class="space-y-4">
+            <h2
+              class="text-4xl sm:text-5xl lg:text-6xl font-display font-black text-slate-950 uppercase tracking-tight leading-tight"
+            >
+              Never miss
+              <br />another job
+            </h2>
+            <div class="text-slate-600 font-medium space-y-3 max-w-2xl">
+              <p class="text-xl">
+                When you can't get to the phone, our AI Receptionist can. It
+                answers enquiries instantly, collects the job details, and makes
+                sure no lead is missed.
+              </p>
+            </div>
+          </div>
+
+          <!-- Stats Numbers below Heading & description - horizontal list with symbols -->
+          <div
+            class="flex flex-col md:flex-row items-start md:items-center gap-8 lg:gap-16 pt-8 border-t border-slate-200"
+          >
+            <!-- Stat 1 -->
+            <div
+              class="flex flex-col md:flex-row items-start md:items-center gap-3 text-left"
+            >
+              <div
+                class="w-12 h-12 bg-amber-500 border-2 border-slate-950 flex items-center justify-center shrink-0 shadow-[2px_2px_0px_rgba(0,0,0,1)]"
+              >
+                <svg
+                  class="w-6 h-6 text-slate-950"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  ><circle cx="12" cy="12" r="10"></circle><polyline
+                    points="12 6 12 12 16 14"></polyline></svg
+                >
+              </div>
+              <div>
+                <div
+                  class="text-2xl sm:text-3xl font-mono font-black text-slate-900 leading-tight"
+                >
+                  24/7
+                </div>
+                <p
+                  class="text-xs font-mono font-black uppercase text-slate-500 tracking-wider"
+                >
+                  Lead Response
+                </p>
+              </div>
+            </div>
+
+            <!-- Stat 2 -->
+            <div
+              class="flex flex-col md:flex-row items-start md:items-center gap-3 text-left"
+            >
+              <div
+                class="w-12 h-12 bg-amber-500 border-2 border-slate-950 flex items-center justify-center shrink-0 shadow-[2px_2px_0px_rgba(0,0,0,1)]"
+              >
+                <svg
+                  class="w-6 h-6 text-slate-950"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  ><path
+                    d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+                  ></path></svg
+                >
+              </div>
+              <div>
+                <div
+                  class="text-2xl sm:text-3xl font-mono font-black text-slate-900 leading-tight"
+                >
+                  &lt; 10 sec
+                </div>
+                <p
+                  class="text-xs font-mono font-black uppercase text-slate-500 tracking-wider"
+                >
+                  SMS Follow-Up
+                </p>
+              </div>
+            </div>
+
+            <!-- Stat 3 -->
+            <div
+              class="flex flex-col md:flex-row items-start md:items-center gap-3 text-left"
+            >
+              <div
+                class="w-12 h-12 bg-amber-500 border-2 border-slate-950 flex items-center justify-center shrink-0 shadow-[2px_2px_0px_rgba(0,0,0,1)]"
+              >
+                <svg
+                  class="w-6 h-6 text-slate-950"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  ><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"
+                  ></path></svg
+                >
+              </div>
+              <div>
+                <div
+                  class="text-2xl sm:text-3xl font-mono font-black text-slate-900 leading-tight"
+                >
+                  0
+                </div>
+                <p
+                  class="text-xs font-mono font-black uppercase text-slate-500 tracking-wider"
+                >
+                  Missed Enquiries
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Content - AI Receptionist Image (5 columns) -->
+        <div class="lg:col-span-5 flex items-center justify-center lg:pl-4">
+          <div
+            class="relative w-full max-w-[420px] group transition-transform duration-500 hover:scale-[1.03]"
+          >
+            <!-- PERF_OPT: Using Astro Image component for automatic WebP/AVIF compression. Revert to <img src="/images/AI-Receptionist-3.png" ... /> if needed. -->
+            <Image
+              src={aiReceptionistImg}
+              alt="AI Receptionist Calling"
+              loading="lazy"
+              decoding="async"
+              class="w-full h-auto object-contain drop-shadow-[14px_14px_0px_rgba(0,0,0,0.12)]"
+            />
+            <div
+              class="absolute bottom-6 right-6 bg-slate-950 border border-slate-800 text-white font-mono text-[10px] font-black uppercase tracking-widest px-3 py-1.5 flex items-center gap-2 shadow-[2px_2px_0px_rgba(0,0,0,1)]"
+            >
+              <span
+                class="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse"
+              ></span>
+              <span>AI Receptionist Active</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TOOLS SHOWCASE — PROOF THROUGH ACTION -->
+  <section
+    class="py-20 bg-[#FAF9F5] border-b-2 border-slate-950"
+    id="tools-showcase"
+  >
+    <div class="max-w-8xl mx-auto px-6 lg:px-12">
+      <!-- Section Header -->
+      <div class="max-w-4xl mx-auto text-center mb-14">
+        <h2
+          class="text-4xl sm:text-5xl lg:text-6xl font-display font-black text-slate-950 uppercase tracking-tight leading-none mb-4"
+        >
+          MORE AI TOOLS TO
+          <br /><span class="text-amber-500">SUPPORT YOUR BUSINESS</span>
+        </h2>
+        <p
+          class="text-slate-700 text-lg sm:text-xl font-semibold leading-relaxed max-w-3xl mx-auto"
+        >
+          Discover where opportunities are being missed and test the systems
+          designed to capture them automatically.
+        </p>
+      </div>
+
+      <!-- Step-Based Process Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mt-12">
+        <a
+          href="/services/ai-receptionist"
+          class="bg-white border-2 border-slate-950 p-6 flex flex-col justify-between transition-colors duration-200 group min-h-[185px] rounded-none"
+        >
+          <div>
+            <h3
+              class="text-xl font-bold text-slate-950 tracking-tight leading-tight flex items-center gap-2"
+            >
+              <svg
+                class="w-5 h-5 text-amber-500 shrink-0"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                ><path
+                  d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.56 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"
+                ></path></svg
+              >
+              AI Receptionist
+            </h3>
+            <p class="text-sm text-slate-500 mt-2 font-medium">
+              Answers every call instantly and captures job details 24/7.
+            </p>
+          </div>
+          <div
+            class="mt-4 flex items-center justify-between pt-4 border-t border-slate-200"
+          >
+            <span
+              class="text-[10px] font-mono font-bold text-slate-500 group-hover:text-slate-800 transition-colors uppercase tracking-widest"
+              >Book Demo</span
+            >
+            <svg
+              class="w-5 h-5 text-slate-400 group-hover:text-slate-800 transition-all group-hover:translate-x-1.5"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              ><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg
+            >
+          </div>
+        </a>
+
+        <a
+          href="/services/ai-sms-follow-up"
+          class="bg-white border-2 border-slate-950 p-6 flex flex-col justify-between transition-colors duration-200 group min-h-[185px] rounded-none"
+        >
+          <div>
+            <h3
+              class="text-xl font-bold text-slate-950 tracking-tight leading-tight flex items-center gap-2"
+            >
+              <svg
+                class="w-5 h-5 text-amber-500 shrink-0"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                ><path
+                  d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+                ></path></svg
+              >
+              AI SMS Follow-Up
+            </h3>
+            <p class="text-sm text-slate-500 mt-2 font-medium">
+              Responds to missed calls within seconds and books jobs
+              automatically.
+            </p>
+          </div>
+          <div
+            class="mt-4 flex items-center justify-between pt-4 border-t border-slate-200"
+          >
+            <span
+              class="text-[10px] font-mono font-bold text-slate-500 group-hover:text-slate-800 transition-colors uppercase tracking-widest"
+              >Book Demo</span
+            >
+            <svg
+              class="w-5 h-5 text-slate-400 group-hover:text-slate-800 transition-all group-hover:translate-x-1.5"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              ><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg
+            >
+          </div>
+        </a>
+
+        <a
+          href="/services/ai-email-automation"
+          class="bg-white border-2 border-slate-950 p-6 flex flex-col justify-between transition-colors duration-200 group min-h-[185px] rounded-none"
+        >
+          <div>
+            <h3
+              class="text-xl font-bold text-slate-950 tracking-tight leading-tight flex items-center gap-2"
+            >
+              <svg
+                class="w-5 h-5 text-amber-500 shrink-0"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                ><circle cx="12" cy="12" r="10"></circle><line
+                  x1="2"
+                  y1="12"
+                  x2="22"
+                  y2="12"></line><path
+                  d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"
+                ></path></svg
+              >
+              AI Email Automation
+            </h3>
+            <p class="text-sm text-slate-500 mt-2 font-medium">
+              Follows up leads, nurtures prospects, and sends targeted quotes
+              automatically.
+            </p>
+          </div>
+          <div
+            class="mt-4 flex items-center justify-between pt-4 border-t border-slate-200"
+          >
+            <span
+              class="text-[10px] font-mono font-bold text-slate-500 group-hover:text-slate-800 transition-colors uppercase tracking-widest"
+              >Book Demo</span
+            >
+            <svg
+              class="w-5 h-5 text-slate-400 group-hover:text-slate-800 transition-all group-hover:translate-x-1.5"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              ><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg
+            >
+          </div>
+        </a>
+
+        <a
+          href="/services/workflow-automation"
+          class="bg-white border-2 border-slate-950 p-6 flex flex-col justify-between transition-colors duration-200 group min-h-[185px] rounded-none"
+        >
+          <div>
+            <h3
+              class="text-xl font-bold text-slate-950 tracking-tight leading-tight flex items-center gap-2"
+            >
+              <svg
+                class="w-5 h-5 text-amber-500 shrink-0"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                ><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline
+                  points="2 17 12 22 22 17"></polyline><polyline
+                  points="2 12 12 17 22 12"></polyline></svg
+              >
+              Workflow Automation
+            </h3>
+            <p class="text-sm text-slate-500 mt-2 font-medium">
+              Connects tools, syncs calendar bookings, and automates invoices on
+              autopilot.
+            </p>
+          </div>
+          <div
+            class="mt-4 flex items-center justify-between pt-4 border-t border-slate-200"
+          >
+            <span
+              class="text-[10px] font-mono font-bold text-slate-500 group-hover:text-slate-800 transition-colors uppercase tracking-widest"
+              >Book Demo</span
+            >
+            <svg
+              class="w-5 h-5 text-slate-400 group-hover:text-slate-800 transition-all group-hover:translate-x-1.5"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              ><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg
+            >
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- OUR PROCESS SECTION -->
+  <section
+    class="py-20 bg-white border-b-2 border-slate-950"
+    id="agency-process"
+  >
+    <div class="max-w-8xl mx-auto px-6 lg:px-12">
+      <div class="max-w-3xl mb-16">
+        <span
+          class="text-xs font-mono font-bold text-amber-600 uppercase tracking-widest block mb-3"
+          >⚡ HOW WE WORK</span
+        >
+        <h2
+          class="text-4xl sm:text-5xl lg:text-6xl font-display font-black text-slate-950 uppercase tracking-tight leading-none mb-4"
+        >
+          A Practical Approach
+        </h2>
+        <p
+          class="text-slate-600 text-lg sm:text-xl font-semibold leading-relaxed"
+        >
+          We identify what's holding your business back, implement the right
+          solution, and refine performance to maximize results.
+        </p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+        <div class="space-y-4">
+          <span
+            class="text-4xl sm:text-5xl font-display font-black text-amber-500"
+            >01</span
+          >
+          <h3
+            class="text-xl sm:text-2xl font-bold font-display text-slate-950 uppercase tracking-tight"
+          >
+            Diagnose the Issue
+          </h3>
+          <p class="text-sm sm:text-base text-slate-600 leading-relaxed">
+            Before recommending anything, we identify exactly why potential
+            customers aren't choosing your business.
+          </p>
+        </div>
+        <div class="space-y-4">
+          <span
+            class="text-4xl sm:text-5xl font-display font-black text-slate-950"
+            >02</span
+          >
+          <h3
+            class="text-xl sm:text-2xl font-bold font-display text-slate-950 uppercase tracking-tight"
+          >
+            Build the Solution
+          </h3>
+          <p class="text-sm sm:text-base text-slate-600 leading-relaxed">
+            We implement the tools, systems, and assets needed to remove those
+            barriers and make it easier for customers to contact you.
+          </p>
+        </div>
+        <div class="space-y-4">
+          <span
+            class="text-4xl sm:text-5xl font-display font-black text-amber-500"
+            >03</span
+          >
+          <h3
+            class="text-xl sm:text-2xl font-bold font-display text-slate-950 uppercase tracking-tight"
+          >
+            Optimize for Growth
+          </h3>
+          <p class="text-sm sm:text-base text-slate-600 leading-relaxed">
+            Once everything is live, we measure results and make ongoing
+            improvements to help maximize the return on your investment.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PERF_OPT: Changed client:load to client:visible to defer loading. Change back to client:load if needed. -->
+  <AreaPartnerBooking client:visible />
+
+  <!-- IS THIS CALL FOR YOU? SECTION -->
+  <section
+    class="py-20 bg-[#FAF9F5] border-b-2 border-slate-950 animate-fade-in"
+    id="call-eligibility"
+  >
+    <div class="max-w-8xl mx-auto px-6 lg:px-12">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        <!-- Left Column: Big Bold Statement -->
+        <div class="lg:col-span-5 space-y-6">
+          <span
+            class="text-xs font-mono font-bold text-slate-950 bg-amber-500 border-2 border-slate-950 px-3 py-1.5 uppercase tracking-widest inline-block shadow-[2px_2px_0px_rgba(0,0,0,1)]"
+          >
+            ⚡ QUICK CHECK
+          </span>
+          <h2
+            class="text-4xl sm:text-5xl lg:text-6xl font-display font-black text-slate-950 uppercase tracking-tight leading-none"
+          >
+            Is This Call <br class="hidden lg:block" /><span
+              class="text-amber-500">For You?</span
+            >
+          </h2>
+          <p class="text-slate-700 text-lg font-semibold leading-relaxed">
+            Just a quick conversation about your business and how websites, AI
+            tools, or automation could help.
+          </p>
+          <div class="pt-4">
+            <a
+              href="#onboarding-form"
+              class="inline-flex items-center gap-2 bg-slate-950 hover:bg-slate-800 text-white font-black py-4 px-8 rounded-none text-xs tracking-widest uppercase transition-all border-2 border-slate-950 shadow-[4px_4px_0px_0px_rgba(245,158,11,1)]"
+            >
+              <span>Book Your Call Now</span>
+              <svg
+                class="w-4 h-4"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                ><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg
+              >
+            </a>
+          </div>
+        </div>
+
+        <!-- Right Column: Premium Checklist Grid/List -->
+        <div class="lg:col-span-7 space-y-4">
+          {
+            [
+              "YOU WANT A STRONGER ONLINE PRESENCE",
+              "You're curious about AI Receptionists",
+              "You want to automate workflow",
+              "Want to see how SMS & email automation works",
+              "You want advanced SEO for your business",
+            ].map((text) => (
+              <div class="bg-white border-2 border-slate-950 p-5 shadow-[4px_4px_0px_rgba(15,23,42,1)] hover:shadow-[6px_6px_0px_rgba(245,158,11,1)] hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all duration-200 flex items-center gap-5 rounded-none group">
+                <div class="w-10 h-10 bg-amber-500 border-2 border-slate-950 flex items-center justify-center shrink-0 shadow-[2px_2px_0px_rgba(0,0,0,1)] group-hover:scale-110 transition-transform">
+                  <svg
+                    class="w-6 h-6 text-slate-950 stroke-[3]"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                </div>
+                <p class="text-base sm:text-lg text-slate-900 font-bold uppercase tracking-tight leading-snug">
+                  {text}
+                </p>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section class="py-20 bg-white" id="seo-rich-metrics">
+    <div class="max-w-4xl mx-auto px-6 lg:px-12">
+      <div class="text-center mb-16">
+        <span
+          class="text-xs font-mono font-bold text-amber-600 uppercase tracking-widest block mb-3"
+          >⚡ FAQ</span
+        >
+        <h3
+          class="text-2xl sm:text-3xl font-display font-black text-slate-950 uppercase"
+        >
+          Common Questions
+        </h3>
+      </div>
+      <div class="divide-y divide-slate-200">
+        {
+          faqItems.map((item) => (
+            <div class="py-6">
+              <h4 class="font-bold text-slate-950 text-base uppercase">
+                {item.q}
+              </h4>
+              <p class="text-sm text-slate-600 mt-3 leading-relaxed">
+                {item.a}
+              </p>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- PERF_OPT: Changed client:load to client:visible to defer loading. Change back to client:load if needed. -->
+  <Footer client:visible />
+</BaseLayout>

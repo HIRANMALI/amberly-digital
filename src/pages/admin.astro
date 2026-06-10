@@ -1,0 +1,63 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { AdminDashboard } from "@/components/AdminDashboard";
+
+const authHeader = Astro.request.headers.get("Authorization");
+let authorized = false;
+
+if (authHeader && authHeader.startsWith("Basic ")) {
+  try {
+    const base64Credentials = authHeader.split(" ")[1];
+    const credentials = Buffer.from(base64Credentials, "base64").toString("utf-8");
+    const [username, password] = credentials.split(":");
+    const adminSecret = import.meta.env.ADMIN_SECRET || process.env.ADMIN_SECRET || "amberly_admin_2026";
+    if (username === "admin" && password === adminSecret) {
+      authorized = true;
+    }
+  } catch {}
+}
+
+if (!authorized) {
+  Astro.response.status = 401;
+  Astro.response.headers.set("WWW-Authenticate", 'Basic realm="Admin Dashboard", charset="UTF-8"');
+}
+---
+
+<BaseLayout title="Amberly Digital | Admin Dashboard">
+  {authorized ? (
+    <div class="flex-1 bg-slate-50 min-h-screen py-10">
+      <div class="max-w-7xl mx-auto px-6">
+        {/* Simple Brand Nav bar */}
+        <div class="flex items-center justify-between mb-8 pb-4 border-b border-slate-200">
+          <a href="/" class="flex items-center gap-3 group">
+            <div class="w-8 h-8 bg-amber-500 rounded-none border-2 border-slate-950 flex items-center justify-center font-black text-slate-950 text-base shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+              A
+            </div>
+            <span class="text-lg font-black tracking-tighter uppercase font-display text-slate-950">
+              Amberly <span class="text-amber-600">Digital</span>
+            </span>
+          </a>
+          <a href="/" class="text-xs font-mono font-black text-slate-900 hover:text-amber-600 uppercase tracking-widest py-2">
+            Back to Site →
+          </a>
+        </div>
+
+        <AdminDashboard client:load />
+      </div>
+    </div>
+  ) : (
+    <div class="min-h-screen flex items-center justify-center bg-slate-900 text-white p-6">
+      <div class="max-w-md w-full bg-slate-950 border-4 border-slate-950 p-8 shadow-[8px_8px_0px_0px_rgba(245,158,11,1)] space-y-4 text-center">
+        <div class="w-12 h-12 bg-amber-500/10 border-2 border-amber-500 text-amber-500 flex items-center justify-center mx-auto">
+          <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          </svg>
+        </div>
+        <h1 class="text-2xl font-display font-black uppercase tracking-tight text-white">401 Unauthorized</h1>
+        <p class="text-xs text-slate-350 leading-relaxed font-semibold">
+          Please log in using your administrative username and secret key in the browser credential dialog.
+        </p>
+      </div>
+    </div>
+  )}
+</BaseLayout>

@@ -1,0 +1,71 @@
+---
+// PERF_OPT: Enabled static prerendering to drastically improve FCP and LCP. Remove if SSR is needed.
+export const prerender = true;
+
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Navbar from "@/components/Navbar.astro";
+import { Footer } from "@/components/Footer";
+import { AlertTriangle, Home, Wrench } from "lucide-react";
+---
+
+<BaseLayout
+  title="Page Not Found (404) | Amberly Digital"
+  description="The requested page could not be found. Return to Amberly Digital homepage or explore our trade growth tools."
+>
+  <Navbar />
+
+  <main
+    class="flex-grow flex items-center justify-center py-20 bg-[#FAF9F5] border-b-2 border-slate-950"
+  >
+    <div class="max-w-xl mx-auto px-6 text-center space-y-8">
+      {/* 404 Neon Brutalist Badge */}
+      <div
+        class="inline-flex items-center gap-2 bg-rose-100 border-2 border-slate-950 p-3 text-rose-700 font-mono font-black text-sm uppercase shadow-[3px_3px_0px_rgba(0,0,0,1)]"
+      >
+        <AlertTriangle className="w-5 h-5 text-rose-600 animate-bounce" />
+        <span>Error Code: 404 (Route Missing)</span>
+      </div>
+
+      <div class="space-y-4">
+        <h1
+          class="text-6xl sm:text-8xl font-black font-display text-slate-950 uppercase tracking-tight leading-none"
+        >
+          Lost <span class="text-rose-500">Link.</span>
+        </h1>
+        <h2
+          class="text-xl sm:text-2xl font-bold font-display text-slate-900 uppercase"
+        >
+          This page is like a missed plumber call.
+        </h2>
+        <p
+          class="text-slate-600 text-sm leading-relaxed max-w-md mx-auto font-medium"
+        >
+          Like a burst water pipe that went unanswered, the route you requested
+          doesn't exist or has been relocated. Let's get you back on track.
+        </p>
+      </div>
+
+      {/* Buttons */}
+      <div
+        class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4"
+      >
+        <a
+          href="/"
+          class="w-full sm:w-auto bg-slate-900 hover:bg-slate-800 text-white font-black py-4 px-8 rounded-none text-xs tracking-widest uppercase transition-all flex items-center justify-center gap-2 border-2 border-slate-950 shadow-[4px_4px_0px_0px_rgba(245,158,11,1)] animate-pulse"
+        >
+          <Home className="w-4 h-4" />
+          <span>Back to Safety</span>
+        </a>
+        <a
+          href="/tools"
+          class="w-full sm:w-auto bg-white hover:bg-slate-50 text-slate-900 font-black py-4 px-8 rounded-none text-xs tracking-widest uppercase transition-all flex items-center justify-center gap-2 border-2 border-slate-950 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.15)]"
+        >
+          <Wrench className="w-4 h-4 text-amber-500" />
+          <span>Try Growth Tools</span>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <Footer client:visible />
+</BaseLayout>
