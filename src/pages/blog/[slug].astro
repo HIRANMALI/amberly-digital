@@ -1,0 +1,229 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Navbar from "@/components/Navbar.astro";
+import { Footer } from "@/components/Footer";
+import { BLOG_POSTS } from "@/lib/blog-data";
+
+const { slug } = Astro.params;
+const post = BLOG_POSTS[slug as string];
+
+if (!post) {
+  return Astro.redirect("/blog");
+}
+
+const allPosts = Object.values(BLOG_POSTS);
+const relatedPosts = allPosts.filter((p) => p.slug !== post.slug).slice(0, 2);
+
+const blogPostingSchema = {
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  mainEntityOfPage: {
+    "@type": "WebPage",
+    "@id": `https://amberlydigital.com.au/blog/${post.slug}`,
+  },
+  headline: post.title,
+  description: post.excerpt,
+  datePublished: post.date,
+  dateModified: post.date,
+  author: {
+    "@type": "Organization",
+    name: "Amberly Digital Team",
+    url: "https://amberlydigital.com.au",
+  },
+  publisher: {
+    "@type": "LocalBusiness",
+    name: "Amberly Digital",
+    logo: {
+      "@type": "ImageObject",
+      url: "https://amberlydigital.com.au/og-image.jpg",
+    },
+  },
+};
+
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: post.faqs.map((faq: any) => ({
+    "@type": "Question",
+    name: faq.q,
+    acceptedAnswer: { "@type": "Answer", text: faq.a },
+  })),
+};
+---
+
+<BaseLayout
+  title={`${post.title} | The Tradie Blueprint Blog`}
+  description={post.excerpt}
+  ogTitle={`${post.title} | The Tradie Blueprint`}
+  ogDescription={post.excerpt}
+  ogType="article"
+  ogUrl={`https://amberlydigital.com.au/blog/${post.slug}`}
+>
+  <script
+    type="application/ld+json"
+    set:html={JSON.stringify(blogPostingSchema)}
+  />
+  <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+
+  <Navbar />
+
+  <!-- STICKY TOP BANNER -->
+  <div
+    class="bg-slate-950 border-b-2 border-slate-950 py-2.5 px-4 text-center text-amber-500 text-xs font-mono font-black uppercase tracking-widest flex items-center justify-center gap-2"
+  >
+    <svg
+      class="w-4 h-4 text-amber-500 fill-current animate-pulse"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      ><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg
+    >
+    <span>Aussie Tradie Search Intelligence: {post.title.toUpperCase()}</span>
+  </div>
+
+  <main class="bg-white min-h-screen">
+    <!-- POST HERO -->
+    <section class="border-b-2 border-slate-950 py-16 bg-slate-50">
+      <div class="max-w-3xl mx-auto px-6">
+        <span
+          class="block w-fit text-[10px] font-mono font-black px-2.5 py-0.5 border border-amber-500 bg-amber-100 text-amber-900 uppercase tracking-widest mb-4"
+        >
+          {post.category}
+        </span>
+        <h1
+          class="text-3xl sm:text-4xl lg:text-5xl font-black font-display text-slate-950 uppercase tracking-tight leading-tight"
+        >
+          {post.title}
+        </h1>
+        <div
+          class="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs font-mono text-slate-500 mt-6 pt-6 border-t border-slate-200"
+        >
+          <span class="flex items-center gap-1.5">
+            <svg
+              class="w-3.5 h-3.5 text-slate-400"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              ><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"
+              ></path><circle cx="12" cy="7" r="4"></circle></svg
+            >
+            <span>By <strong class="text-slate-800">{post.author}</strong></span
+            >
+          </span>
+          <span class="text-slate-300">•</span>
+          <span class="flex items-center gap-1.5">
+            <svg
+              class="w-3.5 h-3.5 text-slate-400"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              ><rect x="3" y="4" width="18" height="18" rx="2" ry="2"
+              ></rect><line x1="16" y1="2" x2="16" y2="6"></line><line
+                x1="8"
+                y1="2"
+                x2="8"
+                y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg
+            >
+            <span>Published {post.date}</span>
+          </span>
+          <span class="text-slate-300">•</span>
+          <span class="flex items-center gap-1.5">
+            <svg
+              class="w-3.5 h-3.5 text-slate-400"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              ><circle cx="12" cy="12" r="10"></circle><polyline
+                points="12 6 12 12 16 14"></polyline></svg
+            >
+            <span>{post.readTime}</span>
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <!-- LAYOUT CONTAINER -->
+    <section class="py-16 bg-white">
+      <div class="max-w-3xl mx-auto px-6">
+        <article class="space-y-12">
+          <!-- Blog body html content -->
+          <div class="blog-content w-full" set:html={post.content} />
+
+          <!-- FAQ CONTAINER -->
+          <div class="pt-10 border-t-2 border-slate-950 space-y-6">
+            <h3
+              class="text-2xl font-display font-black uppercase text-slate-950"
+            >
+              Article FAQ (AEO Schema Indexed)
+            </h3>
+            <div class="space-y-4">
+              {
+                post.faqs.map((faq: any, idx: number) => (
+                  <div class="border border-slate-200 p-5 bg-slate-50">
+                    <h4 class="font-bold text-slate-900 text-sm uppercase mb-2 flex gap-2">
+                      <span class="text-amber-600 font-mono">Q:</span>
+                      <span>{faq.q}</span>
+                    </h4>
+                    <p class="text-xs text-slate-600 leading-relaxed pl-6">
+                      {faq.a}
+                    </p>
+                  </div>
+                ))
+              }
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- RELATED ARTICLES MATRIX -->
+    <section class="py-16 bg-slate-50 border-t-2 border-slate-950">
+      <div class="max-w-8xl mx-auto px-6 lg:px-12">
+        <h3
+          class="text-xl font-display font-black uppercase text-slate-950 mb-8 tracking-tight"
+        >
+          Related Trade Blueprints
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {
+            relatedPosts.map((rPost) => (
+              <div class="bg-white border-2 border-slate-950 p-6 flex flex-col justify-between shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(245,158,11,1)] transition-all duration-300">
+                <div>
+                  <span class="text-[9px] font-mono font-black border border-slate-200 bg-slate-100 px-2 py-0.5 text-slate-600 uppercase tracking-widest block w-fit mb-3">
+                    {rPost.category}
+                  </span>
+                  <h4 class="text-lg font-black font-display text-slate-950 uppercase tracking-tight mb-2 hover:text-amber-600 transition-colors">
+                    <a href={`/blog/${rPost.slug}`}>{rPost.title}</a>
+                  </h4>
+                  <p class="text-slate-650 text-xs leading-relaxed mb-4">
+                    {rPost.excerpt}
+                  </p>
+                </div>
+                <a
+                  href={`/blog/${rPost.slug}`}
+                  class="text-xs font-mono font-black text-slate-900 uppercase tracking-widest mt-4 inline-flex items-center gap-1 hover:text-amber-600"
+                >
+                  <span>Read Blueprint →</span>
+                </a>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer client:visible />
+</BaseLayout>

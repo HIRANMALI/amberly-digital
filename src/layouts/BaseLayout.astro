@@ -1,0 +1,113 @@
+---
+import "@/styles/globals.css";
+export interface Props {
+  title?: string;
+  description?: string;
+  keywords?: string[];
+  ogTitle?: string;
+  ogDescription?: string;
+  ogType?: string;
+  ogUrl?: string;
+  geoRegion?: string;
+  geoPlacename?: string;
+  geoPosition?: string;
+  icbm?: string;
+}
+
+const {
+  title = "Amberly Digital | Plumber Leads Australia & Emergency Tradie SEO Specialist",
+  description = "Amberly Digital delivers high-converting plumbing leads in Australia. Secure ChatGPT AEO search dominance and Google Maps Top 3 positioning for emergency plumbing searches.",
+  keywords = [
+    "plumber leads Australia",
+    "emergency tradie SEO",
+    "ChatGPT AEO search dominance",
+    "local plumber SEO",
+    "emergency plumber marketing Australia",
+    "tradie lead generation",
+    "answer engine optimization plumbers",
+    "Aussie tradie growth",
+  ],
+  ogTitle = "Amberly Digital | Plumber Leads Australia & Emergency Tradie SEO",
+  ogDescription = "Secure total Google Map Pack and ChatGPT AEO dominance in Australia for emergency plumbers.",
+  ogType = "website",
+  ogUrl,
+  geoRegion = "AU-NSW",
+  geoPlacename = "Sydney",
+  geoPosition = "-33.8688;151.2093",
+  icbm = "-33.8688, 151.2093",
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="keywords" content={keywords.join(", ")} />
+    <meta name="author" content="Amberly Digital" />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content={ogTitle} />
+    <meta property="og:description" content={ogDescription} />
+    <meta property="og:type" content={ogType} />
+    {ogUrl && <meta property="og:url" content={ogUrl} />}
+    <meta property="og:locale" content="en_AU" />
+
+    <!-- Australian Geo Tags -->
+    <meta name="geo.region" content={geoRegion} />
+    <meta name="geo.placename" content={geoPlacename} />
+    <meta name="geo.position" content={geoPosition} />
+    <meta name="ICBM" content={icbm} />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- Google Fonts: Inter + Outfit + JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- PERF_OPT: Async font loading to eliminate render-blocking. -->
+    <link
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+      media="print"
+      onload="this.media='all'"
+    />
+    <noscript>
+      <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+      />
+    </noscript>
+
+    <!-- CSS variable injection for font families (mirrors next/font/google variables) -->
+    <style>
+      :root {
+        --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+        --font-display: "Outfit", sans-serif;
+        --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+      }
+    </style>
+
+    <!-- Google tag (gtag.js) -->
+    <script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-9RVKRYLSBV"></script>
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){window.dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-9RVKRYLSBV');
+    </script>
+  </head>
+  <body
+    class="antialiased geo-grid min-h-screen flex flex-col bg-slate-50 text-slate-900"
+  >
+    <slot />
+  </body>
+</html>

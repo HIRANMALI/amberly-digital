@@ -1,0 +1,355 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Navbar from "@/components/Navbar.astro";
+import { Footer } from "@/components/Footer";
+import { AreaPartnerBooking } from "@/components/AreaPartnerBooking";
+import {
+  SERVICES,
+  CITIES,
+  generateLocalBusinessSchema,
+  generateServiceSchema,
+  generateFAQSchema,
+} from "@/lib/seo-data";
+
+const { service: serviceKey, city: cityKey } = Astro.params;
+const service = SERVICES[serviceKey as string];
+const city = CITIES[cityKey as string];
+
+if (!service || !city) {
+  return Astro.redirect("/services");
+}
+
+const localBusinessSchema = generateLocalBusinessSchema(city);
+const serviceSchema = generateServiceSchema(service, city);
+
+const faqItems = [
+  {
+    q: `How does ${service.title} help plumbers in ${city.name}?`,
+    a: `In ${city.name}, emergency plumbing keywords are highly competitive. By deploying ${service.title}, we optimize your local GBP proximity and structured schemas to target high-intent local searches in areas like ${city.suburbs.slice(0, 4).join(", ")}, directing emergency leads directly to your call dispatcher.`,
+  },
+  {
+    q: `How do you boost search visibility in ${city.name} suburbs?`,
+    a: `We build target landing pages and optimize Google Business profiles for specific suburbs like ${city.suburbs[0]} or ${city.suburbs[1]}. This drives high-intent local emergency traffic directly to your dispatch lines.`,
+  },
+  {
+    q: `What is the cost of setup in ${city.name}?`,
+    a: "Setup depends on your target coordinates and citation history. Run our visibility audit to check your profile standing or consult with our trade growth specialists.",
+  },
+];
+
+const faqSchema = generateFAQSchema(faqItems);
+---
+
+<BaseLayout
+  title={`${service.title} for Plumbers in ${city.name} ${city.state} | Amberly Digital`}
+  description={`Secure top ranking with ${service.title} in ${city.name} and surrounding suburbs like ${city.suburbs.slice(0, 3).join(", ")}. Ground ChatGPT, Claude & voice search queries.`}
+  geoRegion={`AU-${city.state}`}
+  geoPlacename={city.name}
+  geoPosition={`${city.lat};${city.lng}`}
+  icbm={`${city.lat}, ${city.lng}`}
+>
+  <script
+    type="application/ld+json"
+    set:html={JSON.stringify(localBusinessSchema)}
+  />
+  <script type="application/ld+json" set:html={JSON.stringify(serviceSchema)} />
+  <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+
+  <Navbar />
+
+  <!-- METRO ALERT STATUS BANNER -->
+  <div
+    class="bg-amber-500 border-b-2 border-slate-950 py-2.5 px-4 text-center text-slate-950 text-xs font-mono font-black uppercase tracking-widest flex items-center justify-center gap-2 flex-wrap"
+  >
+    <svg
+      class="w-4 h-4 text-slate-950 fill-current animate-bounce"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      ><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg
+    >
+    <span
+      >REGIONAL STATUS: Visibility configuration active for {city.name} suburbs. Current
+      targeted hot spots: {city.suburbs.slice(0, 3).join(", ")}.</span
+    >
+  </div>
+
+  <main class="bg-white">
+    <!-- HERO TITLE SECTION -->
+    <section class="border-b-2 border-slate-950 py-16 bg-slate-50">
+      <div class="max-w-4xl mx-auto px-6 lg:px-12 space-y-6">
+        <a
+          href={`/services/${serviceKey}`}
+          class="inline-flex items-center gap-1.5 text-xs font-mono font-black uppercase text-slate-500 hover:text-slate-950 transition-colors"
+        >
+          ← Back to General Service
+        </a>
+        <div
+          class="inline-flex items-center gap-2 px-3 py-1.5 bg-slate-900 text-white text-[10px] font-mono font-black uppercase tracking-widest rounded-none"
+        >
+          📍 {city.name.toUpperCase()} REGIONAL RADIAL ACTIVE
+        </div>
+        <h1
+          class="text-4xl sm:text-5xl lg:text-6xl font-black font-display text-slate-950 uppercase tracking-tight leading-tight"
+        >
+          {service.title}
+          <br class="hidden sm:inline" />
+          <span class="text-amber-600">for Plumbers in {city.name}</span>
+        </h1>
+        <p
+          class="text-lg text-slate-700 leading-relaxed font-semibold max-w-3xl"
+        >
+          Dominate high-intent Google Maps, Apple Maps, and AI answer engine
+          searches in {city.name} and surrounding suburbs like {
+            city.suburbs.slice(0, 4).join(", ")
+          }. Convert burst pipes and hot water crises into immediate trade
+          appointments.
+        </p>
+      </div>
+    </section>
+
+    <!-- DETAILED CONTENT -->
+    <section class="py-16 border-b-2 border-slate-950">
+      <div
+        class="max-w-8xl mx-auto px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-12 gap-12 items-stretch"
+      >
+        <div class="lg:col-span-7 space-y-8">
+          <div>
+            <span
+              class="text-xs font-mono font-black text-amber-600 uppercase tracking-widest block mb-2"
+              >{city.name.toUpperCase()} PLUMBER POSITIONING</span
+            >
+            <h2
+              class="text-2xl sm:text-3xl font-display font-black text-slate-950 uppercase"
+            >
+              Optimized Local Search Grounding
+            </h2>
+            <p
+              class="text-slate-600 mt-2 text-sm leading-relaxed font-semibold"
+            >
+              Plumbers in {city.name} face fierce bidding competition on Google Ads,
+              with cost-per-click rates regularly exceeding $50 AUD. Our {
+                service.title
+              } system bypasses paid ads entirely by grounding your business profile
+              details within Google's Top 3 Map Pack and AI search engine datasets.
+            </p>
+          </div>
+          <div class="p-5 border-l-4 border-slate-900 bg-slate-50 space-y-2">
+            <h4 class="font-bold text-slate-900 text-sm uppercase">
+              Locality Target Suburbs Covered:
+            </h4>
+            <div class="flex flex-wrap gap-2 pt-1">
+              {
+                city.suburbs.map((sub: string, idx: number) => (
+                  <span class="bg-white border border-slate-200 text-slate-700 text-xs font-mono font-bold px-2 py-1 uppercase">
+                    {sub} {city.state}
+                  </span>
+                ))
+              }
+            </div>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div class="bg-slate-50 p-6 border border-slate-200 shadow-sm">
+              <span
+                class="font-display font-black text-base text-slate-900 uppercase"
+                >GBP Proximity Mapping</span
+              >
+              <p
+                class="text-xs text-slate-500 mt-2 leading-relaxed font-semibold"
+              >
+                We configure location citations to match {city.name}'s postal
+                grid parameters, extending your physical dispatch radius into
+                high-income surrounding zones.
+              </p>
+            </div>
+            <div class="bg-slate-50 p-6 border border-slate-200 shadow-sm">
+              <span
+                class="font-display font-black text-base text-slate-900 uppercase"
+                >Voice Query Synced FAQ</span
+              >
+              <p class="text-xs text-slate-500 mt-2 leading-relaxed">
+                Homeowners using Apple Siri or Google Assistant ask for
+                &quot;licensed plumbers near {city.suburbs[0]}&quot;. We inject
+                structured questions mapping directly to these voice queries.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="lg:col-span-5 bg-slate-900 text-white p-8 flex flex-col justify-between relative overflow-hidden"
+        >
+          <div
+            class="absolute top-0 right-0 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"
+          >
+          </div>
+          <div class="relative space-y-6">
+            <div
+              class="inline-flex items-center gap-1.5 text-xs text-amber-400 font-mono font-black uppercase tracking-widest"
+            >
+              <svg
+                class="w-4 h-4"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                ><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"
+                ></path><circle cx="12" cy="10" r="3"></circle></svg
+              >
+              {city.name} Regional Office
+            </div>
+            <h3
+              class="text-2xl font-display font-black uppercase leading-tight"
+            >
+              Connect with our {city.name} Hub
+            </h3>
+            <div class="space-y-4 text-xs font-mono">
+              <div class="flex items-start gap-2">
+                <svg
+                  class="w-4 h-4 text-amber-500 shrink-0 mt-0.5"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  ><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"
+                  ></path><circle cx="12" cy="10" r="3"></circle></svg
+                >
+                <div>
+                  <span class="text-slate-400 uppercase block text-[10px]"
+                    >ADDRESS</span
+                  >
+                  <span class="text-slate-100">{city.address}</span>
+                </div>
+              </div>
+              <div class="flex items-start gap-2">
+                <svg
+                  class="w-4 h-4 text-amber-500 shrink-0 mt-0.5"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  ><path
+                    d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.56 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"
+                  ></path></svg
+                >
+                <div>
+                  <span class="text-slate-400 uppercase block text-[10px]"
+                    >PRIORITY LINE</span
+                  >
+                  <span class="text-slate-100">{city.phone}</span>
+                </div>
+              </div>
+              <div class="flex items-start gap-2">
+                <svg
+                  class="w-4 h-4 text-rose-500 shrink-0 mt-0.5"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  ><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"
+                  ></path><line x1="12" y1="8" x2="12" y2="12"></line><line
+                    x1="12"
+                    y1="16"
+                    x2="12.01"
+                    y2="16"></line></svg
+                >
+                <div>
+                  <span class="text-slate-400 uppercase block text-[10px]"
+                    >VISIBILITY STATUS</span
+                  >
+                  <span class="text-rose-400 font-black"
+                    >9 LOW-VISIBILITY SUBURBS TARGETED</span
+                  >
+                </div>
+              </div>
+            </div>
+            <div
+              class="p-4 bg-slate-950 border border-slate-800 rounded-none text-xs"
+            >
+              <span
+                class="text-[10px] text-amber-500 font-black uppercase block mb-1"
+                >LOCAL AUDIT INDEX</span
+              >
+              We syndicate citation listings with major directories (TrueLocal, Hotfrog,
+              AussieWeb) for total algorithmic consistency.
+            </div>
+          </div>
+          <a
+            href="#onboarding-form"
+            class="mt-8 bg-amber-500 hover:bg-white hover:text-slate-950 text-slate-950 font-black py-4 px-6 rounded-none text-xs tracking-widest uppercase transition-all text-center border-2 border-slate-950 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]"
+          >
+            Book Free Visibility Audit
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ SECTION -->
+    <section class="py-16 bg-white border-b-2 border-slate-950">
+      <div class="max-w-4xl mx-auto px-6 lg:px-12">
+        <h3
+          class="text-2xl sm:text-3xl font-display font-black text-slate-950 text-center uppercase mb-10"
+        >
+          Frequently Asked Questions (FAQ) in {city.name}
+        </h3>
+        <div class="space-y-6">
+          {
+            faqItems.map((item, idx) => (
+              <div class="border border-slate-200 p-5 bg-slate-50">
+                <h4 class="font-bold text-slate-950 text-sm uppercase">
+                  {item.q}
+                </h4>
+                <p class="text-xs text-slate-600 mt-2 leading-relaxed font-semibold">
+                  {item.a}
+                </p>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- BOOKING INTERACTIVE ELEMENT -->
+    <div id="onboarding-form">
+      <AreaPartnerBooking client:visible />
+    </div>
+
+    <!-- NAVIGATION LINKS FOR OTHER CITIES - CRAWLER HUB -->
+    <section class="py-12 bg-slate-50">
+      <div class="max-w-8xl mx-auto px-6 lg:px-12">
+        <span
+          class="text-[10px] font-mono font-black text-slate-400 uppercase tracking-widest block mb-4 text-center"
+          >EXPLORE OTHER AUSTRALIAN METRO COVERAGES FOR THIS SERVICE</span
+        >
+        <div class="flex flex-wrap items-center justify-center gap-4">
+          {
+            Object.entries(CITIES)
+              .filter(([key]) => key !== cityKey)
+              .map(([key, c]) => (
+                <a
+                  href={`/services/${serviceKey}/${key}`}
+                  class="bg-white border border-slate-200 text-xs font-mono font-black uppercase px-4 py-2 hover:bg-amber-500 hover:text-slate-950 hover:border-slate-950 hover:shadow-[2px_2px_0px_rgba(0,0,0,1)] transition-all"
+                >
+                  {c.name} ({c.state})
+                </a>
+              ))
+          }
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer client:visible />
+</BaseLayout>

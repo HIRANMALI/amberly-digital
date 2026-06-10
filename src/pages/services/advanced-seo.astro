@@ -1,0 +1,491 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Navbar from "@/components/Navbar.astro";
+import { Footer } from "@/components/Footer";
+import { AreaPartnerBooking } from "@/components/AreaPartnerBooking";
+import { SERVICES, CITIES, generateFAQSchema } from "@/lib/seo-data";
+import {
+  MapPin,
+  Search,
+  Star,
+  TrendingUp,
+  CheckCircle,
+  ShieldAlert,
+  ArrowRight,
+} from "lucide-react";
+
+const service = SERVICES["advanced-seo"];
+
+const faqItems = [
+  {
+    q: "How long does it take to see results on Google Maps?",
+    a: "Most trade businesses see significant changes in their Google Map Pack visibility and search grounding within 14 to 21 days of our syndication updates.",
+  },
+  {
+    q: "What is AEO and why does a plumber need it?",
+    a: "Answer Engine Optimisation (AEO) ensures that AI voice assistants (Siri, Google Assistant) and search engines (ChatGPT, Google AI Overviews) recommend your business directly when a homeowner asks a question like 'Licensed plumber near me'.",
+  },
+  {
+    q: "Do you require my Google Business Profile login?",
+    a: "No, you can simply invite our manager account as a user to your Google Business Profile. This is secure and keeps you in full control of your listing.",
+  },
+  {
+    q: "How does suburb schema injection work?",
+    a: "We inject customized schema.org structured JSON-LD into your website detailing your precise coverage zones and location coordinates, which tells Google's algorithms exactly which suburbs you serve.",
+  },
+];
+
+const faqSchemaJson = generateFAQSchema(faqItems);
+---
+
+<BaseLayout
+  title="Advanced Local SEO & Google Maps Dominance for Plumbers | Amberly Digital"
+  description="Dominate local emergency searches. Push your plumbing business into the Google Maps Top 3 and get recommended by ChatGPT and voice assistants."
+>
+  <script type="application/ld+json" set:html={JSON.stringify(faqSchemaJson)} />
+
+  <Navbar />
+
+  <!-- TOP STRIP -->
+  <div
+    class="bg-amber-500 border-b-2 border-slate-950 py-2.5 px-4 text-center text-slate-950 text-xs font-mono font-black uppercase tracking-widest flex items-center justify-center gap-2"
+  >
+    <MapPin className="w-4 h-4 animate-bounce shrink-0" />
+    <span>GOOGLE MAP PACK & ANSWER ENGINE DOMINANCE FOR AUSTRALIAN TRADIES</span
+    >
+  </div>
+
+  <main class="bg-white">
+    <!-- HERO SECTION: PROBLEM + OUTCOME -->
+    <section
+      class="border-b-2 border-slate-950 py-16 lg:py-24 bg-slate-50 relative overflow-hidden"
+    >
+      <div
+        class="absolute top-0 right-0 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"
+      >
+      </div>
+      <div class="max-w-5xl mx-auto px-6 lg:px-12 space-y-8 relative">
+        <span
+          class="text-xs font-mono font-black text-amber-600 border border-amber-300 bg-amber-100 px-3 py-1 w-fit block uppercase tracking-widest"
+        >
+          📍 LOCAL SEARCH AUTHORITY
+        </span>
+        <h1
+          class="text-4xl sm:text-5xl lg:text-7xl font-black font-display text-slate-950 uppercase tracking-tight leading-none"
+        >
+          Get Found First. <br />
+          <span class="text-amber-500">Bypass Paid Ads.</span>
+        </h1>
+
+        <!-- Problem & Outcome Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-6">
+          <div
+            class="border-2 border-slate-900 bg-white p-6 shadow-[4px_4px_0px_rgba(0,0,0,1)]"
+          >
+            <span
+              class="text-[10px] font-mono font-black text-red-500 uppercase tracking-widest block mb-2"
+              >✖ THE PROBLEM: OUT-OF-POCKET & INVISIBLE</span
+            >
+            <p class="text-sm text-slate-700 leading-relaxed font-semibold">
+              Paying $50+ per click on Google Local Services Ads just to get
+              voicemail leads or competing with national directories. Meanwhile,
+              70% of high-intent emergency plumbing searches click directly on
+              the top 3 Google Maps listings—bypassing standard ads completely.
+            </p>
+          </div>
+          <div
+            class="border-2 border-amber-500 bg-slate-900 p-6 shadow-[4px_4px_0px_rgba(245,158,11,1)] text-white"
+          >
+            <span
+              class="text-[10px] font-mono font-black text-amber-400 uppercase tracking-widest block mb-2"
+              >✔ THE OUTCOME: TOP 3 MAPS & AI DOMINANCE</span
+            >
+            <p class="text-sm text-slate-350 leading-relaxed">
+              We secure your listing in the Google Maps Top 3 and inject
+              geographic schemas to programmatically ground you on ChatGPT,
+              Claude, and voice assistants. You get high-value, direct phone
+              calls from local emergency jobs for $0 per click.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOW IT WORKS: 3 SIMPLE STEPS -->
+    <section class="py-16 lg:py-20 border-b-2 border-slate-950">
+      <div class="max-w-5xl mx-auto px-6 lg:px-12">
+        <div class="text-center max-w-2xl mx-auto mb-16">
+          <span
+            class="text-xs font-mono font-black text-amber-600 uppercase tracking-widest block mb-2"
+            >METHODOLOGY</span
+          >
+          <h2
+            class="text-3xl sm:text-4xl font-display font-black text-slate-950 uppercase tracking-tight"
+          >
+            Our 3-Step Local Dominance Pipeline
+          </h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <!-- Step 1 -->
+          <div
+            class="border-2 border-slate-950 p-6 bg-slate-50 relative shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+          >
+            <span
+              class="absolute -top-6 left-4 text-7xl font-black font-display text-slate-200/80 select-none pointer-events-none"
+              >01</span
+            >
+            <h3
+              class="text-lg font-bold font-display text-slate-950 uppercase tracking-tight mb-2 pt-4"
+            >
+              GBP Optimization
+            </h3>
+            <p class="text-xs text-slate-600 leading-relaxed font-semibold">
+              We audit your Google Business Profile keywords, categories, and
+              image metadata. We configure coordinates to map perfectly into
+              target high-income suburbs.
+            </p>
+          </div>
+          <!-- Step 2 -->
+          <div
+            class="border-2 border-slate-950 p-6 bg-slate-50 relative shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+          >
+            <span
+              class="absolute -top-6 left-4 text-7xl font-black font-display text-slate-200/80 select-none pointer-events-none"
+              >02</span
+            >
+            <h3
+              class="text-lg font-bold font-display text-slate-950 uppercase tracking-tight mb-2 pt-4"
+            >
+              Citation Syndication
+            </h3>
+            <p class="text-xs text-slate-600 leading-relaxed font-semibold">
+              We sync your business Name, Address, and Phone (NAP) across
+              Australia's main registries (TrueLocal, Hotfrog, AussieWeb) to
+              establish unquestionable location authority.
+            </p>
+          </div>
+          <!-- Step 3 -->
+          <div
+            class="border-2 border-slate-950 p-6 bg-slate-50 relative shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+          >
+            <span
+              class="absolute -top-6 left-4 text-7xl font-black font-display text-slate-200/80 select-none pointer-events-none"
+              >03</span
+            >
+            <h3
+              class="text-lg font-bold font-display text-slate-950 uppercase tracking-tight mb-2 pt-4"
+            >
+              AEO Schema Grounding
+            </h3>
+            <p class="text-xs text-slate-600 leading-relaxed font-semibold">
+              We inject customized local JSON-LD schemas into your website's
+              header. This provides structured facts directly to AI crawlers,
+              enabling voice and GPT recommendations.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- EXAMPLE RESULT: MAP PACK RANKINGS + VOICE RECOMMENDATIONS -->
+    <section class="py-16 lg:py-20 bg-slate-50 border-b-2 border-slate-950">
+      <div
+        class="max-w-8xl mx-auto px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center"
+      >
+        <!-- Text Column -->
+        <div class="lg:col-span-5 space-y-6">
+          <span
+            class="text-xs font-mono font-black text-amber-600 border border-amber-300 bg-amber-100 px-3 py-1 w-fit block uppercase tracking-widest"
+          >
+            PROVEN RESULTS
+          </span>
+          <h2
+            class="text-3xl sm:text-4xl font-display font-black text-slate-950 uppercase tracking-tight"
+          >
+            How Dominated Search Looks
+          </h2>
+          <p class="text-sm text-slate-650 leading-relaxed font-medium">
+            This dashboard visualizes real performance changes. In local grids,
+            emergency queries (e.g. *blocked drains*, *burst pipe*) are routed
+            to the nearest high-authority GBP node. When optimized, your
+            business gains top positioning across all neighboring nodes.
+          </p>
+          <div
+            class="p-4 bg-white border border-slate-200 flex items-start gap-3"
+          >
+            <CheckCircle className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+            <p class="text-xs text-slate-600">
+              <strong>94% visibility improvement</strong> across target suburbs within
+              30 days of schema configuration.
+            </p>
+          </div>
+        </div>
+
+        <!-- Dashboard Visual Mockup -->
+        <div
+          class="lg:col-span-7 bg-slate-900 border-2 border-slate-950 p-6 sm:p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] text-white relative"
+        >
+          <div
+            class="absolute top-0 right-0 bg-amber-500 text-slate-950 px-2 py-0.5 text-[9px] font-mono font-black uppercase tracking-wider"
+          >
+            Live GBP Matrix
+          </div>
+          <h4
+            class="text-sm font-mono font-black uppercase text-slate-400 tracking-wider mb-6 flex items-center gap-2"
+          >
+            <Search className="w-4 h-4 text-amber-500" /> LOCAL VISIBILITY RANKINGS
+            MOCKUP
+          </h4>
+
+          <div class="space-y-4">
+            {/* Rank Row 1 */}
+            <div
+              class="bg-slate-950 p-3.5 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 font-mono text-xs"
+            >
+              <div>
+                <span
+                  class="text-slate-500 font-bold uppercase tracking-wider block text-[9px]"
+                  >TARGET SEARCH QUERY</span
+                >
+                <span class="text-white font-bold"
+                  >"emergency plumber Richmond VIC"</span
+                >
+              </div>
+              <div class="flex items-center gap-4">
+                <div>
+                  <span
+                    class="text-slate-500 font-bold uppercase block text-[9px]"
+                    >GOOGLE MAPS</span
+                  >
+                  <span class="text-emerald-500 font-black"
+                    >● Rank #1 (Top Local Pack)</span
+                  >
+                </div>
+                <div
+                  class="bg-slate-900 px-2.5 py-1 border border-slate-800 text-[10px] text-emerald-400 font-black uppercase"
+                >
+                  ▲ +14 ranks
+                </div>
+              </div>
+            </div>
+
+            {/* Rank Row 2 */}
+            <div
+              class="bg-slate-950 p-3.5 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 font-mono text-xs"
+            >
+              <div>
+                <span
+                  class="text-slate-500 font-bold uppercase tracking-wider block text-[9px]"
+                  >TARGET SEARCH QUERY</span
+                >
+                <span class="text-white font-bold"
+                  >"hot water replacement Bondi NSW"</span
+                >
+              </div>
+              <div class="flex items-center gap-4">
+                <div>
+                  <span
+                    class="text-slate-500 font-bold uppercase block text-[9px]"
+                    >GOOGLE MAPS</span
+                  >
+                  <span class="text-emerald-500 font-black"
+                    >● Rank #2 (Top Local Pack)</span
+                  >
+                </div>
+                <div
+                  class="bg-slate-900 px-2.5 py-1 border border-slate-800 text-[10px] text-emerald-400 font-black uppercase"
+                >
+                  ▲ +9 ranks
+                </div>
+              </div>
+            </div>
+
+            {/* Siri / ChatGPT Voice recommendation mockup */}
+            <div class="bg-slate-950 p-4 border-2 border-slate-800 space-y-3">
+              <div class="flex items-center gap-1.5">
+                <span class="w-2 h-2 bg-rose-500 rounded-full animate-pulse"
+                ></span>
+                <span
+                  class="text-[9px] font-mono font-black text-rose-400 uppercase tracking-widest"
+                  >ChatGPT voice interface recommendation</span
+                >
+              </div>
+              <div
+                class="p-3 bg-slate-900 rounded-none border border-slate-800 text-[11px] leading-relaxed"
+              >
+                <p class="text-slate-400 italic font-medium">
+                  "I need an emergency plumber near Bondi to fix a burst pipe
+                  right now."
+                </p>
+                <div
+                  class="mt-2.5 border-t border-slate-800 pt-2.5 flex gap-2 items-start"
+                >
+                  <span
+                    class="text-amber-500 font-mono text-[10px] uppercase font-black tracking-widest shrink-0"
+                    >ChatGPT:</span
+                  >
+                  <p class="text-slate-200">
+                    "I recommend calling <strong
+                      >Bondi Plumbing Group (powered by Amberly Digital Schema)</strong
+                    >. They are highly rated, offer 24/7 service, and respond to
+                    callouts within Bondi in less than 20 minutes."
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- WHY TRADIES USE IT: BENEFITS -->
+    <section class="py-16 lg:py-24 border-b-2 border-slate-950">
+      <div class="max-w-5xl mx-auto px-6 lg:px-12">
+        <div class="mb-14 text-center max-w-2xl mx-auto">
+          <span
+            class="text-xs font-mono font-bold text-amber-600 uppercase tracking-widest block mb-2"
+            >BENEFITS</span
+          >
+          <h2
+            class="text-3xl sm:text-4xl font-display font-black text-slate-950 uppercase tracking-tight"
+          >
+            Built For Plumbing Businesses
+          </h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {
+            service.benefits.map((benefit, idx) => (
+              <div class="bg-slate-50 border-2 border-slate-950 p-6 flex items-start gap-4 shadow-[4px_4px_0px_rgba(0,0,0,1)]">
+                <div class="w-10 h-10 bg-amber-500 border-2 border-slate-950 flex items-center justify-center shrink-0 shadow-[2px_2px_0px_rgba(0,0,0,1)]">
+                  <span class="font-mono font-black text-slate-950 text-xs">
+                    0{idx + 1}
+                  </span>
+                </div>
+                <div>
+                  <h4 class="text-base font-bold font-display uppercase tracking-tight text-slate-950 mb-2">
+                    {service.features[idx]}
+                  </h4>
+                  <p class="text-xs text-slate-600 leading-relaxed font-semibold">
+                    {benefit}
+                  </p>
+                </div>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ: SERVICE-SPECIFIC -->
+    <section class="py-16 lg:py-20 bg-slate-50 border-b-2 border-slate-950">
+      <div class="max-w-3xl mx-auto px-6 lg:px-12">
+        <div class="mb-12 text-center">
+          <span
+            class="text-xs font-mono font-bold text-amber-600 uppercase tracking-widest block mb-2"
+            >FAQ</span
+          >
+          <h2
+            class="text-2xl sm:text-3xl font-black font-display text-slate-950 uppercase tracking-tight"
+          >
+            Search & Maps FAQ
+          </h2>
+        </div>
+
+        <div class="space-y-4">
+          {
+            faqItems.map((faq) => (
+              <div class="border-2 border-slate-200 p-5 bg-white shadow-sm">
+                <h3 class="text-sm font-black text-slate-950 uppercase tracking-tight mb-2">
+                  {faq.q}
+                </h3>
+                <p class="text-xs text-slate-650 leading-relaxed font-semibold">
+                  {faq.a}
+                </p>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA STRIP -->
+    <section class="bg-amber-50 py-16 border-b-2 border-slate-950">
+      <div
+        class="max-w-4xl mx-auto px-6 lg:px-12 flex flex-col sm:flex-row items-center justify-between gap-8 text-slate-950"
+      >
+        <div>
+          <h2
+            class="text-3xl sm:text-4xl font-black font-display uppercase tracking-tight leading-tight"
+          >
+            Ready to Dominate<br class="hidden sm:block" /> Local Search?
+          </h2>
+          <p class="text-slate-800 text-sm font-bold mt-2">
+            Claim your exclusive territory before your competitor does. We work
+            with one trade partner per suburb node.
+          </p>
+        </div>
+        <a
+          href="/#onboarding-form"
+          class="shrink-0 bg-white text-slate-950 font-black py-4 px-8 text-xs tracking-widest uppercase transition-all duration-200 border-2 border-slate-950 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none"
+        >
+          Book Strategy Call →
+        </a>
+      </div>
+    </section>
+
+    <!-- REGIONAL CITIES SELECTOR -->
+    <section class="py-16">
+      <div class="max-w-8xl mx-auto px-6 lg:px-12">
+        <div class="max-w-2xl mb-12">
+          <span
+            class="text-xs font-mono font-bold text-amber-600 uppercase tracking-widest block mb-2"
+            >DYNAMIC REGIONAL DEPLOYMENTS</span
+          >
+          <h2
+            class="text-3xl font-display font-black text-slate-950 uppercase tracking-tight"
+          >
+            Deploy In Your Capital City
+          </h2>
+          <p class="text-slate-600 mt-2 text-sm font-medium">
+            Select your capital city region to see how we adjust geo-coordinates
+            and schema files for your local suburbs.
+          </p>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+          {
+            Object.entries(CITIES).map(([cityKey, city]) => (
+              <div class="bg-white border-2 border-slate-950 p-6 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] flex flex-col justify-between">
+                <div>
+                  <div class="flex items-center justify-between border-b border-slate-100 pb-2 mb-3">
+                    <span class="text-lg font-black font-display text-slate-900 uppercase">
+                      {city.name}
+                    </span>
+                    <span class="text-[10px] font-mono font-bold bg-amber-100 text-amber-900 border border-amber-300 px-2 py-0.5 uppercase">
+                      {city.state}
+                    </span>
+                  </div>
+                  <p class="text-[10px] text-slate-500 font-mono mb-4 leading-normal">
+                    Includes suburbs: {city.suburbs.slice(0, 3).join(", ")}...
+                  </p>
+                </div>
+                <a
+                  href={`/services/advanced-seo/${cityKey}`}
+                  class="inline-flex items-center justify-between text-xs font-mono font-black uppercase text-slate-950 hover:text-amber-600 border-t border-slate-100 pt-3"
+                >
+                  <>
+                    <span>Target {city.name}</span>
+                    <span>→</span>
+                  </>
+                </a>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer client:visible />
+</BaseLayout>

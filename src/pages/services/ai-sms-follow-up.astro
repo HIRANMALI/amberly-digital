@@ -1,0 +1,458 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Navbar from "@/components/Navbar.astro";
+import { Footer } from "@/components/Footer";
+import { AreaPartnerBooking } from "@/components/AreaPartnerBooking";
+import { SERVICES, CITIES, generateFAQSchema } from "@/lib/seo-data";
+import {
+  MessageSquare,
+  CheckCircle,
+  Smartphone,
+  Send,
+  Flame,
+  ShieldCheck,
+  ArrowRight,
+} from "lucide-react";
+
+const service = SERVICES["ai-sms-follow-up"];
+
+const faqItems = [
+  {
+    q: "How fast does the SMS auto-response send?",
+    a: "The SMS is sent within 5 seconds of the call ending. Speed is critical; if you respond in under a minute, you retain 90% of leads. If you wait 5 minutes, they've already booked your competitor.",
+  },
+  {
+    q: "Do I need a separate phone number for this?",
+    a: "No. We can set up call tracking and auto-textbacks on your existing business number, or provide an active dedicated trade number that forwards voice calls to your mobile while managing SMS triggers in the background.",
+  },
+  {
+    q: "What messaging platform does the system run on?",
+    a: "The system runs via Twilio integrated with our custom LLM middleware. Text messages are highly reliable, secure, and deliver instantly to any Australian carrier (Telstra, Optus, Vodafone).",
+  },
+  {
+    q: "Can I customize the wording of the SMS conversations?",
+    a: "Absolutely. We script the entire conversation pathway to match your terminology, pricing rules, emergency booking fee warnings, and service bounds.",
+  },
+];
+
+const faqSchemaJson = generateFAQSchema(faqItems);
+---
+
+<BaseLayout
+  title="Instant AI SMS Answering & Call Textbacks for Plumbers | Amberly Digital"
+  description="Recover missed calls instantly. Our AI SMS auto-responder texts back missed callers in 5 seconds to qualify and secure the booking."
+>
+  <script type="application/ld+json" set:html={JSON.stringify(faqSchemaJson)} />
+
+  <Navbar />
+
+  <!-- TOP STRIP -->
+  <div
+    class="bg-amber-500 border-b-2 border-slate-950 py-2.5 px-4 text-center text-slate-950 text-xs font-mono font-black uppercase tracking-widest flex items-center justify-center gap-2"
+  >
+    <MessageSquare className="w-4 h-4 animate-bounce shrink-0 text-slate-950" />
+    <span>⚡ MISSED CALL TEXTBACK SYSTEM: ACTIVE RESPONDER DEPLOYMENT ⚡</span>
+  </div>
+
+  <main class="bg-white">
+    <!-- HERO SECTION: PROBLEM + OUTCOME -->
+    <section
+      class="border-b-2 border-slate-950 py-16 lg:py-24 bg-slate-50 relative overflow-hidden"
+    >
+      <div
+        class="absolute top-0 right-0 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"
+      >
+      </div>
+      <div class="max-w-5xl mx-auto px-6 lg:px-12 space-y-8 relative">
+        <span
+          class="text-xs font-mono font-black text-amber-600 border border-amber-300 bg-amber-100 px-3 py-1 w-fit block uppercase tracking-widest"
+        >
+          💬 TEXTBACK CONVERSIONS
+        </span>
+        <h1
+          class="text-4xl sm:text-5xl lg:text-7xl font-black font-display text-slate-950 uppercase tracking-tight leading-none"
+        >
+          Missed the Call? <br />
+          <span class="text-amber-500">Save the Lead.</span>
+        </h1>
+
+        <!-- Problem & Outcome Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-6">
+          <div
+            class="border-2 border-slate-900 bg-white p-6 shadow-[4px_4px_0px_rgba(0,0,0,1)]"
+          >
+            <span
+              class="text-[10px] font-mono font-black text-red-500 uppercase tracking-widest block mb-2"
+              >✖ THE PROBLEM: LEADS GONE TO COMPETITORS</span
+            >
+            <p class="text-sm text-slate-700 leading-relaxed font-semibold">
+              When you're under a sink, driving, or on another job, calls go
+              unanswered. 62% of customers calling an emergency plumber hang up
+              if they reach voicemail and immediately call the next provider.
+              Each missed call is a $750+ job leaking to your competitor.
+            </p>
+          </div>
+          <div
+            class="border-2 border-amber-500 bg-slate-900 p-6 shadow-[4px_4px_0px_rgba(245,158,11,1)] text-white"
+          >
+            <span
+              class="text-[10px] font-mono font-black text-amber-400 uppercase tracking-widest block mb-2"
+              >✔ THE OUTCOME: INSTANT LEAD CAPTURE</span
+            >
+            <p class="text-sm text-slate-350 leading-relaxed">
+              Our system detects the missed call and texts the customer within 5
+              seconds: *"Hey, sorry we missed you. Do you have a plumbing
+              emergency?"* The customer stops dialing competitors, responds to
+              the text, coordinates details, and locks in the appointment
+              automatically.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOW IT WORKS: 3 SIMPLE STEPS -->
+    <section class="py-16 lg:py-20 border-b-2 border-slate-950">
+      <div class="max-w-5xl mx-auto px-6 lg:px-12">
+        <div class="text-center max-w-2xl mx-auto mb-16">
+          <span
+            class="text-xs font-mono font-black text-amber-600 uppercase tracking-widest block mb-2"
+            >METHODOLOGY</span
+          >
+          <h2
+            class="text-3xl sm:text-4xl font-display font-black text-slate-950 uppercase tracking-tight"
+          >
+            How the SMS Follow-Up Engine Works
+          </h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <!-- Step 1 -->
+          <div
+            class="border-2 border-slate-950 p-6 bg-slate-50 relative shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+          >
+            <span
+              class="absolute -top-6 left-4 text-7xl font-black font-display text-slate-200/80 select-none pointer-events-none"
+              >01</span
+            >
+            <h3
+              class="text-lg font-bold font-display text-slate-950 uppercase tracking-tight mb-2 pt-4"
+            >
+              Call Detection
+            </h3>
+            <p class="text-xs text-slate-600 leading-relaxed font-semibold">
+              The moment an inbound call rings out or hits your voicemail, our
+              tracking API triggers an event handler.
+            </p>
+          </div>
+          <!-- Step 2 -->
+          <div
+            class="border-2 border-slate-950 p-6 bg-slate-50 relative shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+          >
+            <span
+              class="absolute -top-6 left-4 text-7xl font-black font-display text-slate-200/80 select-none pointer-events-none"
+              >02</span
+            >
+            <h3
+              class="text-lg font-bold font-display text-slate-950 uppercase tracking-tight mb-2 pt-4"
+            >
+              Instant SMS Dispatch
+            </h3>
+            <p class="text-xs text-slate-600 leading-relaxed font-semibold">
+              A text back goes out within 5 seconds, checking if they have an
+              active emergency and starting qualification.
+            </p>
+          </div>
+          <!-- Step 3 -->
+          <div
+            class="border-2 border-slate-950 p-6 bg-slate-50 relative shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+          >
+            <span
+              class="absolute -top-6 left-4 text-7xl font-black font-display text-slate-200/80 select-none pointer-events-none"
+              >03</span
+            >
+            <h3
+              class="text-lg font-bold font-display text-slate-950 uppercase tracking-tight mb-2 pt-4"
+            >
+              Booking Saved
+            </h3>
+            <p class="text-xs text-slate-600 leading-relaxed font-semibold">
+              The conversation parses address and problem details, logs the
+              dispatch job to your CRM, and alerts you.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- EXAMPLE RESULT: SMS INTERACTIVE TRANSCRIPT MOCKUP -->
+    <section class="py-16 lg:py-20 bg-slate-50 border-b-2 border-slate-950">
+      <div
+        class="max-w-8xl mx-auto px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center"
+      >
+        <!-- Text Column -->
+        <div class="lg:col-span-5 space-y-6">
+          <span
+            class="text-xs font-mono font-black text-amber-600 border border-amber-300 bg-amber-100 px-3 py-1 w-fit block uppercase tracking-widest"
+          >
+            SIMULATED INTERACTIVE
+          </span>
+          <h2
+            class="text-3xl sm:text-4xl font-display font-black text-slate-950 uppercase tracking-tight"
+          >
+            How The Textback Secures Jobs
+          </h2>
+          <p class="text-sm text-slate-650 leading-relaxed font-medium">
+            This visualizer maps out a typical conversation between a homeowner
+            and the textback agent. The conversation is structured to qualify
+            the emergency level, present pricing rules, gather the physical
+            address, and confirm dispatch timing.
+          </p>
+          <div
+            class="p-4 bg-white border border-slate-200 flex items-start gap-3"
+          >
+            <CheckCircle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+            <p class="text-xs text-slate-600">
+              <strong>60%+ lead rescue rate</strong>. Customers remain on the
+              text thread instead of returning to Google to call competitors.
+            </p>
+          </div>
+        </div>
+
+        <!-- Phone Interface SMS Mockup -->
+        <div class="lg:col-span-7 flex justify-center">
+          <div
+            class="w-full max-w-[380px] bg-slate-900 border-4 border-slate-950 rounded-[30px] p-4 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] text-white relative"
+          >
+            {/* Phone Speaker & Notch */}
+            <div
+              class="absolute top-2 left-1/2 -translate-x-1/2 w-24 h-4 bg-slate-950 rounded-full flex items-center justify-center"
+            >
+              <span class="w-1.5 h-1.5 bg-slate-800 rounded-full mr-2"></span>
+              <span class="w-8 h-1 bg-slate-800 rounded-full"></span>
+            </div>
+
+            <div
+              class="mt-6 bg-slate-950 p-3 flex items-center gap-3 border-b border-slate-800"
+            >
+              <div
+                class="w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center text-[10px] font-black text-slate-950"
+              >
+                A
+              </div>
+              <div>
+                <span class="text-xs font-bold block uppercase tracking-wider"
+                  >Amberly SMS Agent</span
+                >
+                <span class="text-[8px] font-mono text-emerald-400"
+                  >● Responder Active</span
+                >
+              </div>
+            </div>
+
+            {/* Conversation Feed */}
+            <div
+              class="my-4 space-y-3 font-mono text-[10px] min-h-[280px] flex flex-col justify-end p-2"
+            >
+              {/* Bot Msg 1 */}
+              <div
+                class="bg-amber-500 text-slate-950 p-2.5 rounded-br-none max-w-[85%] self-start border border-slate-950 shadow-[2px_2px_0px_rgba(0,0,0,1)]"
+              >
+                "Hey, sorry we missed you. This is Bondi Plumbing's
+                auto-textback assistant. Do you have a plumbing emergency?"
+              </div>
+              {/* User Msg 1 */}
+              <div
+                class="bg-slate-800 text-slate-100 p-2.5 rounded-bl-none max-w-[85%] self-end border border-slate-900"
+              >
+                "Yes, our laundry drain is backing up and flooding the floor.
+                Can you help?"
+              </div>
+              {/* Bot Msg 2 */}
+              <div
+                class="bg-amber-500 text-slate-950 p-2.5 rounded-br-none max-w-[85%] self-start border border-slate-950 shadow-[2px_2px_0px_rgba(0,0,0,1)]"
+              >
+                "We can get a tech there by 1 PM. Our standard callout rate is
+                $150. Can I get your address to confirm booking?"
+              </div>
+              {/* User Msg 2 */}
+              <div
+                class="bg-slate-800 text-slate-100 p-2.5 rounded-bl-none max-w-[85%] self-end border border-slate-900"
+              >
+                "Okay, yes. Address is 12 Main St, Richmond."
+              </div>
+              {/* Bot Msg 3 */}
+              <div
+                class="bg-amber-500 text-slate-950 p-2.5 rounded-br-none max-w-[85%] self-start border border-slate-950 shadow-[2px_2px_0px_rgba(0,0,0,1)]"
+              >
+                "Got it. You are booked for 1 PM. Technician will arrive then.
+                We're on our way!"
+              </div>
+            </div>
+
+            {/* Mock Keyboard bar */}
+            <div class="border-t border-slate-800 pt-3 flex gap-2">
+              <input
+                type="text"
+                placeholder="Type message..."
+                class="bg-slate-950 border border-slate-800 rounded-none p-2 text-[10px] w-full text-slate-300 focus:outline-none"
+                disabled
+              />
+              <button
+                class="bg-amber-500 border border-slate-950 p-2 text-slate-950 shadow-[1px_1px_0px_rgba(0,0,0,1)]"
+                ><Send class="w-3.5 h-3.5" /></button
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- WHY TRADIES USE IT: BENEFITS -->
+    <section class="py-16 lg:py-24 border-b-2 border-slate-950">
+      <div class="max-w-5xl mx-auto px-6 lg:px-12">
+        <div class="mb-14 text-center max-w-2xl mx-auto">
+          <span
+            class="text-xs font-mono font-bold text-amber-600 uppercase tracking-widest block mb-2"
+            >BENEFITS</span
+          >
+          <h2
+            class="text-3xl sm:text-4xl font-display font-black text-slate-950 uppercase tracking-tight"
+          >
+            Tailored For Tradie Lead Recovery
+          </h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {
+            service.benefits.map((benefit, idx) => (
+              <div class="bg-slate-50 border-2 border-slate-950 p-6 flex items-start gap-4 shadow-[4px_4px_0px_rgba(0,0,0,1)]">
+                <div class="w-10 h-10 bg-amber-500 border-2 border-slate-950 text-slate-950 flex items-center justify-center shrink-0 shadow-[2px_2px_0px_rgba(0,0,0,1)]">
+                  <span class="font-mono font-black text-xs">0{idx + 1}</span>
+                </div>
+                <div>
+                  <h4 class="text-base font-bold font-display uppercase tracking-tight text-slate-950 mb-2">
+                    {service.features[idx]}
+                  </h4>
+                  <p class="text-xs text-slate-600 leading-relaxed font-semibold">
+                    {benefit}
+                  </p>
+                </div>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ: SERVICE-SPECIFIC -->
+    <section class="py-16 lg:py-20 bg-slate-50 border-b-2 border-slate-950">
+      <div class="max-w-3xl mx-auto px-6 lg:px-12">
+        <div class="mb-12 text-center">
+          <span
+            class="text-xs font-mono font-bold text-amber-600 uppercase tracking-widest block mb-2"
+            >FAQ</span
+          >
+          <h2
+            class="text-2xl sm:text-3xl font-black font-display text-slate-950 uppercase tracking-tight"
+          >
+            AI SMS Responder FAQ
+          </h2>
+        </div>
+
+        <div class="space-y-4">
+          {
+            faqItems.map((faq) => (
+              <div class="border-2 border-slate-200 p-5 bg-white shadow-sm">
+                <h3 class="text-sm font-black text-slate-950 uppercase tracking-tight mb-2">
+                  {faq.q}
+                </h3>
+                <p class="text-xs text-slate-650 leading-relaxed font-semibold">
+                  {faq.a}
+                </p>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA STRIP -->
+    <section class="bg-amber-50 py-16 border-b-2 border-slate-950">
+      <div
+        class="max-w-4xl mx-auto px-6 lg:px-12 flex flex-col sm:flex-row items-center justify-between gap-8 text-slate-950"
+      >
+        <div>
+          <h2
+            class="text-3xl sm:text-4xl font-black font-display uppercase tracking-tight leading-tight"
+          >
+            Stop Losing Missed Calls<br class="hidden sm:block" /> to Competitors.
+          </h2>
+          <p class="text-slate-800 text-sm font-bold mt-2">
+            Deploy the SMS textback engine and rescue your phone leads.
+            Configured in 48 hours.
+          </p>
+        </div>
+        <a
+          href="/#onboarding-form"
+          class="shrink-0 bg-white text-slate-950 font-black py-4 px-8 text-xs tracking-widest uppercase transition-all duration-200 border-2 border-slate-950 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none"
+        >
+          Book Strategy Call →
+        </a>
+      </div>
+    </section>
+
+    <!-- REGIONAL CITIES SELECTOR -->
+    <section class="py-16">
+      <div class="max-w-8xl mx-auto px-6 lg:px-12">
+        <div class="max-w-2xl mb-12">
+          <span
+            class="text-xs font-mono font-bold text-amber-600 uppercase tracking-widest block mb-2"
+            >DYNAMIC REGIONAL DEPLOYMENTS</span
+          >
+          <h2
+            class="text-3xl font-display font-black text-slate-950 uppercase tracking-tight"
+          >
+            Deploy In Your Capital City
+          </h2>
+          <p class="text-slate-650 mt-2 text-sm font-medium">
+            Select your capital city region to see how we adjust geo-coordinates
+            and schema files for your local suburbs.
+          </p>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+          {
+            Object.entries(CITIES).map(([cityKey, city]) => (
+              <div class="bg-white border-2 border-slate-950 p-6 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] flex flex-col justify-between">
+                <div>
+                  <div class="flex items-center justify-between border-b border-slate-100 pb-2 mb-3">
+                    <span class="text-lg font-black font-display text-slate-900 uppercase">
+                      {city.name}
+                    </span>
+                    <span class="text-[10px] font-mono font-bold bg-amber-100 text-amber-900 border border-amber-300 px-2 py-0.5 uppercase">
+                      {city.state}
+                    </span>
+                  </div>
+                  <p class="text-[10px] text-slate-500 font-mono mb-4 leading-normal">
+                    Includes suburbs: {city.suburbs.slice(0, 3).join(", ")}...
+                  </p>
+                </div>
+                <a
+                  href={`/services/ai-sms-follow-up/${cityKey}`}
+                  class="inline-flex items-center justify-between text-xs font-mono font-black uppercase text-slate-950 hover:text-amber-600 border-t border-slate-100 pt-3"
+                >
+                  <>
+                    <span>Target {city.name}</span>
+                    <span>→</span>
+                  </>
+                </a>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer client:visible />
+</BaseLayout>

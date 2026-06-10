@@ -1,0 +1,445 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Navbar from "@/components/Navbar.astro";
+import { Footer } from "@/components/Footer";
+import { AreaPartnerBooking } from "@/components/AreaPartnerBooking";
+import { SERVICES, CITIES, generateFAQSchema } from "@/lib/seo-data";
+import {
+  Layers,
+  CheckCircle,
+  Database,
+  Link,
+  Flame,
+  ShieldCheck,
+  ArrowRight,
+} from "lucide-react";
+
+const service = SERVICES["workflow-automation"];
+
+const faqItems = [
+  {
+    q: "Which plumbing and trade software integrations do you support?",
+    a: "We support integrations across popular Australian trade tools including ServiceM8, ServiceTitan, Fergus, Simpro, Xero, MYOB, Stripe, ServiceM8 phone lines, Slack, and Google Workspace.",
+  },
+  {
+    q: "Do I need to pay for external integration accounts like Zapier?",
+    a: "It depends on call volume. For simple integrations, free or basic plans ($20-$40/mo) are sufficient. For complex multi-step pipelines, we custom-develop direct API node links in code to bypass Zapier subscription costs entirely.",
+  },
+  {
+    q: "Is my business database and customer details secure?",
+    a: "Yes. All connections are built using secure OAuth 2.0 validation protocols and industry-standard HTTPS encryption. We do not store your customer database on our servers; data is transferred directly between your official software platforms.",
+  },
+  {
+    q: "What if I change my job manager or accounting tools later?",
+    a: "Our integrations are built modularly. If you upgrade from Google Sheets to ServiceM8, or switch from MYOB to Xero, we can easily rewire the automation nodes without needing to rebuild your entire website.",
+  },
+];
+
+const faqSchemaJson = generateFAQSchema(faqItems);
+---
+
+<BaseLayout
+  title="Job & Invoicing Workflow Automation for Plumbers | Amberly Digital"
+  description="Run your plumbing business on autopilot. We connect ServiceM8, Xero, and calendars to eliminate manual double data entry and admin errors."
+>
+  <script type="application/ld+json" set:html={JSON.stringify(faqSchemaJson)} />
+
+  <Navbar />
+
+  <!-- TOP STRIP -->
+  <div
+    class="bg-amber-500 border-b-2 border-slate-950 py-2.5 px-4 text-center text-slate-950 text-xs font-mono font-black uppercase tracking-widest flex items-center justify-center gap-2"
+  >
+    <Database className="w-4 h-4 animate-bounce shrink-0 text-slate-950" />
+    <span
+      >⚙ INTEGRATION PIPELINE: SERVICEM8, XERO & CALENDAR AUTOMATIONS ONLINE</span
+    >
+  </div>
+
+  <main class="bg-white">
+    <!-- HERO SECTION: PROBLEM + OUTCOME -->
+    <section
+      class="border-b-2 border-slate-950 py-16 lg:py-24 bg-slate-50 relative overflow-hidden"
+    >
+      <div
+        class="absolute top-0 right-0 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"
+      >
+      </div>
+      <div class="max-w-5xl mx-auto px-6 lg:px-12 space-y-8 relative">
+        <span
+          class="text-xs font-mono font-black text-amber-600 border border-amber-300 bg-amber-100 px-3 py-1 w-fit block uppercase tracking-widest"
+        >
+          ⚙ ADMIN AUTOMATION
+        </span>
+        <h1
+          class="text-4xl sm:text-5xl lg:text-7xl font-black font-display text-slate-950 uppercase tracking-tight leading-none"
+        >
+          Ditch Admin Work. <br />
+          <span class="text-amber-500">Run on Autopilot.</span>
+        </h1>
+
+        <!-- Problem & Outcome Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-6">
+          <div
+            class="border-2 border-slate-900 bg-white p-6 shadow-[4px_4px_0px_rgba(0,0,0,1)]"
+          >
+            <span
+              class="text-[10px] font-mono font-black text-red-500 uppercase tracking-widest block mb-2"
+              >✖ THE PROBLEM: DOUBLE DATA ENTRY OVERHEAD</span
+            >
+            <p class="text-sm text-slate-700 leading-relaxed font-semibold">
+              Trade business owners spend 10+ hours a week copying customer
+              details: typing email inquiries into job sheets, manually drawing
+              up invoices in Xero after completing jobs, and sending dispatch
+              confirmation texts. Clerical errors creep in, invoices get
+              delayed, and team productivity drops.
+            </p>
+          </div>
+          <div
+            class="border-2 border-amber-500 bg-slate-900 p-6 shadow-[4px_4px_0px_rgba(245,158,11,1)] text-white"
+          >
+            <span
+              class="text-[10px] font-mono font-black text-amber-400 uppercase tracking-widest block mb-2"
+              >✔ THE OUTCOME: UNIFIED DIGITAL PIPELINE</span
+            >
+            <p class="text-sm text-slate-350 leading-relaxed">
+              We connect your website, booking calendars, CRM (ServiceM8),
+              accounting tool (Xero), and messaging channels into one fluid
+              circuit. Data moves instantly: website leads populate job
+              dispatches, job completion drafts the Xero invoice, and payments
+              fire automated thank-you texts.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOW IT WORKS: 3 SIMPLE STEPS -->
+    <section class="py-16 lg:py-20 border-b-2 border-slate-950">
+      <div class="max-w-5xl mx-auto px-6 lg:px-12">
+        <div class="text-center max-w-2xl mx-auto mb-16">
+          <span
+            class="text-xs font-mono font-black text-amber-600 uppercase tracking-widest block mb-2"
+            >METHODOLOGY</span
+          >
+          <h2
+            class="text-3xl sm:text-4xl font-display font-black text-slate-950 uppercase tracking-tight"
+          >
+            Three Steps to Office Automation
+          </h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <!-- Step 1 -->
+          <div
+            class="border-2 border-slate-950 p-6 bg-slate-50 relative shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+          >
+            <span
+              class="absolute -top-6 left-4 text-7xl font-black font-display text-slate-200/80 select-none pointer-events-none"
+              >01</span
+            >
+            <h3
+              class="text-lg font-bold font-display text-slate-950 uppercase tracking-tight mb-2 pt-4"
+            >
+              Admin Audit
+            </h3>
+            <p class="text-xs text-slate-600 leading-relaxed font-semibold">
+              We map your existing database tools, analyzing where manual
+              copy-pasting is taking place and planning the webhook pathways.
+            </p>
+          </div>
+          <!-- Step 2 -->
+          <div
+            class="border-2 border-slate-950 p-6 bg-slate-50 relative shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+          >
+            <span
+              class="absolute -top-6 left-4 text-7xl font-black font-display text-slate-200/80 select-none pointer-events-none"
+              >02</span
+            >
+            <h3
+              class="text-lg font-bold font-display text-slate-950 uppercase tracking-tight mb-2 pt-4"
+            >
+              Pipeline Wiring
+            </h3>
+            <p class="text-xs text-slate-600 leading-relaxed font-semibold">
+              We connect your CRM (ServiceM8), bookkeeping (Xero), and messaging
+              systems using secure API integrations and data-parsing layers.
+            </p>
+          </div>
+          <!-- Step 3 -->
+          <div
+            class="border-2 border-slate-950 p-6 bg-slate-50 relative shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+          >
+            <span
+              class="absolute -top-6 left-4 text-7xl font-black font-display text-slate-200/80 select-none pointer-events-none"
+              >03</span
+            >
+            <h3
+              class="text-lg font-bold font-display text-slate-950 uppercase tracking-tight mb-2 pt-4"
+            >
+              Data Validation
+            </h3>
+            <p class="text-xs text-slate-600 leading-relaxed font-semibold">
+              We run pipeline simulations to verify invoice drafting, calendar
+              updates, and real-time team notifications trigger flawlessly.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- EXAMPLE RESULT: DATA FLOW PIPELINE DIAGRAM -->
+    <section class="py-16 lg:py-20 bg-slate-50 border-b-2 border-slate-950">
+      <div
+        class="max-w-8xl mx-auto px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center"
+      >
+        <!-- Text Column -->
+        <div class="lg:col-span-5 space-y-6">
+          <span
+            class="text-xs font-mono font-black text-amber-600 border border-amber-300 bg-amber-100 px-3 py-1 w-fit block uppercase tracking-widest"
+          >
+            LIVE PIPELINE MAP
+          </span>
+          <h2
+            class="text-3xl sm:text-4xl font-display font-black text-slate-950 uppercase tracking-tight"
+          >
+            The Automation Map
+          </h2>
+          <p class="text-sm text-slate-650 leading-relaxed font-medium">
+            This visual layout maps customer data flow across integrations. Data
+            originates at the user interface, immediately triggers coordinate
+            logic in job planners, creates billing entries, and notifies
+            technicians without human intervention.
+          </p>
+          <div
+            class="p-4 bg-white border border-slate-200 flex items-start gap-3"
+          >
+            <CheckCircle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+            <p class="text-xs text-slate-600">
+              <strong>12+ hours saved weekly</strong> in back-office administration
+              work for typical Australian service companies.
+            </p>
+          </div>
+        </div>
+
+        <!-- Integration Connector Visual Mockup -->
+        <div
+          class="lg:col-span-7 bg-slate-900 border-2 border-slate-950 p-6 sm:p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] text-white space-y-6 font-mono text-xs"
+        >
+          <h4
+            class="text-xs font-black uppercase text-slate-400 tracking-wider flex items-center gap-2 border-b border-slate-800 pb-3"
+          >
+            <Link className="w-4 h-4 text-amber-500" /> API DATA ROUTING ENGINE
+          </h4>
+
+          {/* Node 1 */}
+          <div
+            class="bg-slate-950 p-3.5 border border-slate-800 flex justify-between items-center"
+          >
+            <div>
+              <span class="text-[8px] text-amber-500 block font-bold"
+                >NODE A: WEBPAGE FORM TRIGGER</span
+              >
+              <span class="font-bold text-white"
+                >New Booking Inquiry Received</span
+              >
+            </div>
+            <span class="text-emerald-400 font-bold">➔ Input Logged</span>
+          </div>
+
+          {/* Node 2 */}
+          <div
+            class="bg-slate-950 p-3.5 border border-slate-800 flex justify-between items-center"
+          >
+            <div>
+              <span class="text-[8px] text-amber-500 block font-bold"
+                >NODE B: CRM ALLOCATION (SERVICEM8)</span
+              >
+              <span class="font-bold text-white"
+                >Create Draft Dispatch Job Sheet</span
+              >
+            </div>
+            <span class="text-emerald-400 font-bold">➔ Calendar Synced</span>
+          </div>
+
+          {/* Node 3 */}
+          <div
+            class="bg-slate-950 p-3.5 border border-slate-800 flex justify-between items-center"
+          >
+            <div>
+              <span class="text-[8px] text-amber-500 block font-bold"
+                >NODE C: INVOICING TRIGGER (XERO)</span
+              >
+              <span class="font-bold text-white"
+                >Draft Xero invoice on Job mark 'Completed'</span
+              >
+            </div>
+            <span class="text-emerald-400 font-bold">➔ Invoice Drafted</span>
+          </div>
+
+          {/* Node 4 */}
+          <div
+            class="bg-slate-950 p-3.5 border border-slate-800 flex justify-between items-center"
+          >
+            <div>
+              <span class="text-[8px] text-amber-500 block font-bold"
+                >NODE D: NOTIFICATION DESK (SMS/SLACK)</span
+              >
+              <span class="font-bold text-white"
+                >Alert team channel: 'Job Bondi Paid. Requesting Google review'</span
+              >
+            </div>
+            <span class="text-emerald-400 font-bold">➔ Task Complete</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- WHY TRADIES USE IT: BENEFITS -->
+    <section class="py-16 lg:py-24 border-b-2 border-slate-950">
+      <div class="max-w-5xl mx-auto px-6 lg:px-12">
+        <div class="mb-14 text-center max-w-2xl mx-auto">
+          <span
+            class="text-xs font-mono font-bold text-amber-600 uppercase tracking-widest block mb-2"
+            >BENEFITS</span
+          >
+          <h2
+            class="text-3xl sm:text-4xl font-display font-black text-slate-950 uppercase tracking-tight"
+          >
+            Designed for Trade Office Efficiency
+          </h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {
+            service.benefits.map((benefit, idx) => (
+              <div class="bg-slate-50 border-2 border-slate-950 p-6 flex items-start gap-4 shadow-[4px_4px_0px_rgba(0,0,0,1)]">
+                <div class="w-10 h-10 bg-amber-500 border-2 border-slate-950 text-slate-950 flex items-center justify-center shrink-0 shadow-[2px_2px_0px_rgba(0,0,0,1)]">
+                  <span class="font-mono font-black text-xs">0{idx + 1}</span>
+                </div>
+                <div>
+                  <h4 class="text-base font-bold font-display uppercase tracking-tight text-slate-950 mb-2">
+                    {service.features[idx]}
+                  </h4>
+                  <p class="text-xs text-slate-600 leading-relaxed font-semibold">
+                    {benefit}
+                  </p>
+                </div>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ: SERVICE-SPECIFIC -->
+    <section class="py-16 lg:py-20 bg-slate-50 border-b-2 border-slate-950">
+      <div class="max-w-3xl mx-auto px-6 lg:px-12">
+        <div class="mb-12 text-center">
+          <span
+            class="text-xs font-mono font-bold text-amber-600 uppercase tracking-widest block mb-2"
+            >FAQ</span
+          >
+          <h2
+            class="text-2xl sm:text-3xl font-black font-display text-slate-950 uppercase tracking-tight"
+          >
+            Workflow Automation FAQ
+          </h2>
+        </div>
+
+        <div class="space-y-4">
+          {
+            faqItems.map((faq) => (
+              <div class="border-2 border-slate-200 p-5 bg-white shadow-sm">
+                <h3 class="text-sm font-black text-slate-950 uppercase tracking-tight mb-2">
+                  {faq.q}
+                </h3>
+                <p class="text-xs text-slate-650 leading-relaxed font-semibold">
+                  {faq.a}
+                </p>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA STRIP -->
+    <section class="bg-amber-50 py-16 border-b-2 border-slate-950">
+      <div
+        class="max-w-4xl mx-auto px-6 lg:px-12 flex flex-col sm:flex-row items-center justify-between gap-8 text-slate-950"
+      >
+        <div>
+          <h2
+            class="text-3xl sm:text-4xl font-black font-display uppercase tracking-tight leading-tight"
+          >
+            Stop Copy-Pasting Data<br class="hidden sm:block" /> Between Apps.
+          </h2>
+          <p class="text-slate-800 text-sm font-bold mt-2">
+            Connect your trade workspace pipelines. We build custom API nodes in
+            7 days.
+          </p>
+        </div>
+        <a
+          href="/#onboarding-form"
+          class="shrink-0 bg-white text-slate-950 font-black py-4 px-8 text-xs tracking-widest uppercase transition-all duration-200 border-2 border-slate-950 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none"
+        >
+          Book Strategy Call →
+        </a>
+      </div>
+    </section>
+
+    <!-- REGIONAL CITIES SELECTOR -->
+    <section class="py-16">
+      <div class="max-w-8xl mx-auto px-6 lg:px-12">
+        <div class="max-w-2xl mb-12">
+          <span
+            class="text-xs font-mono font-bold text-amber-600 uppercase tracking-widest block mb-2"
+            >DYNAMIC REGIONAL DEPLOYMENTS</span
+          >
+          <h2
+            class="text-3xl font-display font-black text-slate-950 uppercase tracking-tight"
+          >
+            Deploy In Your Capital City
+          </h2>
+          <p class="text-slate-600 mt-2 text-sm font-medium">
+            Select your capital city region to see how we adjust geo-coordinates
+            and schema files for your local suburbs.
+          </p>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+          {
+            Object.entries(CITIES).map(([cityKey, city]) => (
+              <div class="bg-white border-2 border-slate-950 p-6 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] flex flex-col justify-between">
+                <div>
+                  <div class="flex items-center justify-between border-b border-slate-100 pb-2 mb-3">
+                    <span class="text-lg font-black font-display text-slate-900 uppercase">
+                      {city.name}
+                    </span>
+                    <span class="text-[10px] font-mono font-bold bg-amber-100 text-amber-900 border border-amber-300 px-2 py-0.5 uppercase">
+                      {city.state}
+                    </span>
+                  </div>
+                  <p class="text-[10px] text-slate-500 font-mono mb-4 leading-normal">
+                    Includes suburbs: {city.suburbs.slice(0, 3).join(", ")}...
+                  </p>
+                </div>
+                <a
+                  href={`/services/workflow-automation/${cityKey}`}
+                  class="inline-flex items-center justify-between text-xs font-mono font-black uppercase text-slate-950 hover:text-amber-600 border-t border-slate-100 pt-3"
+                >
+                  <>
+                    <span>Target {city.name}</span>
+                    <span>→</span>
+                  </>
+                </a>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer client:visible />
+</BaseLayout>
