@@ -296,6 +296,34 @@ const faqSchema = generateFAQSchema(faqItems);
       </div>
     </section>
 
+    <!-- LOCAL GEOGRAPHIC TARGETING GRID (Provides unique structural SEO signals) -->
+    <section class="py-16 bg-slate-50 border-b-2 border-slate-950">
+      <div class="max-w-4xl mx-auto px-6 lg:px-12 space-y-6">
+        <span class="text-xs font-mono font-black text-amber-600 uppercase tracking-widest block">
+          📍 LOCAL TECHNICAL GROUNDING ({city.name.toUpperCase()} REGION)
+        </span>
+        <h2 class="text-3xl font-display font-black text-slate-950 uppercase leading-snug">
+          Geographic optimization parameters for {city.name}
+        </h2>
+        <p class="text-slate-750 text-sm leading-relaxed font-semibold">
+          For businesses serving the <strong>{city.name}</strong> metropolitan area, search and answer engines verify proximity signals using regional coordinate reference points. We align structured schemas directly to the local depot centroid near <strong>{city.address}</strong> (Coordinates: <code>{city.lat}, {city.lng}</code>) to build authority across the surrounding {city.state} postal grid for our {service.title} service.
+        </p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 font-mono text-xs text-slate-800">
+          <div class="border border-slate-200 p-4 bg-white shadow-sm">
+            <strong class="text-slate-950 block mb-1">METRO CENTER STAGE</strong>
+            Latitude: {city.lat}<br/>
+            Longitude: {city.lng}
+          </div>
+          <div class="border border-slate-200 p-4 bg-white shadow-sm">
+            <strong class="text-slate-950 block mb-1">LOCAL DISPATCH LINES</strong>
+            Postcode Area: {city.postcode}<br/>
+            State Code: {city.state}
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- FAQ SECTION -->
     <section class="py-16 bg-white border-b-2 border-slate-950">
       <div class="max-w-4xl mx-auto px-6 lg:px-12">

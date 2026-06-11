@@ -12,6 +12,7 @@ export interface Props {
   geoPlacename?: string;
   geoPosition?: string;
   icbm?: string;
+  robots?: string;
 }
 
 const {
@@ -35,7 +36,11 @@ const {
   geoPlacename = "Sydney",
   geoPosition = "-33.8688;151.2093",
   icbm = "-33.8688, 151.2093",
+  robots = "index, follow",
 } = Astro.props;
+
+// Determine current canonical URL dynamically
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site || "https://amberlydigital.com").toString();
 ---
 
 <!doctype html>
@@ -48,11 +53,17 @@ const {
     <meta name="keywords" content={keywords.join(", ")} />
     <meta name="author" content="Amberly Digital" />
 
+    <!-- Robots Meta -->
+    <meta name="robots" content={robots} />
+
+    <!-- Canonical URL Link -->
+    <link rel="canonical" href={canonicalUrl} />
+
     <!-- Open Graph -->
     <meta property="og:title" content={ogTitle} />
     <meta property="og:description" content={ogDescription} />
     <meta property="og:type" content={ogType} />
-    {ogUrl && <meta property="og:url" content={ogUrl} />}
+    <meta property="og:url" content={ogUrl || canonicalUrl} />
     <meta property="og:locale" content="en_AU" />
 
     <!-- Australian Geo Tags -->
