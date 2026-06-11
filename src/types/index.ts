@@ -53,11 +53,11 @@ export interface SimulationLead {
 export interface ConsultationBooking {
   id?: string;
   businessName: string;
-  suburb: string;
-  phone?: string;
   email: string;
   contactName: string;
-  tradeType: string;
+  interestedService: string;
+  message?: string;
+  phone?: string;
   bookingDate?: string;
   bookingTime?: string;
   createdAt?: string;
