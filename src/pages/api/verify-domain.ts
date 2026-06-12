@@ -102,7 +102,8 @@ export async function deleteIp(ip: string, env?: any): Promise<boolean> {
   }
 
   const deletedCount = await upstashCommand(["DEL", `${REDIS_PREFIX}${ip}`], env);
-  return typeof deletedCount === "number" && deletedCount > 0;
+  // DEL returns the number of keys removed. If it returns a number (0 or 1), the command succeeded and the key is now absent.
+  return typeof deletedCount === "number";
 }
 
 export async function getAllTrackedIps(env?: any): Promise<Array<{
@@ -378,11 +379,8 @@ function getPersonalizedAuditFallback(
 }
 
 async function callGeminiApi(prompt: string, apiKey: string): Promise<string> {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 12000); // 12 seconds timeout
-
   try {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`;
     const response = await fetch(url, {
       method: "POST",
       headers: {
@@ -402,11 +400,8 @@ async function callGeminiApi(prompt: string, apiKey: string): Promise<string> {
           responseMimeType: "application/json",
           temperature: 0.3
         }
-      }),
-      signal: controller.signal
+      })
     });
-
-    clearTimeout(timeoutId);
 
     if (!response.ok) {
       const errText = await response.text();
@@ -420,7 +415,6 @@ async function callGeminiApi(prompt: string, apiKey: string): Promise<string> {
     }
     return text;
   } catch (err) {
-    clearTimeout(timeoutId);
     throw err;
   }
 }
@@ -492,7 +486,8 @@ Respond ONLY with valid JSON. No markdown code block wraps. Raw JSON text only.`
         description: parsedData.description || `Your website lacks key JSON-LD structure mapping. Voice search engines (Siri, ChatGPT) cannot verify and ground your business recommendations.`
       };
     } catch (err) {
-      console.warn(`Gemini API key index ${i} failed to execute query:`, err);
+      const maskedKey = key ? `${key.substring(0, 6)}...${key.substring(key.length - 4)}` : "empty";
+      console.warn(`Gemini API key index ${i} (key: ${maskedKey}, len: ${key?.length}) failed to execute query:`, err);
     }
   }
 

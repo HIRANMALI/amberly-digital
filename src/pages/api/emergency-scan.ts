@@ -22,11 +22,8 @@ const AUSTRALIAN_SUBURBS = [
 
 // Direct fetch helper for Gemini REST API
 async function callGemini(prompt: string, apiKey: string): Promise<string> {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 12000); // 12 seconds timeout
-
   try {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`;
     const response = await fetch(url, {
       method: "POST",
       headers: {
@@ -46,11 +43,8 @@ async function callGemini(prompt: string, apiKey: string): Promise<string> {
           responseMimeType: "application/json",
           temperature: 0.2
         }
-      }),
-      signal: controller.signal
+      })
     });
-
-    clearTimeout(timeoutId);
 
     if (!response.ok) {
       const errText = await response.text();
@@ -64,7 +58,6 @@ async function callGemini(prompt: string, apiKey: string): Promise<string> {
     }
     return text;
   } catch (err) {
-    clearTimeout(timeoutId);
     throw err;
   }
 }

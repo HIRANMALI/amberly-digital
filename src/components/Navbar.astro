@@ -389,10 +389,9 @@ import { SERVICES } from "@/lib/seo-data";
     document.querySelectorAll(".credits-counter").forEach((el) => {
       el.textContent = cached;
     });
-  } else {
-    // Only run initial fetch if no cache is stored
-    updateCredits();
   }
+  // Always trigger a background fetch to sync state with the server (e.g. after admin resets)
+  updateCredits();
 
   // Listen to local scanner state updates (before and after scans)
   window.addEventListener("creditsUpdated", ((e: CustomEvent) => {
