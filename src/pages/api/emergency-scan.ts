@@ -22,9 +22,9 @@ const AUSTRALIAN_SUBURBS = [
 ];
 
 let aiClient: GoogleGenAI | null = null;
-function getAiClient(): GoogleGenAI {
+function getAiClient(env?: any): GoogleGenAI {
   if (!aiClient) {
-    const apiKey = import.meta.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY;
+    const apiKey = env?.GEMINI_API_KEY || import.meta.env.GEMINI_API_KEY || (typeof process !== "undefined" ? process.env.GEMINI_API_KEY : undefined);
     aiClient = new GoogleGenAI({
       apiKey: apiKey || "MOCK_KEY",
       httpOptions: {
@@ -68,7 +68,10 @@ function getMockAudit(businessName: string, suburb: string, specialty: string, s
   };
 }
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async (context) => {
+  const { request, locals } = context;
+  const env = (locals as any).runtime?.env;
+
   try {
     const { businessName, suburb, primarySpecialty } = await request.json();
 
@@ -89,7 +92,7 @@ export const POST: APIRoute = async ({ request }) => {
     const searchVolume = matchedSuburb ? matchedSuburb.searches : Math.floor(Math.random() * 250) + 150;
     const comp = matchedSuburb ? matchedSuburb.competition : "High";
 
-    const key = process.env.GEMINI_API_KEY;
+    const key = env?.GEMINI_API_KEY || import.meta.env.GEMINI_API_KEY || (typeof process !== "undefined" ? process.env.GEMINI_API_KEY : undefined);
     if (!key) {
       return new Response(JSON.stringify(getMockAudit(bizName, suburb, specialty, searchVolume, comp)), {
         status: 200,
@@ -140,7 +143,7 @@ export const POST: APIRoute = async ({ request }) => {
 
   Respond ONLY with valid JSON. No markdown code block wraps. Raw JSON text only.`;
 
-    const ai = getAiClient();
+    const ai = getAiClient(env);
     const result = await ai.models.generateContent({
       model: "gemini-flash-latest",
       contents: prompt,

@@ -1,7 +1,36 @@
-import React from "react";
+import React, { useState } from "react";
 import { SERVICES, CITIES } from "@/lib/seo-data";
 
 export function Footer() {
+  const [showOptions, setShowOptions] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  React.useEffect(() => {
+    if (!showOptions) return;
+    const handleOutsideClick = () => setShowOptions(false);
+    document.addEventListener("click", handleOutsideClick);
+    return () => document.removeEventListener("click", handleOutsideClick);
+  }, [showOptions]);
+
+  const handleEmailClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setShowOptions(!showOptions);
+  };
+
+  const handleCopy = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      navigator.clipboard.writeText("hello@amberlydigital.com");
+      setCopied(true);
+      setTimeout(() => {
+        setCopied(false);
+        setShowOptions(false);
+      }, 1500);
+    } catch (err) {
+      console.warn("Failed to copy email:", err);
+    }
+  };
   return (
     <footer className="bg-slate-950 text-white pt-16 pb-8 border-t-2 border-slate-950 mt-auto" id="agency-footer">
       <div className="max-w-8xl mx-auto px-6 lg:px-12 grid grid-cols-1 md:grid-cols-3 gap-12 pb-12 border-b border-slate-800">
@@ -10,7 +39,7 @@ export function Footer() {
         <div className="flex flex-col gap-4">
           <div className="flex items-center gap-2">
             <a href="/" className="flex items-center gap-2 group">
-              <div className="w-8 h-8 bg-amber-500 rounded-none border border-slate-950 flex items-center justify-center font-black text-slate-950 text-sm group-hover:bg-white transition-colors">
+              <div className="w-10 h-10 bg-amber-500 rounded-none border border-slate-950 flex items-center justify-center font-black text-slate-950 text-2xl pt-0.5">
                 A
               </div>
               <span className="text-lg font-black tracking-tighter uppercase font-display text-white">
@@ -64,14 +93,36 @@ export function Footer() {
         {/* Column 3 */}
         <div className="flex flex-col gap-4 md:items-end md:text-right">
           <span className="text-[10px] text-amber-500 font-black uppercase tracking-widest font-mono">Contact</span>
-          <div className="flex flex-col gap-1 md:items-end">
-            <a
-              href="mailto:hello@amberlydigital.com"
-              className="text-xs text-slate-350 hover:text-amber-500 transition-colors font-mono font-bold"
+          <div className="flex flex-col gap-1 md:items-end relative">
+            <button
+              onClick={handleEmailClick}
+              className="text-xs text-slate-350 hover:text-amber-500 transition-colors font-mono font-bold cursor-pointer relative"
             >
               hello@amberlydigital.com
-            </a>
-            <span className="text-[10px] text-slate-500 font-mono mt-1">
+            </button>
+            {showOptions && (
+              <div 
+                onClick={(e) => e.stopPropagation()}
+                className="absolute bottom-8 right-0 bg-slate-900 border-2 border-slate-950 p-2 shadow-[4px_4px_0px_0px_rgba(245,158,11,1)] z-20 flex flex-col gap-1.5 w-44 text-left font-mono text-[10px]"
+              >
+                <a
+                  href="https://mail.google.com/mail/?view=cm&fs=1&to=hello@amberlydigital.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setShowOptions(false)}
+                  className="px-2 py-1.5 hover:bg-slate-800 text-slate-300 hover:text-white font-bold block"
+                >
+                  ✉️ OPEN GMAIL
+                </a>
+                <button
+                  onClick={handleCopy}
+                  className="w-full text-left px-2 py-1.5 hover:bg-slate-800 text-slate-300 hover:text-white font-bold block cursor-pointer"
+                >
+                  {copied ? "✅ COPIED!" : "📋 COPY ADDRESS"}
+                </button>
+              </div>
+            )}
+            <span className="text-[10px] text-slate-550 font-mono mt-1">
               Responses typically within 12 hours
             </span>
           </div>

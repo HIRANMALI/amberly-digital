@@ -44,6 +44,10 @@ export function SuburbChecker() {
     setStatus("idle");
     setError(null);
 
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("creditsUpdated"));
+    }
+
     const startTime = Date.now();
 
     try {
@@ -101,7 +105,7 @@ export function SuburbChecker() {
             Scan Your Website
           </h3>
           <p className="text-sm text-slate-300 mt-3 leading-relaxed">
-            Get an honest, AI-powered diagnostic on how search engines and AI assistants (like Siri & ChatGPT) read your business.
+            Get an AI-powered scan on how search engines and AI assistants (like ChatGPT & Gemini) read your business.
           </p>
         </div>
 
