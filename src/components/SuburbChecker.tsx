@@ -75,8 +75,16 @@ export function SuburbChecker() {
         setStatus(data.status);
         setResultHeadline(data.headline);
         setResultDescription(data.description);
+        
+        if (typeof data.used === "number") {
+          localStorage.setItem("ai_credits_used", String(data.used));
+          document.querySelectorAll(".credits-counter").forEach((el) => {
+            el.textContent = String(data.used);
+          });
+        }
+
         if (typeof window !== "undefined") {
-          window.dispatchEvent(new CustomEvent("creditsUpdated"));
+          window.dispatchEvent(new CustomEvent("creditsUpdated", { detail: { used: data.used } }));
         }
       } else {
         if (data.error && (data.error.includes("limit") || data.error.includes("exceeded"))) {

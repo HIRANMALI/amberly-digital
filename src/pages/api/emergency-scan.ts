@@ -1,5 +1,4 @@
 import type { APIRoute } from "astro";
-import { GoogleGenAI } from "@google/genai";
 
 const AUSTRALIAN_SUBURBS = [
   { name: "Richmond", state: "VIC", searches: 480, competition: "High", gbpStatus: "Needs Optimization" },
@@ -21,18 +20,53 @@ const AUSTRALIAN_SUBURBS = [
   { name: "Casuarina", state: "NT", searches: 95, competition: "Low", gbpStatus: "Untapped local market" },
 ];
 
-let aiClient: GoogleGenAI | null = null;
-function getAiClient(env?: any): GoogleGenAI {
-  if (!aiClient) {
-    const apiKey = env?.GEMINI_API_KEY || import.meta.env.GEMINI_API_KEY || (typeof process !== "undefined" ? process.env.GEMINI_API_KEY : undefined);
-    aiClient = new GoogleGenAI({
-      apiKey: apiKey || "MOCK_KEY",
-      httpOptions: {
-        headers: { "User-Agent": "aistudio-build" }
-      }
+// Direct fetch helper for Gemini REST API
+async function callGemini(prompt: string, apiKey: string): Promise<string> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 12000); // 12 seconds timeout
+
+  try {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        contents: [
+          {
+            parts: [
+              {
+                text: prompt
+              }
+            ]
+          }
+        ],
+        generationConfig: {
+          responseMimeType: "application/json",
+          temperature: 0.2
+        }
+      }),
+      signal: controller.signal
     });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errText = await response.text();
+      throw new Error(`Gemini API error: ${response.status} ${errText}`);
+    }
+
+    const data: any = await response.json();
+    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!text) {
+      throw new Error("Empty response from Gemini API");
+    }
+    return text;
+  } catch (err) {
+    clearTimeout(timeoutId);
+    throw err;
   }
-  return aiClient;
 }
 
 function getMockAudit(businessName: string, suburb: string, specialty: string, searchVolume: number, comp: string) {
@@ -143,17 +177,7 @@ export const POST: APIRoute = async (context) => {
 
   Respond ONLY with valid JSON. No markdown code block wraps. Raw JSON text only.`;
 
-    const ai = getAiClient(env);
-    const result = await ai.models.generateContent({
-      model: "gemini-flash-latest",
-      contents: prompt,
-      config: {
-        responseMimeType: "application/json",
-        temperature: 0.2
-      }
-    });
-
-    const textOutput = result.text || "";
+    const textOutput = await callGemini(prompt, key);
     const parsedData = JSON.parse(textOutput.trim());
     return new Response(JSON.stringify(parsedData), {
       status: 200,

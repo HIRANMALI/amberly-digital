@@ -1,5 +1,4 @@
 import type { APIRoute } from "astro";
-import { GoogleGenAI } from "@google/genai";
 
 // Global in-memory rate limiting map fallback
 export const ipCache = new Map<string, number[]>();
@@ -378,6 +377,54 @@ function getPersonalizedAuditFallback(
   }
 }
 
+async function callGeminiApi(prompt: string, apiKey: string): Promise<string> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 12000); // 12 seconds timeout
+
+  try {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        contents: [
+          {
+            parts: [
+              {
+                text: prompt
+              }
+            ]
+          }
+        ],
+        generationConfig: {
+          responseMimeType: "application/json",
+          temperature: 0.3
+        }
+      }),
+      signal: controller.signal
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errText = await response.text();
+      throw new Error(`Gemini API error: ${response.status} ${errText}`);
+    }
+
+    const data: any = await response.json();
+    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!text) {
+      throw new Error("Empty text returned from Gemini API");
+    }
+    return text;
+  } catch (err) {
+    clearTimeout(timeoutId);
+    throw err;
+  }
+}
+
 async function generateAIAuditWithFallback(
   businessName: string, 
   domain: string,
@@ -402,17 +449,7 @@ async function generateAIAuditWithFallback(
     return getPersonalizedAuditFallback(biz, domain, siteTitle, siteDescription, hasSchema);
   }
 
-  for (let i = 0; i < keys.length; i++) {
-    const key = keys[i];
-    try {
-      const ai = new GoogleGenAI({
-        apiKey: key,
-        httpOptions: {
-          headers: { "User-Agent": "aistudio-build" }
-        }
-      });
-
-      const prompt = `You are a professional local search SEO and Answer Engine Optimization (AEO) expert at Amberly Digital agency.
+  const prompt = `You are a professional local search SEO and Answer Engine Optimization (AEO) expert at Amberly Digital agency.
 Generate an honest, objective, and constructive website audit message for:
 - Business Name: "${biz}"
 - Domain: "${domain}"
@@ -438,16 +475,10 @@ Provide a strict JSON output matching this structure:
 
 Respond ONLY with valid JSON. No markdown code block wraps. Raw JSON text only.`;
 
-      const result = await ai.models.generateContent({
-        model: "gemini-flash-latest",
-        contents: prompt,
-        config: {
-          responseMimeType: "application/json",
-          temperature: 0.3
-        }
-      });
-
-      const textOutput = result.text || "";
+  for (let i = 0; i < keys.length; i++) {
+    const key = keys[i];
+    try {
+      const textOutput = await callGeminiApi(prompt, key);
       const parsedData = JSON.parse(textOutput.trim());
       
       let finalStatus: "low" | "high" | "pass" = "high";
@@ -474,7 +505,8 @@ export const GET: APIRoute = async (context) => {
   const env = (locals as any).runtime?.env;
 
   try {
-    let clientIp = request.headers.get("x-forwarded-for") || 
+    let clientIp = request.headers.get("cf-connecting-ip") || 
+                   request.headers.get("x-forwarded-for") || 
                    request.headers.get("x-real-ip") || 
                    clientAddress || 
                    "127.0.0.1";
@@ -515,7 +547,8 @@ export const POST: APIRoute = async (context) => {
 
   try {
     // 1. IP Rate Limiting check
-    let clientIp = request.headers.get("x-forwarded-for") || 
+    let clientIp = request.headers.get("cf-connecting-ip") || 
+                   request.headers.get("x-forwarded-for") || 
                    request.headers.get("x-real-ip") || 
                    clientAddress || 
                    "127.0.0.1";
@@ -565,7 +598,9 @@ export const POST: APIRoute = async (context) => {
         domain: hostname,
         status: "pass",
         headline: `📍 ${bizName} (${hostname}) has exceptional search & AI visibility`,
-        description: `Auditing ${hostname} shows industry-leading structured schema markup, stellar page rendering speed, and comprehensive SEO optimization. Voice search agents and LLM recommendation engines can seamlessly identify and recommend your services.`
+        description: `Auditing ${hostname} shows industry-leading structured schema markup, stellar page rendering speed, and comprehensive SEO optimization. Voice search agents and LLM recommendation engines can seamlessly identify and recommend your services.`,
+        used: limitCheck.count + 1,
+        total: LIMIT_PER_WEEK
       }, 200);
     }
 
@@ -596,7 +631,9 @@ export const POST: APIRoute = async (context) => {
       domain: hostname,
       status: audit.status,
       headline: audit.headline,
-      description: audit.description
+      description: audit.description,
+      used: limitCheck.count + 1,
+      total: LIMIT_PER_WEEK
     }, 200);
   } catch (err: any) {
     console.error("[API Error /api/verify-domain]:", err);
@@ -606,4 +643,5 @@ export const POST: APIRoute = async (context) => {
     );
   }
 };
+
 

@@ -395,5 +395,14 @@ import { SERVICES } from "@/lib/seo-data";
   }
 
   // Listen to local scanner state updates (before and after scans)
-  window.addEventListener("creditsUpdated", updateCredits);
+  window.addEventListener("creditsUpdated", ((e: CustomEvent) => {
+    if (e.detail && typeof e.detail.used === "number") {
+      localStorage.setItem("ai_credits_used", String(e.detail.used));
+      document.querySelectorAll(".credits-counter").forEach((el) => {
+        el.textContent = String(e.detail.used);
+      });
+    } else {
+      updateCredits();
+    }
+  }) as EventListener);
 </script>
