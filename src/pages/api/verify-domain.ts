@@ -1,6 +1,4 @@
 import type { APIRoute } from "astro";
-import { GoogleGenAI } from "@google/genai";
-import dns from "dns";
 
 // Global in-memory rate limiting map fallback
 export const ipCache = new Map<string, number[]>();
@@ -10,9 +8,16 @@ const REDIS_PREFIX = "limit:ip:";
 const ONE_WEEK_SECONDS = 7 * 24 * 60 * 60; // 7 days in seconds
 const ONE_WEEK_MS = ONE_WEEK_SECONDS * 1000;
 
-async function upstashCommand(command: any[]): Promise<any> {
-  const url = import.meta.env.UPSTASH_REDIS_REST_URL || process.env.UPSTASH_REDIS_REST_URL;
-  const token = import.meta.env.UPSTASH_REDIS_REST_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+function getEnv(key: string, env?: any): string | undefined {
+  if (env && env[key]) return env[key];
+  if (import.meta.env && import.meta.env[key]) return import.meta.env[key];
+  if (typeof process !== "undefined" && process.env && process.env[key]) return process.env[key];
+  return undefined;
+}
+
+async function upstashCommand(command: any[], env?: any): Promise<any> {
+  const url = getEnv("UPSTASH_REDIS_REST_URL", env);
+  const token = getEnv("UPSTASH_REDIS_REST_TOKEN", env);
 
   if (!url || !token) {
     return null;
@@ -46,15 +51,15 @@ async function upstashCommand(command: any[]): Promise<any> {
   }
 }
 
-export async function getTimestamps(ip: string): Promise<number[]> {
-  const url = import.meta.env.UPSTASH_REDIS_REST_URL || process.env.UPSTASH_REDIS_REST_URL;
-  const token = import.meta.env.UPSTASH_REDIS_REST_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+export async function getTimestamps(ip: string, env?: any): Promise<number[]> {
+  const url = getEnv("UPSTASH_REDIS_REST_URL", env);
+  const token = getEnv("UPSTASH_REDIS_REST_TOKEN", env);
 
   if (!url || !token) {
     return ipCache.get(ip) || [];
   }
 
-  const result = await upstashCommand(["GET", `${REDIS_PREFIX}${ip}`]);
+  const result = await upstashCommand(["GET", `${REDIS_PREFIX}${ip}`], env);
   if (result === null) {
     return [];
   }
@@ -66,9 +71,9 @@ export async function getTimestamps(ip: string): Promise<number[]> {
   }
 }
 
-export async function setTimestamps(ip: string, timestamps: number[]): Promise<void> {
-  const url = import.meta.env.UPSTASH_REDIS_REST_URL || process.env.UPSTASH_REDIS_REST_URL;
-  const token = import.meta.env.UPSTASH_REDIS_REST_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+export async function setTimestamps(ip: string, timestamps: number[], env?: any): Promise<void> {
+  const url = getEnv("UPSTASH_REDIS_REST_URL", env);
+  const token = getEnv("UPSTASH_REDIS_REST_TOKEN", env);
 
   if (!url || !token) {
     ipCache.set(ip, timestamps);
@@ -81,12 +86,12 @@ export async function setTimestamps(ip: string, timestamps: number[]): Promise<v
     JSON.stringify(timestamps),
     "EX",
     ONE_WEEK_SECONDS
-  ]);
+  ], env);
 }
 
-export async function deleteIp(ip: string): Promise<boolean> {
-  const url = import.meta.env.UPSTASH_REDIS_REST_URL || process.env.UPSTASH_REDIS_REST_URL;
-  const token = import.meta.env.UPSTASH_REDIS_REST_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+export async function deleteIp(ip: string, env?: any): Promise<boolean> {
+  const url = getEnv("UPSTASH_REDIS_REST_URL", env);
+  const token = getEnv("UPSTASH_REDIS_REST_TOKEN", env);
 
   if (!url || !token) {
     if (ipCache.has(ip)) {
@@ -96,18 +101,19 @@ export async function deleteIp(ip: string): Promise<boolean> {
     return false;
   }
 
-  const deletedCount = await upstashCommand(["DEL", `${REDIS_PREFIX}${ip}`]);
-  return typeof deletedCount === "number" && deletedCount > 0;
+  const deletedCount = await upstashCommand(["DEL", `${REDIS_PREFIX}${ip}`], env);
+  // DEL returns the number of keys removed. If it returns a number (0 or 1), the command succeeded and the key is now absent.
+  return typeof deletedCount === "number";
 }
 
-export async function getAllTrackedIps(): Promise<Array<{
+export async function getAllTrackedIps(env?: any): Promise<Array<{
   ip: string;
   scanCount: number;
   lastScanTime: string | null;
   allScansThisWeek: string[];
 }>> {
-  const url = import.meta.env.UPSTASH_REDIS_REST_URL || process.env.UPSTASH_REDIS_REST_URL;
-  const token = import.meta.env.UPSTASH_REDIS_REST_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+  const url = getEnv("UPSTASH_REDIS_REST_URL", env);
+  const token = getEnv("UPSTASH_REDIS_REST_TOKEN", env);
   const now = Date.now();
 
   if (!url || !token) {
@@ -124,10 +130,10 @@ export async function getAllTrackedIps(): Promise<Array<{
     return limitList;
   }
 
-  const keys: string[] = await upstashCommand(["KEYS", `${REDIS_PREFIX}*`]) || [];
+  const keys: string[] = await upstashCommand(["KEYS", `${REDIS_PREFIX}*`], env) || [];
   if (keys.length === 0) return [];
 
-  const values: Array<string | null> = await upstashCommand(["MGET", ...keys]) || [];
+  const values: Array<string | null> = await upstashCommand(["MGET", ...keys], env) || [];
   const limitList: any[] = [];
 
   for (let i = 0; i < keys.length; i++) {
@@ -152,48 +158,48 @@ export async function getAllTrackedIps(): Promise<Array<{
   return limitList;
 }
 
-async function isRateLimited(ip: string): Promise<{ limited: boolean; count: number }> {
+async function isRateLimited(ip: string, env?: any): Promise<{ limited: boolean; count: number }> {
   const now = Date.now();
-  let timestamps = await getTimestamps(ip);
+  let timestamps = await getTimestamps(ip, env);
 
   // Filter out timestamps older than 1 week
   timestamps = timestamps.filter((ts) => now - ts < ONE_WEEK_MS);
-  await setTimestamps(ip, timestamps); // clean up old timestamps on check
+  await setTimestamps(ip, timestamps, env); // clean up old timestamps on check
 
   return { limited: timestamps.length >= LIMIT_PER_WEEK, count: timestamps.length };
 }
 
-async function consumeCredit(ip: string): Promise<void> {
+async function consumeCredit(ip: string, env?: any): Promise<void> {
   const now = Date.now();
-  let timestamps = await getTimestamps(ip);
+  let timestamps = await getTimestamps(ip, env);
   timestamps = timestamps.filter((ts) => now - ts < ONE_WEEK_MS);
   timestamps.push(now);
-  await setTimestamps(ip, timestamps);
+  await setTimestamps(ip, timestamps, env);
 }
 
 let globalScanCountFallback = 0;
 
-export async function incrementGlobalScanCount(): Promise<void> {
-  const url = import.meta.env.UPSTASH_REDIS_REST_URL || process.env.UPSTASH_REDIS_REST_URL;
-  const token = import.meta.env.UPSTASH_REDIS_REST_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+export async function incrementGlobalScanCount(env?: any): Promise<void> {
+  const url = getEnv("UPSTASH_REDIS_REST_URL", env);
+  const token = getEnv("UPSTASH_REDIS_REST_TOKEN", env);
 
   if (!url || !token) {
     globalScanCountFallback++;
     return;
   }
 
-  await upstashCommand(["INCR", "global:total_scans"]);
+  await upstashCommand(["INCR", "global:total_scans"], env);
 }
 
-export async function getGlobalScanCount(): Promise<number> {
-  const url = import.meta.env.UPSTASH_REDIS_REST_URL || process.env.UPSTASH_REDIS_REST_URL;
-  const token = import.meta.env.UPSTASH_REDIS_REST_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+export async function getGlobalScanCount(env?: any): Promise<number> {
+  const url = getEnv("UPSTASH_REDIS_REST_URL", env);
+  const token = getEnv("UPSTASH_REDIS_REST_TOKEN", env);
 
   if (!url || !token) {
     return globalScanCountFallback;
   }
 
-  const result = await upstashCommand(["GET", "global:total_scans"]);
+  const result = await upstashCommand(["GET", "global:total_scans"], env);
   if (result === null) {
     return 0;
   }
@@ -213,14 +219,39 @@ function cleanDomain(input: string): string {
 }
 
 function lookupDns(hostname: string): Promise<boolean> {
-  return new Promise((resolve) => {
-    dns.lookup(hostname, (err) => {
-      if (err) {
-        resolve(false);
-      } else {
-        resolve(true);
+  return new Promise(async (resolve) => {
+    try {
+      const cfUrl = `https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(hostname)}&type=A`;
+      const response = await fetch(cfUrl, {
+        headers: { accept: "application/dns-json" },
+      });
+      if (response.ok) {
+        const data: any = await response.json();
+        if (data.Status === 0) {
+          resolve(true);
+          return;
+        }
       }
-    });
+    } catch (err) {
+      console.warn("Cloudflare DNS lookup failed:", err);
+    }
+
+    // Fallback to Google DoH
+    try {
+      const googleUrl = `https://dns.google/resolve?name=${encodeURIComponent(hostname)}&type=A`;
+      const response = await fetch(googleUrl);
+      if (response.ok) {
+        const data: any = await response.json();
+        if (data.Status === 0) {
+          resolve(true);
+          return;
+        }
+      }
+    } catch (err) {
+      console.error("Google DNS lookup failed:", err);
+    }
+
+    resolve(false);
   });
 }
 
@@ -347,21 +378,63 @@ function getPersonalizedAuditFallback(
   }
 }
 
+async function callGeminiApi(prompt: string, apiKey: string): Promise<string> {
+  try {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`;
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        contents: [
+          {
+            parts: [
+              {
+                text: prompt
+              }
+            ]
+          }
+        ],
+        generationConfig: {
+          responseMimeType: "application/json",
+          temperature: 0.3
+        }
+      })
+    });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      throw new Error(`Gemini API error: ${response.status} ${errText}`);
+    }
+
+    const data: any = await response.json();
+    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!text) {
+      throw new Error("Empty text returned from Gemini API");
+    }
+    return text;
+  } catch (err) {
+    throw err;
+  }
+}
+
 async function generateAIAuditWithFallback(
   businessName: string, 
   domain: string,
   siteTitle: string,
   siteDescription: string,
-  hasSchema: boolean
+  hasSchema: boolean,
+  env?: any
 ): Promise<{
   status: "low" | "high" | "pass";
   headline: string;
   description: string;
 }> {
   const keys = [
-    import.meta.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY,
-    import.meta.env.GEMINI_API_KEY_FALLBACK || process.env.GEMINI_API_KEY_FALLBACK,
-    import.meta.env.GEMINI_API_KEY_FALLBACK_2 || process.env.GEMINI_API_KEY_FALLBACK_2
+    getEnv("GEMINI_API_KEY", env),
+    getEnv("GEMINI_API_KEY_FALLBACK", env),
+    getEnv("GEMINI_API_KEY_FALLBACK_2", env)
   ].filter(Boolean) as string[];
 
   const biz = businessName || "Your Business";
@@ -370,17 +443,7 @@ async function generateAIAuditWithFallback(
     return getPersonalizedAuditFallback(biz, domain, siteTitle, siteDescription, hasSchema);
   }
 
-  for (let i = 0; i < keys.length; i++) {
-    const key = keys[i];
-    try {
-      const ai = new GoogleGenAI({
-        apiKey: key,
-        httpOptions: {
-          headers: { "User-Agent": "aistudio-build" }
-        }
-      });
-
-      const prompt = `You are a professional local search SEO and Answer Engine Optimization (AEO) expert at Amberly Digital agency.
+  const prompt = `You are a professional local search SEO and Answer Engine Optimization (AEO) expert at Amberly Digital agency.
 Generate an honest, objective, and constructive website audit message for:
 - Business Name: "${biz}"
 - Domain: "${domain}"
@@ -406,16 +469,10 @@ Provide a strict JSON output matching this structure:
 
 Respond ONLY with valid JSON. No markdown code block wraps. Raw JSON text only.`;
 
-      const result = await ai.models.generateContent({
-        model: "gemini-flash-latest",
-        contents: prompt,
-        config: {
-          responseMimeType: "application/json",
-          temperature: 0.3
-        }
-      });
-
-      const textOutput = result.text || "";
+  for (let i = 0; i < keys.length; i++) {
+    const key = keys[i];
+    try {
+      const textOutput = await callGeminiApi(prompt, key);
       const parsedData = JSON.parse(textOutput.trim());
       
       let finalStatus: "low" | "high" | "pass" = "high";
@@ -429,7 +486,8 @@ Respond ONLY with valid JSON. No markdown code block wraps. Raw JSON text only.`
         description: parsedData.description || `Your website lacks key JSON-LD structure mapping. Voice search engines (Siri, ChatGPT) cannot verify and ground your business recommendations.`
       };
     } catch (err) {
-      console.warn(`Gemini API key index ${i} failed to execute query:`, err);
+      const maskedKey = key ? `${key.substring(0, 6)}...${key.substring(key.length - 4)}` : "empty";
+      console.warn(`Gemini API key index ${i} (key: ${maskedKey}, len: ${key?.length}) failed to execute query:`, err);
     }
   }
 
@@ -437,9 +495,13 @@ Respond ONLY with valid JSON. No markdown code block wraps. Raw JSON text only.`
   return getPersonalizedAuditFallback(biz, domain, siteTitle, siteDescription, hasSchema);
 }
 
-export const GET: APIRoute = async ({ request, clientAddress }) => {
+export const GET: APIRoute = async (context) => {
+  const { request, clientAddress, locals } = context;
+  const env = (locals as any).runtime?.env;
+
   try {
-    let clientIp = request.headers.get("x-forwarded-for") || 
+    let clientIp = request.headers.get("cf-connecting-ip") || 
+                   request.headers.get("x-forwarded-for") || 
                    request.headers.get("x-real-ip") || 
                    clientAddress || 
                    "127.0.0.1";
@@ -447,7 +509,7 @@ export const GET: APIRoute = async ({ request, clientAddress }) => {
       clientIp = clientIp.split(",")[0].trim();
     }
 
-    const timestamps = await getTimestamps(clientIp);
+    const timestamps = await getTimestamps(clientIp, env);
     const now = Date.now();
     const activeTimestamps = timestamps.filter((ts) => now - ts < ONE_WEEK_MS);
     
@@ -466,7 +528,10 @@ export const GET: APIRoute = async ({ request, clientAddress }) => {
   }
 };
 
-export const POST: APIRoute = async ({ request, clientAddress }) => {
+export const POST: APIRoute = async (context) => {
+  const { request, clientAddress, locals } = context;
+  const env = (locals as any).runtime?.env;
+
   const logResponse = (payload: any, status: number = 200) => {
     console.log(`[API Response /api/verify-domain] Status: ${status} | Payload:`, JSON.stringify(payload, null, 2));
     return new Response(JSON.stringify(payload), {
@@ -477,7 +542,8 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
 
   try {
     // 1. IP Rate Limiting check
-    let clientIp = request.headers.get("x-forwarded-for") || 
+    let clientIp = request.headers.get("cf-connecting-ip") || 
+                   request.headers.get("x-forwarded-for") || 
                    request.headers.get("x-real-ip") || 
                    clientAddress || 
                    "127.0.0.1";
@@ -488,7 +554,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     const { websiteUrl, businessName } = await request.json();
     console.log(`[API Request /api/verify-domain] IP: ${clientIp} | websiteUrl: "${websiteUrl}" | businessName: "${businessName}"`);
 
-    const limitCheck = await isRateLimited(clientIp);
+    const limitCheck = await isRateLimited(clientIp, env);
     if (limitCheck.limited) {
       return logResponse({ 
         success: false, 
@@ -518,8 +584,8 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
 
     if (isTopTier) {
       // Consume a credit since a valid scan is successfully completed
-      await consumeCredit(clientIp);
-      await incrementGlobalScanCount();
+      await consumeCredit(clientIp, env);
+      await incrementGlobalScanCount(env);
 
       const bizName = businessName || hostname.split(".")[0].toUpperCase();
       return logResponse({
@@ -527,7 +593,9 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
         domain: hostname,
         status: "pass",
         headline: `📍 ${bizName} (${hostname}) has exceptional search & AI visibility`,
-        description: `Auditing ${hostname} shows industry-leading structured schema markup, stellar page rendering speed, and comprehensive SEO optimization. Voice search agents and LLM recommendation engines can seamlessly identify and recommend your services.`
+        description: `Auditing ${hostname} shows industry-leading structured schema markup, stellar page rendering speed, and comprehensive SEO optimization. Voice search agents and LLM recommendation engines can seamlessly identify and recommend your services.`,
+        used: limitCheck.count + 1,
+        total: LIMIT_PER_WEEK
       }, 200);
     }
 
@@ -544,21 +612,23 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     }
 
     // Dynamic checks succeeded and site crawled successfully - consume a credit now
-    await consumeCredit(clientIp);
-    await incrementGlobalScanCount();
+    await consumeCredit(clientIp, env);
+    await incrementGlobalScanCount(env);
 
     // Extract live page title and description
     const metadata = extractMetadata(fetchResult.html);
 
     // Step 4: Generate Dynamic AI Audit
-    const audit = await generateAIAuditWithFallback(businessName, hostname, metadata.title, metadata.description, metadata.hasSchema);
+    const audit = await generateAIAuditWithFallback(businessName, hostname, metadata.title, metadata.description, metadata.hasSchema, env);
 
     return logResponse({
       success: true,
       domain: hostname,
       status: audit.status,
       headline: audit.headline,
-      description: audit.description
+      description: audit.description,
+      used: limitCheck.count + 1,
+      total: LIMIT_PER_WEEK
     }, 200);
   } catch (err: any) {
     console.error("[API Error /api/verify-domain]:", err);
@@ -568,3 +638,5 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     );
   }
 };
+
+

@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 580 120" width="580" height="120">
+  <defs>
+    <!-- Import Google Fonts: Inter and Outfit -->
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@900&amp;family=Outfit:wght@900&amp;display=swap');
+      .logo-icon-text {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-weight: 900;
+        font-size: 66px;
+        fill: #090d16;
+        text-anchor: middle;
+      }
+      .logo-brand-text {
+        font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-weight: 900;
+        font-size: 48px;
+        text-transform: uppercase;
+        letter-spacing: -1.5px;
+      }
+      .color-slate {
+        fill: #090d16;
+      }
+      .color-amber {
+        fill: #d97706; /* Amber 600 */
+      }
+    </style>
+  </defs>
+
+  <g transform="translate(10, 10)">
+    <!-- Amber square logo box with black outline -->
+    <rect x="0" y="0" width="100" height="100" fill="#f59e0b" stroke="#090d16" stroke-width="8" rx="0" ry="0"/>
+    
+    <!-- Letter A - precisely aligned to the optical center -->
+    <text x="50" y="74" class="logo-icon-text">A</text>
+  </g>
+
+  <!-- Brand Text (Amberly Digital) -->
+  <text x="135" y="72" class="logo-brand-text">
+    <tspan class="color-slate">AMBERLY </tspan><tspan class="color-amber">DIGITAL</tspan>
+  </text>
+</svg>

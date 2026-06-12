@@ -1,35 +1,24 @@
-import { GoogleGenAI } from "@google/genai";
-import dotenv from "dotenv";
-
+import dotenv from 'dotenv';
 dotenv.config();
 
-const apiKey = process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY_FALLBACK;
+const apiKey = process.env.GEMINI_API_KEY;
 
-if (!apiKey) {
-  console.error("No GEMINI_API_KEY found in env!");
-  process.exit(1);
-}
-
-const ai = new GoogleGenAI({
-  apiKey,
-  httpOptions: {
-    headers: { "User-Agent": "aistudio-build" }
-  }
-});
-
-async function run() {
+async function listModels() {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`;
   try {
-    console.log("Listing models...");
-    const response = await ai.models.list();
-    console.log("Testing generateContent with gemini-flash-latest...");
-    const genResponse = await ai.models.generateContent({
-      model: "gemini-flash-latest",
-      contents: "Hello, tell me a 1-sentence joke."
-    });
-    console.log("Response text:", genResponse.text);
+    const response = await fetch(url);
+    const data = await response.json();
+    if (data.models) {
+      const geminiModels = data.models
+        .filter(m => m.name.includes('gemini') && m.supportedGenerationMethods.includes('generateContent'))
+        .map(m => m.name);
+      console.log("Supported Gemini models for generateContent:", geminiModels);
+    } else {
+      console.log("No models returned. Error:", data);
+    }
   } catch (err) {
-    console.error("Failed to list models:", err);
+    console.error("Failed:", err);
   }
 }
 
-run();
+listModels();

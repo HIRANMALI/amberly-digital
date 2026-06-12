@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <!-- Import Google Fonts: Inter -->
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@900&amp;display=swap');
+      .favicon-text {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-weight: 900;
+        font-size: 80px;
+        fill: #090d16;
+        text-anchor: middle;
+      }
+    </style>
+  </defs>
+
+  <!-- Rounded Amber square with black outline (minimized margins to maximize size in tab) -->
+  <rect x="4" y="4" width="112" height="112" fill="#f59e0b" stroke="#090d16" stroke-width="8" rx="25" ry="25"/>
+  
+  <!-- Letter A - enlarged and optically centered -->
+  <text x="60" y="87" class="favicon-text">A</text>
+</svg>

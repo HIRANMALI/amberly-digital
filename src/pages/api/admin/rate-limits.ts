@@ -1,16 +1,16 @@
 import type { APIRoute } from "astro";
 import { deleteIp, getAllTrackedIps, getGlobalScanCount } from "../verify-domain";
 
-function getAuthorized(request: Request): boolean {
+function getAuthorized(request: Request, env?: any): boolean {
   const authHeader = request.headers.get("Authorization");
   if (!authHeader || !authHeader.startsWith("Basic ")) {
     return false;
   }
   try {
     const base64Credentials = authHeader.split(" ")[1];
-    const credentials = Buffer.from(base64Credentials, "base64").toString("utf-8");
+    const credentials = atob(base64Credentials);
     const [username, password] = credentials.split(":");
-    const adminSecret = import.meta.env.ADMIN_SECRET || process.env.ADMIN_SECRET || "amberly_admin_2026";
+    const adminSecret = env?.ADMIN_SECRET || import.meta.env.ADMIN_SECRET || (typeof process !== "undefined" ? process.env.ADMIN_SECRET : undefined) || "amberly_admin_2026";
     return username === "admin" && password === adminSecret;
   } catch {
     return false;
@@ -30,7 +30,10 @@ function getUnauthorizedResponse() {
   );
 }
 
-export const GET: APIRoute = async ({ request, url }) => {
+export const GET: APIRoute = async (context) => {
+  const { request, url, locals } = context;
+  const env = (locals as any).runtime?.env;
+
   const logResponse = (payload: any, status: number = 200) => {
     console.log(`[API Response /api/admin/rate-limits GET] Status: ${status} | Payload:`, JSON.stringify(payload, null, 2));
     return new Response(JSON.stringify(payload), {
@@ -40,7 +43,7 @@ export const GET: APIRoute = async ({ request, url }) => {
   };
 
   try {
-    if (!getAuthorized(request)) {
+    if (!getAuthorized(request, env)) {
       return getUnauthorizedResponse();
     }
 
@@ -51,7 +54,7 @@ export const GET: APIRoute = async ({ request, url }) => {
 
     // 2. Action Handlers: Reset Specific IP
     if (action === "reset" && targetIp) {
-      const deleted = await deleteIp(targetIp);
+      const deleted = await deleteIp(targetIp, env);
       if (deleted) {
         return logResponse({
           success: true,
@@ -66,8 +69,8 @@ export const GET: APIRoute = async ({ request, url }) => {
     }
 
     // 3. Get Listing of Active IPs
-    const limitList = await getAllTrackedIps();
-    const totalScansOverall = await getGlobalScanCount();
+    const limitList = await getAllTrackedIps(env);
+    const totalScansOverall = await getGlobalScanCount(env);
 
     return logResponse({
       success: true,
@@ -84,7 +87,10 @@ export const GET: APIRoute = async ({ request, url }) => {
   }
 };
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async (context) => {
+  const { request, locals } = context;
+  const env = (locals as any).runtime?.env;
+
   const logResponse = (payload: any, status: number = 200) => {
     console.log(`[API Response /api/admin/rate-limits POST] Status: ${status} | Payload:`, JSON.stringify(payload, null, 2));
     return new Response(JSON.stringify(payload), {
@@ -94,7 +100,7 @@ export const POST: APIRoute = async ({ request }) => {
   };
 
   try {
-    if (!getAuthorized(request)) {
+    if (!getAuthorized(request, env)) {
       return getUnauthorizedResponse();
     }
 
@@ -104,7 +110,7 @@ export const POST: APIRoute = async ({ request }) => {
 
     // 2. Action Handler: Reset Specific IP
     if (action === "reset" && targetIp) {
-      const deleted = await deleteIp(targetIp);
+      const deleted = await deleteIp(targetIp, env);
       if (deleted) {
         return logResponse({
           success: true,

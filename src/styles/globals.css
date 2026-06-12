@@ -11,6 +11,11 @@
   body {
     @apply font-sans bg-slate-50 text-slate-900 antialiased overflow-x-hidden;
   }
+  img {
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-user-drag: none;
+  }
 }
 
 /* Custom crisp geometric patterns */

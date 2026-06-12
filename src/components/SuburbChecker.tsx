@@ -44,6 +44,10 @@ export function SuburbChecker() {
     setStatus("idle");
     setError(null);
 
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("creditsUpdated"));
+    }
+
     const startTime = Date.now();
 
     try {
@@ -71,8 +75,16 @@ export function SuburbChecker() {
         setStatus(data.status);
         setResultHeadline(data.headline);
         setResultDescription(data.description);
+        
+        if (typeof data.used === "number") {
+          localStorage.setItem("ai_credits_used", String(data.used));
+          document.querySelectorAll(".credits-counter").forEach((el) => {
+            el.textContent = String(data.used);
+          });
+        }
+
         if (typeof window !== "undefined") {
-          window.dispatchEvent(new CustomEvent("creditsUpdated"));
+          window.dispatchEvent(new CustomEvent("creditsUpdated", { detail: { used: data.used } }));
         }
       } else {
         if (data.error && (data.error.includes("limit") || data.error.includes("exceeded"))) {
@@ -101,7 +113,7 @@ export function SuburbChecker() {
             Scan Your Website
           </h3>
           <p className="text-sm text-slate-300 mt-3 leading-relaxed">
-            Get an honest, AI-powered diagnostic on how search engines and AI assistants (like Siri & ChatGPT) read your business.
+            Get an AI-powered scan on how search engines and AI assistants (like ChatGPT & Gemini) read your business.
           </p>
         </div>
 
