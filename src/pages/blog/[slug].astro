@@ -19,7 +19,7 @@ const blogPostingSchema = {
   "@type": "BlogPosting",
   mainEntityOfPage: {
     "@type": "WebPage",
-    "@id": `https://amberlydigital.com.au/blog/${post.slug}`,
+    "@id": `https://amberlydigital.com/blog/${post.slug}`,
   },
   headline: post.title,
   description: post.excerpt,
@@ -28,14 +28,14 @@ const blogPostingSchema = {
   author: {
     "@type": "Organization",
     name: "Amberly Digital Team",
-    url: "https://amberlydigital.com.au",
+    url: "https://amberlydigital.com",
   },
   publisher: {
     "@type": "LocalBusiness",
     name: "Amberly Digital",
     logo: {
       "@type": "ImageObject",
-      url: "https://amberlydigital.com.au/og-image.jpg",
+      url: "https://amberlydigital.com/og-image.png",
     },
   },
 };
@@ -57,7 +57,7 @@ const faqSchema = {
   ogTitle={`${post.title} | The Tradie Blueprint`}
   ogDescription={post.excerpt}
   ogType="article"
-  ogUrl={`https://amberlydigital.com.au/blog/${post.slug}`}
+  ogUrl={`https://amberlydigital.com/blog/${post.slug}`}
 >
   <script
     type="application/ld+json"

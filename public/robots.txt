@@ -25,6 +25,20 @@
 
 # BEGIN Cloudflare Managed content
 
+# AEO (Answer Engine Optimization) Whitelist
+# We explicitly welcome these bots to ingest our content for real-time search answers
+User-agent: OAI-SearchBot
+Allow: /
+Content-Signal: ai-input=yes, search=yes
+
+User-agent: ChatGPT-User
+Allow: /
+Content-Signal: ai-input=yes, search=yes
+
+User-agent: PerplexityBot
+Allow: /
+Content-Signal: ai-input=yes, search=yes
+
 User-agent: *
 Content-Signal: search=yes,ai-train=no
 Allow: /

@@ -3,44 +3,28 @@ import "@/styles/globals.css";
 export interface Props {
   title?: string;
   description?: string;
-  keywords?: string[];
   ogTitle?: string;
   ogDescription?: string;
   ogType?: string;
   ogUrl?: string;
-  geoRegion?: string;
-  geoPlacename?: string;
-  geoPosition?: string;
-  icbm?: string;
   robots?: string;
 }
 
 const {
-  title = "Amberly Digital | Plumber Leads Australia & Emergency Tradie SEO Specialist",
-  description = "Amberly Digital delivers high-converting plumbing leads in Australia. Secure ChatGPT AEO search dominance and Google Maps Top 3 positioning for emergency plumbing searches.",
-  keywords = [
-    "plumber leads Australia",
-    "emergency tradie SEO",
-    "ChatGPT AEO search dominance",
-    "local plumber SEO",
-    "emergency plumber marketing Australia",
-    "tradie lead generation",
-    "answer engine optimization plumbers",
-    "Aussie tradie growth",
-  ],
-  ogTitle = "Amberly Digital | Plumber Leads Australia & Emergency Tradie SEO",
-  ogDescription = "Secure total Google Map Pack and ChatGPT AEO dominance in Australia for emergency plumbers.",
+  title = "Amberly Digital | AI Automation & Custom AI Solutions",
+  description = "Amberly Digital builds AI receptionists, workflow automation systems, and custom AI tools for businesses worldwide.",
+  ogTitle = "Amberly Digital | AI Automation & Custom AI Solutions",
+  ogDescription = "AI receptionists, workflow automation, custom AI tools, and websites designed to help businesses grow with less manual work.",
   ogType = "website",
   ogUrl,
-  geoRegion = "AU-NSW",
-  geoPlacename = "Sydney",
-  geoPosition = "-33.8688;151.2093",
-  icbm = "-33.8688, 151.2093",
   robots = "index, follow",
 } = Astro.props;
 
 // Determine current canonical URL dynamically
-const canonicalUrl = new URL(Astro.url.pathname, Astro.site || "https://amberlydigital.com").toString();
+const canonicalUrl = new URL(
+  Astro.url.pathname,
+  Astro.site || "https://amberlydigital.com",
+).toString();
 ---
 
 <!doctype html>
@@ -50,7 +34,6 @@ const canonicalUrl = new URL(Astro.url.pathname, Astro.site || "https://amberlyd
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
     <meta name="description" content={description} />
-    <meta name="keywords" content={keywords.join(", ")} />
     <meta name="author" content="Amberly Digital" />
 
     <!-- Robots Meta -->
@@ -65,15 +48,20 @@ const canonicalUrl = new URL(Astro.url.pathname, Astro.site || "https://amberlyd
     <meta property="og:type" content={ogType} />
     <meta property="og:url" content={ogUrl || canonicalUrl} />
     <meta property="og:locale" content="en_AU" />
+    <meta property="og:image" content="https://amberlydigital.com/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
 
-    <!-- Australian Geo Tags -->
-    <meta name="geo.region" content={geoRegion} />
-    <meta name="geo.placename" content={geoPlacename} />
-    <meta name="geo.position" content={geoPosition} />
-    <meta name="ICBM" content={icbm} />
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={ogTitle} />
+    <meta name="twitter:description" content={ogDescription} />
+    <meta name="twitter:image" content="https://amberlydigital.com/og-image.png" />
 
     <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
     <!-- Google Fonts: Inter + Outfit + JetBrains Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -107,13 +95,18 @@ const canonicalUrl = new URL(Astro.url.pathname, Astro.site || "https://amberlyd
     </style>
 
     <!-- Google tag (gtag.js) -->
-    <script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-9RVKRYLSBV"></script>
+    <script
+      is:inline
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-9RVKRYLSBV"></script>
     <script is:inline>
       window.dataLayer = window.dataLayer || [];
-      function gtag(){window.dataLayer.push(arguments);}
-      gtag('js', new Date());
+      function gtag() {
+        window.dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
 
-      gtag('config', 'G-9RVKRYLSBV');
+      gtag("config", "G-9RVKRYLSBV");
     </script>
   </head>
   <body

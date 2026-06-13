@@ -39,9 +39,7 @@ export function Footer() {
         <div className="flex flex-col gap-4">
           <div className="flex items-center gap-2">
             <a href="/" className="flex items-center gap-2 group">
-              <div className="w-10 h-10 bg-amber-500 rounded-none border border-slate-950 flex items-center justify-center font-black text-slate-950 text-2xl pt-0.5">
-                A
-              </div>
+
               <span className="text-lg font-black tracking-tighter uppercase font-display text-white">
                 Amberly <span className="text-amber-500">Digital</span>
               </span>

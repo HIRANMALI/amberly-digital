@@ -9,3 +9,5 @@ coverage/
 .next/
 next-env.d.ts
 
+# Blog drafts
+blog.md

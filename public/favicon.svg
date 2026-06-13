@@ -1,21 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
-  <defs>
-    <!-- Import Google Fonts: Inter -->
-    <style>
-      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@900&amp;display=swap');
-      .favicon-text {
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        font-weight: 900;
-        font-size: 80px;
-        fill: #090d16;
-        text-anchor: middle;
-      }
-    </style>
-  </defs>
-
-  <!-- Rounded Amber square with black outline (minimized margins to maximize size in tab) -->
-  <rect x="4" y="4" width="112" height="112" fill="#f59e0b" stroke="#090d16" stroke-width="8" rx="25" ry="25"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+  <!-- Rounded Amber square with black outline (touches canvas edge completely) -->
+  <rect x="1" y="1" width="46" height="46" fill="#f59e0b" stroke="#090d16" stroke-width="2" rx="10" ry="10"/>
   
-  <!-- Letter A - enlarged and optically centered -->
-  <text x="60" y="87" class="favicon-text">A</text>
+  <!-- Vector Letter A (Converted to path for perfect cross-platform rendering without fonts) -->
+  <path fill-rule="evenodd" clip-rule="evenodd" d="M 21.5 10 L 26.5 10 L 36.5 38 L 29.5 38 L 27.5 31 L 20.5 31 L 18.5 38 L 11.5 38 L 21.5 10 Z M 24 16 L 22 25 L 26 25 Z" fill="#090d16" />
 </svg>

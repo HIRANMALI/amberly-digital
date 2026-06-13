@@ -110,10 +110,10 @@ export function SuburbChecker() {
       <div className="relative space-y-6">
         <div>
           <h3 className="text-2xl sm:text-3xl font-display font-black uppercase leading-tight text-white">
-            Scan Your Website
+            Scan Your Visibility
           </h3>
           <p className="text-sm text-slate-300 mt-3 leading-relaxed">
-            Get an AI-powered scan on how search engines and AI assistants (like ChatGPT & Gemini) read your business.
+            Get an AI-powered diagnostic on how search engines and AI assistants (like ChatGPT & Gemini) read your business.
           </p>
         </div>
 
@@ -154,7 +154,7 @@ export function SuburbChecker() {
               ) : (
                 <>
                   <Search className="w-4 h-4" />
-                  <span>Scan My Website</span>
+                  <span>Scan Website</span>
                 </>
               )}
             </button>
