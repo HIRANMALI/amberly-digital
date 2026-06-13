@@ -15,7 +15,7 @@ const blogListSchema = {
   publisher: {
     "@type": "LocalBusiness",
     name: "Amberly Digital",
-    url: "https://amberlydigital.com.au",
+    url: "https://amberlydigital.com",
   },
   blogPost: posts.map((post) => ({
     "@type": "BlogPosting",
@@ -23,7 +23,7 @@ const blogListSchema = {
     description: post.excerpt,
     datePublished: post.date,
     author: { "@type": "Organization", name: post.author },
-    url: `https://amberlydigital.com.au/blog/${post.slug}`,
+    url: `https://amberlydigital.com/blog/${post.slug}`,
   })),
 };
 ---
@@ -31,18 +31,10 @@ const blogListSchema = {
 <BaseLayout
   title="The Tradie Blueprint | Amberly Digital Blog"
   description="Actionable local SEO, Answer Engine Optimization (AEO), and automation advice for Australian trade businesses. Zero fluff. Just bookings."
-  keywords={[
-    "tradie marketing blog",
-    "plumber SEO tips",
-    "Google Maps rankings tradies",
-    "Answer Engine Optimization plumbers",
-    "Australian trade marketing",
-    "missed call text back bot",
-    "lead generation Aussie tradies",
-  ]}
+
   ogTitle="The Tradie Blueprint | Amberly Digital Blog"
   ogDescription="Actionable local SEO, Answer Engine Optimization (AEO), and automation advice for Australian trade businesses."
-  ogUrl="https://amberlydigital.com.au/blog"
+  ogUrl="https://amberlydigital.com/blog"
 >
   <script
     type="application/ld+json"
