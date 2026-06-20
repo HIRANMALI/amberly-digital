@@ -218,50 +218,31 @@ function cleanDomain(input: string): string {
   return cleaned;
 }
 
-function lookupDns(hostname: string): Promise<boolean> {
-  return new Promise(async (resolve) => {
-    try {
-      const cfUrl = `https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(hostname)}&type=A`;
-      const response = await fetch(cfUrl, {
-        headers: { accept: "application/dns-json" },
-      });
-      if (response.ok) {
-        const data: any = await response.json();
-        if (data.Status === 0) {
-          resolve(true);
-          return;
-        }
-      }
-    } catch (err) {
-      console.warn("Cloudflare DNS lookup failed:", err);
-    }
+async function lookupDns(hostname: string): Promise<boolean> {
+  // PERF_OPT: Race Cloudflare DNS and Google DoH simultaneously — fastest wins
+  const cfLookup = fetch(`https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(hostname)}&type=A`, {
+    headers: { accept: "application/dns-json" },
+  })
+    .then(async (r) => { const d: any = await r.json(); return d.Status === 0; })
+    .catch(() => false);
 
-    // Fallback to Google DoH
-    try {
-      const googleUrl = `https://dns.google/resolve?name=${encodeURIComponent(hostname)}&type=A`;
-      const response = await fetch(googleUrl);
-      if (response.ok) {
-        const data: any = await response.json();
-        if (data.Status === 0) {
-          resolve(true);
-          return;
-        }
-      }
-    } catch (err) {
-      console.error("Google DNS lookup failed:", err);
-    }
+  const googleLookup = fetch(`https://dns.google/resolve?name=${encodeURIComponent(hostname)}&type=A`)
+    .then(async (r) => { const d: any = await r.json(); return d.Status === 0; })
+    .catch(() => false);
 
-    resolve(false);
-  });
+  // Whichever resolves to `true` first wins; if both fail, return false
+  return Promise.race([
+    cfLookup.then((ok) => ok ? true : new Promise<boolean>((res) => googleLookup.then(res))),
+    googleLookup.then((ok) => ok ? true : new Promise<boolean>((res) => cfLookup.then(res))),
+  ]).catch(() => false);
 }
 
 async function fetchWebsiteHtml(domain: string): Promise<{ success: boolean; html: string }> {
-  const protocols = ["https://", "http://"];
-  for (const protocol of protocols) {
+  // PERF_OPT: Race https and http simultaneously — fastest successful response wins
+  const makeRequest = async (protocol: string): Promise<{ success: boolean; html: string }> => {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s hard timeout per attempt
     try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 seconds timeout
-
       const response = await fetch(`${protocol}${domain}`, {
         method: "GET",
         signal: controller.signal,
@@ -270,19 +251,26 @@ async function fetchWebsiteHtml(domain: string): Promise<{ success: boolean; htm
         }
       });
       clearTimeout(timeoutId);
-      
       if (response.ok || (response.status >= 200 && response.status < 400)) {
         const html = await response.text();
-        // Ensure we got actual HTML content and not an empty page or bot redirect/block
         if (html && html.trim().length > 150) {
           return { success: true, html };
         }
       }
-    } catch (e) {
-      // Continue to next protocol
+      return { success: false, html: "" };
+    } catch {
+      clearTimeout(timeoutId);
+      return { success: false, html: "" };
     }
-  }
-  return { success: false, html: "" };
+  };
+
+  // Fire both https and http at the same time and take the first successful result
+  const [httpsResult, httpResult] = await Promise.all([
+    makeRequest("https://"),
+    makeRequest("http://"),
+  ]);
+
+  return httpsResult.success ? httpsResult : httpResult;
 }
 
 function extractMetadata(html: string): { title: string; description: string; hasSchema: boolean } {
@@ -319,7 +307,8 @@ function getPersonalizedAuditFallback(
 ): {
   status: "low" | "high" | "pass";
   headline: string;
-  description: string;
+  seoAudit: string;
+  aeoAudit: string;
 } {
   const biz = businessName || "Your Business";
   
@@ -331,7 +320,8 @@ function getPersonalizedAuditFallback(
     return {
       status: "pass",
       headline: `📍 ${biz} (${domain}) has exceptional search & AI visibility`,
-      description: `Auditing ${domain} shows industry-leading structured schema markup, stellar page rendering speed, and comprehensive SEO optimization. Voice search agents and LLM recommendation engines can seamlessly identify and recommend your services.`
+      seoAudit: `Auditing ${domain} shows industry-leading structured schema markup, stellar page rendering speed, and comprehensive SEO optimization.`,
+      aeoAudit: `Voice search agents and LLM recommendation engines can seamlessly identify and recommend your services based on rich Answer Engine optimization.`
     };
   }
 
@@ -359,7 +349,8 @@ function getPersonalizedAuditFallback(
     return {
       status: "low",
       headline: `📍 ${biz} (${domain}) has mobile speed & structured conversion leaks`,
-      description: `Auditing ${domain} shows slow cellular viewport loading hooks. While some structured schema markup was detected, potential customers looking for ${niche} bounce to faster competitors.`
+      seoAudit: `Auditing ${domain} shows slow cellular viewport loading hooks. Potential customers looking for ${niche} may bounce to faster competitors.`,
+      aeoAudit: `While some structured schema markup was detected, it is not fully optimized for direct AI recommendations.`
     };
   }
 
@@ -367,41 +358,88 @@ function getPersonalizedAuditFallback(
     return {
       status: "high",
       headline: `📍 ${biz} (${domain}) lacks AI assistant search compatibility`,
-      description: `Your domain ${domain} lacks key JSON-LD schemas required by modern search agents. Siri, ChatGPT, and Perplexity cannot verify and recommend ${biz} for queries targeting ${niche} in your service areas.`
+      seoAudit: `Your domain ${domain} has baseline visibility but could be improved for competitive queries in the ${niche} space.`,
+      aeoAudit: `Your website lacks key JSON-LD schemas required by modern search agents. Siri, ChatGPT, and Perplexity cannot easily verify and recommend ${biz}.`
     };
   } else {
     return {
       status: "low",
       headline: `📍 ${biz} (${domain}) has mobile speed & structured conversion leaks`,
-      description: `Auditing ${domain} shows missing fast-loading cellular viewport hooks and schema markups. This causes potential customers looking for ${niche} to bounce to faster competitors.`
+      seoAudit: `Auditing ${domain} shows missing fast-loading cellular viewport hooks. This causes potential customers looking for ${niche} to bounce to faster competitors.`,
+      aeoAudit: `The site is completely lacking Answer Engine schema markups, making it invisible to generative AI recommendation engines.`
     };
   }
 }
 
+// Robustly parse Gemini audit output — handles markdown fences, unquoted keys, single quotes,
+// and falls back to regex-based field extraction if JSON.parse still fails
+function safeParseAudit(raw: string): { status: string; headline: string; seoAudit: string; aeoAudit: string } | null {
+  let text = raw.trim();
+
+  // Step 1: Strip markdown fences
+  text = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```\s*$/i, "").trim();
+
+  // Step 2: Isolate the first { ... } block
+  const start = text.indexOf("{");
+  const end = text.lastIndexOf("}");
+  if (start !== -1 && end !== -1 && end > start) {
+    text = text.slice(start, end + 1);
+  }
+
+  // Step 3: Try clean JSON.parse first
+  try {
+    return JSON.parse(text);
+  } catch {}
+
+  // Step 4: Fix common issues — unquoted keys, single-quoted strings, trailing commas
+  try {
+    const fixed = text
+      .replace(/([{,]\s*)([a-zA-Z_][a-zA-Z0-9_]*)\s*:/g, '$1"$2":') // quote unquoted keys
+      .replace(/:\s*'([^']*)'/g, ': "$1"')                             // single → double quotes on values
+      .replace(/,\s*([}\]])/g, "$1");                                  // strip trailing commas
+    return JSON.parse(fixed);
+  } catch {}
+
+  // Step 5: Last resort — extract fields individually via regex
+  const extract = (key: string): string => {
+    const m = raw.match(new RegExp(`["']?${key}["']?\\s*:\\s*["']([^"']+)["']`, "i"));
+    return m?.[1]?.trim() ?? "";
+  };
+
+  const status = extract("status");
+  const headline = extract("headline");
+  const seoAudit = extract("seoAudit");
+  const aeoAudit = extract("aeoAudit");
+
+  if (headline || seoAudit || aeoAudit) {
+    return { status, headline, seoAudit, aeoAudit };
+  }
+
+  return null; // complete failure
+}
+
+
 async function callGeminiApi(prompt: string, apiKey: string): Promise<string> {
+  const GEMINI_TIMEOUT_MS = 20000; // 20s — Gemini flash can take up to 15s on first token
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), GEMINI_TIMEOUT_MS);
+
   try {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`;
     const response = await fetch(url, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      signal: controller.signal,
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        contents: [
-          {
-            parts: [
-              {
-                text: prompt
-              }
-            ]
-          }
-        ],
+        contents: [{ parts: [{ text: prompt }] }],
         generationConfig: {
-          responseMimeType: "application/json",
-          temperature: 0.3
+          temperature: 0.3,
+          maxOutputTokens: 1024
         }
       })
     });
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
       const errText = await response.text();
@@ -410,11 +448,11 @@ async function callGeminiApi(prompt: string, apiKey: string): Promise<string> {
 
     const data: any = await response.json();
     const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!text) {
-      throw new Error("Empty text returned from Gemini API");
-    }
+    if (!text) throw new Error("Empty text returned from Gemini API");
+    console.log("[Gemini RAW OUTPUT]:", JSON.stringify(text));
     return text;
   } catch (err) {
+    clearTimeout(timeoutId);
     throw err;
   }
 }
@@ -429,7 +467,8 @@ async function generateAIAuditWithFallback(
 ): Promise<{
   status: "low" | "high" | "pass";
   headline: string;
-  description: string;
+  seoAudit: string;
+  aeoAudit: string;
 }> {
   const keys = [
     getEnv("GEMINI_API_KEY", env),
@@ -461,39 +500,40 @@ Choose one of these three audit statuses based on the website's digital presence
 3. "pass" (Stellar): For top-tier, highly optimized, and authoritative websites (like amazon.in, apple.com, google.com, wikipedia.org, etc.) that have excellent search engine, schema, and AI visibility. Praise their outstanding digital presence!
 
 Provide a strict JSON output matching this structure:
-{
-  "status": "low" | "high" | "pass",
-  "headline": "A personalized headline starting with '📍 [Business Name] ([Domain])' followed by the factual diagnosis (e.g. 'uses structured data but lacks local coordinate mapping' or 'has excellent AI & search engine visibility')",
-  "description": "A 2-sentence objective, helpful analysis of the site. Praise their strengths (e.g., if they have JSON-LD or great speed) while pointing out the specific next steps clearly and helpfully. Keep it realistic, authentic, and free of sales pitches."
-}
+{"status":"low","headline":"📍 Business (domain.com) short diagnosis","seoAudit":"1-2 sentence SEO analysis.","aeoAudit":"1-2 sentence AEO analysis."}
 
 Respond ONLY with valid JSON. No markdown code block wraps. Raw JSON text only.`;
 
+  // Sequential retry — only calls next key if the previous one fails, saving API costs
   for (let i = 0; i < keys.length; i++) {
     const key = keys[i];
     try {
       const textOutput = await callGeminiApi(prompt, key);
-      const parsedData = JSON.parse(textOutput.trim());
-      
+      const parsedData = safeParseAudit(textOutput);
+      if (!parsedData) throw new Error("Could not parse Gemini response after all attempts");
+
       let finalStatus: "low" | "high" | "pass" = "high";
       if (parsedData.status === "low" || parsedData.status === "high" || parsedData.status === "pass") {
         finalStatus = parsedData.status;
       }
-      
+
       return {
         status: finalStatus,
         headline: parsedData.headline || `📍 ${biz} (${domain}) lacks AI assistant search compatibility`,
-        description: parsedData.description || `Your website lacks key JSON-LD structure mapping. Voice search engines (Siri, ChatGPT) cannot verify and ground your business recommendations.`
+        seoAudit: parsedData.seoAudit || `Your domain ${domain} has baseline visibility but could be improved for competitive queries.`,
+        aeoAudit: parsedData.aeoAudit || `Your website lacks key JSON-LD schemas required by modern search agents. Siri, ChatGPT, and Perplexity cannot easily verify and recommend ${biz}.`
       };
-    } catch (err) {
+    } catch (err: any) {
       const maskedKey = key ? `${key.substring(0, 6)}...${key.substring(key.length - 4)}` : "empty";
-      console.warn(`Gemini API key index ${i} (key: ${maskedKey}, len: ${key?.length}) failed to execute query:`, err);
+      console.warn(`Gemini key ${i} (${maskedKey}) failed:`, err?.message ?? err);
     }
   }
 
-  console.error("All Gemini API keys failed or none provided. Using fallback template.");
+  console.error("All Gemini API keys failed. Using fallback template.");
   return getPersonalizedAuditFallback(biz, domain, siteTitle, siteDescription, hasSchema);
 }
+
+
 
 export const GET: APIRoute = async (context) => {
   const { request, clientAddress, locals } = context;
@@ -593,20 +633,22 @@ export const POST: APIRoute = async (context) => {
         domain: hostname,
         status: "pass",
         headline: `📍 ${bizName} (${hostname}) has exceptional search & AI visibility`,
-        description: `Auditing ${hostname} shows industry-leading structured schema markup, stellar page rendering speed, and comprehensive SEO optimization. Voice search agents and LLM recommendation engines can seamlessly identify and recommend your services.`,
+        seoAudit: `Auditing ${hostname} shows industry-leading structured schema markup, stellar page rendering speed, and comprehensive SEO optimization.`,
+        aeoAudit: `Voice search agents and LLM recommendation engines can seamlessly identify and recommend your services based on rich Answer Engine optimization.`,
         used: limitCheck.count + 1,
         total: LIMIT_PER_WEEK
       }, 200);
     }
 
-    // Step 2: DNS Lookup
-    const dnsResolves = await lookupDns(hostname);
-    if (!dnsResolves) {
+    // Step 2 & 3: DNS Lookup + Website Fetch run in PARALLEL — saves 1-3s
+    const [dnsResolves, fetchResult] = await Promise.all([
+      lookupDns(hostname),
+      fetchWebsiteHtml(hostname),
+    ]);
+
+    if (!dnsResolves && !fetchResult.success) {
       return logResponse({ success: false, error: "We couldn't resolve this domain's DNS. Please check the spelling." }, 200);
     }
-
-    // Step 3: Fetch Website HTML and Verify
-    const fetchResult = await fetchWebsiteHtml(hostname);
     if (!fetchResult.success) {
       return logResponse({ success: false, error: "The website is taking too long to respond or is not currently online. Please verify it is active and try again." }, 200);
     }
@@ -626,7 +668,8 @@ export const POST: APIRoute = async (context) => {
       domain: hostname,
       status: audit.status,
       headline: audit.headline,
-      description: audit.description,
+      seoAudit: audit.seoAudit,
+      aeoAudit: audit.aeoAudit,
       used: limitCheck.count + 1,
       total: LIMIT_PER_WEEK
     }, 200);

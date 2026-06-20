@@ -11,7 +11,8 @@ export function SuburbChecker() {
   const [resultWebsite, setResultWebsite] = useState("");
   const [resultBusiness, setResultBusiness] = useState("");
   const [resultHeadline, setResultHeadline] = useState("");
-  const [resultDescription, setResultDescription] = useState("");
+  const [resultSeoAudit, setResultSeoAudit] = useState("");
+  const [resultAeoAudit, setResultAeoAudit] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [showQuotaModal, setShowQuotaModal] = useState(false);
 
@@ -64,17 +65,13 @@ export function SuburbChecker() {
 
       const data = await response.json();
 
-      // Ensure loader runs for at least 1200ms for premium UX feel
-      const elapsedTime = Date.now() - startTime;
-      const delayRemaining = Math.max(0, 1200 - elapsedTime);
-      await new Promise((resolve) => setTimeout(resolve, delayRemaining));
-
       if (data.success) {
         setResultWebsite(data.domain);
         setResultBusiness(businessName.trim() || "Your Business");
         setStatus(data.status);
         setResultHeadline(data.headline);
-        setResultDescription(data.description);
+        setResultSeoAudit(data.seoAudit);
+        setResultAeoAudit(data.aeoAudit);
         
         if (typeof data.used === "number") {
           localStorage.setItem("ai_credits_used", String(data.used));
@@ -208,9 +205,14 @@ export function SuburbChecker() {
                         <h4 className="text-xs font-bold uppercase text-white mt-1">
                           {resultHeadline}
                         </h4>
-                        <p className="text-[10px] text-slate-400 mt-1 leading-relaxed">
-                          {resultDescription}
-                        </p>
+                        <div className="mt-2 space-y-2">
+                          <p className="text-[10px] text-slate-400 leading-relaxed">
+                            <span className="font-bold text-white">SEO:</span> {resultSeoAudit}
+                          </p>
+                          <p className="text-[10px] text-slate-400 leading-relaxed">
+                            <span className="font-bold text-white">AEO:</span> {resultAeoAudit}
+                          </p>
+                        </div>
                       </div>
                     </div>
                   )}
@@ -224,9 +226,14 @@ export function SuburbChecker() {
                         <h4 className="text-xs font-bold uppercase text-white mt-1">
                           {resultHeadline}
                         </h4>
-                        <p className="text-[10px] text-slate-400 mt-1 leading-relaxed">
-                          {resultDescription}
-                        </p>
+                        <div className="mt-2 space-y-2">
+                          <p className="text-[10px] text-slate-400 leading-relaxed">
+                            <span className="font-bold text-white">SEO:</span> {resultSeoAudit}
+                          </p>
+                          <p className="text-[10px] text-slate-400 leading-relaxed">
+                            <span className="font-bold text-white">AEO:</span> {resultAeoAudit}
+                          </p>
+                        </div>
                       </div>
                     </div>
                   )}
@@ -240,9 +247,14 @@ export function SuburbChecker() {
                         <h4 className="text-xs font-bold uppercase text-white mt-1">
                           {resultHeadline}
                         </h4>
-                        <p className="text-[10px] text-slate-400 mt-1 leading-relaxed">
-                          {resultDescription}
-                        </p>
+                        <div className="mt-2 space-y-2">
+                          <p className="text-[10px] text-slate-400 leading-relaxed">
+                            <span className="font-bold text-white">SEO:</span> {resultSeoAudit}
+                          </p>
+                          <p className="text-[10px] text-slate-400 leading-relaxed">
+                            <span className="font-bold text-white">AEO:</span> {resultAeoAudit}
+                          </p>
+                        </div>
                       </div>
                     </div>
                   )}

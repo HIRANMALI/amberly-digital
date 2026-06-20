@@ -230,9 +230,9 @@ export const TOOLS: Record<string, ToolInfo> = {
   },
   "google-chatgpt-scanner": {
     title: "Visibility Scanner",
-    shortDesc: "See if your business is showing up in Google's Top 3 Maps and recommended by AI Search in your target suburbs.",
-    longDesc: "Check if Siri, ChatGPT, or Google Maps would recommend your business when a local homeowner asks for a nearby emergency expert. Find search gaps and see how visible your trade team is today.",
-    componentName: "EmergencyScanner",
+    shortDesc: "See if your business is showing up in search and recommended by AI Search engines.",
+    longDesc: "Check if Siri, ChatGPT, or Google would recommend your business. Find search gaps and see how visible your business is today.",
+    componentName: "SuburbChecker",
     icon: "Search",
   },
   "sms-bot-simulator": {

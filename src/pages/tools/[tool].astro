@@ -3,7 +3,7 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 import Navbar from "@/components/Navbar.astro";
 import { Footer } from "@/components/Footer";
 import { ValuationCalculator } from "@/components/ValuationCalculator";
-import { EmergencyScanner } from "@/components/EmergencyScanner";
+import { SuburbChecker } from "@/components/SuburbChecker";
 import { LeadCommandCenter } from "@/components/LeadCommandCenter";
 import { TOOLS, generateFAQSchema } from "@/lib/seo-data";
 
@@ -64,46 +64,46 @@ const TOOL_CONTENT: Record<
     ],
     ctaLabel: "Stop the revenue leak — book a free audit",
   },
-  "google-chatgpt-scanner": {
-    h1: "Free Google & ChatGPT Visibility Scanner for Australian Plumbers",
-    hook: "Check in 60 seconds if your suburb shows up when a homeowner asks Google Maps or ChatGPT for a local plumber.",
+  "website-visibility-scanner": {
+    h1: "Free Website & AI Visibility Scanner",
+    hook: "Check in 60 seconds if your website shows up when a customer asks Google Maps or ChatGPT for your services.",
     badge: "02 / Search Visibility Audit",
     steps: [
       {
         num: "01",
-        title: "Enter your trade suburb",
-        desc: "Type the area you want to dominate — e.g. Bondi NSW, Richmond VIC, Fremantle WA.",
+        title: "Enter your business details",
+        desc: "Type your business name and website URL.",
       },
       {
         num: "02",
         title: "Run the scan",
-        desc: "The tool checks your Google Maps pack position and AI search grounding signals for that suburb.",
+        desc: "The tool checks your website's performance and AI search grounding signals.",
       },
       {
         num: "03",
         title: "Get your visibility score",
-        desc: "See exactly where you're winning and where competitors are stealing high-paying emergency calls from you.",
+        desc: "See exactly where you're winning and where competitors are stealing high-paying customers from you.",
       },
     ],
     problem:
-      "When a homeowner has a burst pipe at midnight, they don't scroll. They ask Google Maps or Siri 'who's the nearest plumber?' — and the first business that appears gets the $900 job. If that's not you, it's your competitor.",
+      "When a customer is looking for a service, they don't scroll. They ask Google Maps or Siri 'who's the nearest?' — and the first business that appears gets the job. If that's not you, it's your competitor.",
     solution:
-      "This scanner shows your current local search visibility across Google Maps and AI-powered search engines. It's the same check we run for every client before starting work — and it's completely free.",
+      "This scanner shows your current search visibility across Google Maps and AI-powered search engines. It's the same check we run for every client before starting work — and it's completely free.",
     faqs: [
       {
         q: "What is AEO — Answer Engine Optimisation?",
-        a: "AEO is optimising your business so AI assistants like ChatGPT, Siri, and Google's AI Overview recommend you directly — not just rank you in a list. As more homeowners use voice and AI search, AEO is becoming as important as traditional SEO.",
+        a: "AEO is optimising your business so AI assistants like ChatGPT, Siri, and Google's AI Overview recommend you directly — not just rank you in a list. As more customers use voice and AI search, AEO is becoming as important as traditional SEO.",
       },
       {
         q: "How does the scanner work?",
-        a: "It checks your Google Business Profile signals, local citation consistency, and structured data grounding to estimate how visible your business is in local AI and map-based searches in your target suburb.",
+        a: "It checks your website's schema markup, performance signals, and structured data grounding to estimate how visible your business is in modern AI searches.",
       },
       {
         q: "What does a low visibility score mean?",
-        a: "It means competitors are likely appearing before you when homeowners search for emergency plumbing in your suburb. We can improve your local search positioning in as little as 14 days.",
+        a: "It means competitors are likely appearing before you when customers search for your services. We can improve your search positioning in as little as 14 days.",
       },
     ],
-    ctaLabel: "Get your suburb to the top 3 — book a free audit",
+    ctaLabel: "Improve your visibility — book a free audit",
   },
   "sms-bot-simulator": {
     h1: "Test Our AI SMS Responder — Live Bot Demo for Plumbers",
@@ -156,8 +156,8 @@ if (!tool || !content) {
 
 const componentMap: Record<string, any> = {
   ValuationCalculator,
-  EmergencyScanner,
   LeadCommandCenter,
+  SuburbChecker,
 };
 
 const ToolComponent = componentMap[tool.componentName];

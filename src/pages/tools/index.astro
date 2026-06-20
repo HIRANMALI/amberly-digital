@@ -6,7 +6,7 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 import Navbar from "@/components/Navbar.astro";
 import { Footer } from "@/components/Footer";
 import { ValuationCalculator } from "@/components/ValuationCalculator";
-import { EmergencyScanner } from "@/components/EmergencyScanner";
+import { SuburbChecker } from "@/components/SuburbChecker";
 import { LeadCommandCenter } from "@/components/LeadCommandCenter";
 import { AreaPartnerBooking } from "@/components/AreaPartnerBooking";
 ---
@@ -124,13 +124,12 @@ import { AreaPartnerBooking } from "@/components/AreaPartnerBooking";
           <h2
             class="text-3xl sm:text-4xl font-display font-black text-slate-950 uppercase tracking-tight leading-none"
           >
-            Emergency Search Visibility Scanner
+            Website Search Visibility Scanner
           </h2>
           <p class="text-slate-650 text-sm mt-2 leading-relaxed font-medium">
-            Run a real-time check of your suburb rankings. Our scanner evaluates
-            your Google Business Profile local pack status and validates if AI
-            search engines (like ChatGPT or voice assistant models) recommend
-            your business for plumbing emergencies.
+            Run a real-time check of your website's SEO & AEO status. Our scanner evaluates
+            your digital readiness and validates if AI search engines (like ChatGPT or voice assistant models) recommend
+            your business to customers.
           </p>
         </div>
         <span
@@ -138,8 +137,7 @@ import { AreaPartnerBooking } from "@/components/AreaPartnerBooking";
           >⚡ Real-time API Integration</span
         >
       </div>
-      <!-- PERF_OPT: Changed client:load to client:visible to defer loading. Change back to client:load if needed. -->
-      <EmergencyScanner client:visible />
+      <SuburbChecker client:visible />
     </div>
   </section>
 
