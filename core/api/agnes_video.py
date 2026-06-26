@@ -1,4 +1,4 @@
-"""core.api.agnes_video — Agnes Video API 封装（从 core/video_generator.py 迁移）"""
+"""core.api.agnes_video — Agnes Video API wrapper (migrated from core/video_generator.py)"""
 
 import asyncio
 import base64
@@ -7,11 +7,14 @@ import mimetypes
 import os
 from typing import List, Optional
 
-import requests
+import requests  # type: ignore
 
 from utils.video import download_video
 
 logger = logging.getLogger(__name__)
+
+# Global semaphore: max 7 concurrent Agnes Video API submissions across all users
+_submission_semaphore = asyncio.Semaphore(7)
 
 BASE_URL = "https://apihub.agnes-ai.com/v1"
 API_ROOT = "https://apihub.agnes-ai.com"
@@ -40,7 +43,7 @@ class VideoOutput:
 
 
 class AgnesVideoAPI:
-    """Agnes Video 生成 API 封装（t2v / i2v / ti2vid / keyframes）。"""
+    """Agnes Video generation API wrapper (t2v / i2v / ti2vid / keyframes)."""
 
     def __init__(
         self,
@@ -61,87 +64,22 @@ class AgnesVideoAPI:
             "Content-Type": "application/json",
         }
 
-    def _path_to_b64(self, path: str) -> str:
-        with open(path, "rb") as f:
-            b64 = base64.b64encode(f.read()).decode("utf-8")
-        mime = mimetypes.guess_type(path)[0] or "image/png"
-        return f"data:{mime};base64,{b64}"
-
-    async def _resolve_image_ref(self, ref: str) -> str:
+    async def _resolve_image_ref(self, ref: str, target_width: Optional[int] = None, target_height: Optional[int] = None) -> str:
         if ref.startswith(("http://", "https://")):
             return ref
         if ref.startswith("data:"):
-            return ref
+            return ref.split(",", 1)[1] if "," in ref else ref
         if os.path.exists(ref):
-            url_file = ref + ".url"
-            if os.path.exists(url_file):
-                try:
-                    with open(url_file, "r") as f:
-                        cached_url = f.read().strip()
-                    if cached_url:
-                        logger.info(f"[AgnesVideo] Using cached hosted URL: {cached_url[:80]}...")
-                        return cached_url
-                except Exception:
-                    pass
-            url = await self._upload_image_to_url(ref)
-            if url:
-                try:
-                    tmp_file = url_file + ".tmp"
-                    with open(tmp_file, "w") as f:
-                        f.write(url)
-                        f.flush()
-                        os.fsync(f.fileno())
-                    os.replace(tmp_file, url_file)
-                except Exception:
-                    pass
-                return url
-            logger.warning("[AgnesVideo] Image upload failed, falling back to base64.")
-            return self._path_to_b64(ref)
+            from utils.image import optimize_image_to_b64
+            # Agnes Video API expects raw base64 without data URIs
+            return await asyncio.to_thread(
+                optimize_image_to_b64, ref, 
+                max_size=(2048, 2048), 
+                include_prefix=False,
+                target_width=target_width,
+                target_height=target_height
+            )
         return ref
-
-    async def _upload_image_to_url(self, image_path: str, retries: int = 3) -> Optional[str]:
-        for attempt in range(retries):
-            if self.shutdown_event and self.shutdown_event.is_set():
-                logger.info("[AgnesVideo] Image upload cancelled by shutdown")
-                return None
-            try:
-                b64_data = self._path_to_b64(image_path)
-                payload = {
-                    "model": "agnes-image-2.1-flash",
-                    "prompt": "Keep the image exactly as it is",
-                    "n": 1,
-                    "size": "1024x1024",
-                    "extra_body": {
-                        "response_format": "url",
-                        "image": b64_data,
-                    },
-                }
-                logger.info(f"[AgnesVideo] Uploading image to hosted URL (attempt {attempt + 1}/{retries})...")
-                resp = await asyncio.to_thread(
-                    requests.post,
-                    f"{BASE_URL}/images/generations",
-                    headers=self.headers,
-                    json=payload,
-                    timeout=(30, 120),
-                )
-                if resp.status_code == 429:
-                    delay = 30 * (attempt + 1)
-                    logger.warning(f"[AgnesVideo] Image upload 429, retry in {delay}s...")
-                    await asyncio.sleep(delay)
-                    continue
-                resp.raise_for_status()
-                result = resp.json()
-                data_list = result.get("data", [])
-                if data_list:
-                    url = data_list[0].get("url", "")
-                    if url:
-                        logger.info(f"[AgnesVideo] Image uploaded to hosted URL: {url[:80]}...")
-                        return url
-            except Exception as e:
-                logger.warning(f"[AgnesVideo] Image upload attempt {attempt + 1}/{retries} failed: {e}")
-                if attempt < retries - 1:
-                    await asyncio.sleep(15)
-        return None
 
     # API frame limits by resolution tier (from Agnes API error messages)
     _FRAME_LIMITS = {
@@ -226,6 +164,10 @@ class AgnesVideoAPI:
             await asyncio.sleep(interval)
 
     async def _submit_with_retry(self, payload: dict, mode_desc: str) -> str:
+        async with _submission_semaphore:  # max 7 concurrent submissions globally
+            return await self._submit_with_retry_inner(payload, mode_desc)
+
+    async def _submit_with_retry_inner(self, payload: dict, mode_desc: str) -> str:
         frame_reductions_left = 2  # allow up to 2 frame-count reductions on 400
         for attempt in range(self.max_retries):
             if self.shutdown_event and self.shutdown_event.is_set():
@@ -283,10 +225,10 @@ class AgnesVideoAPI:
                 logger.error(f"[AgnesVideo] HTTP {resp.status_code}: {error_text}")
                 raise RuntimeError(f"Agnes video submit failed (HTTP {resp.status_code}): {error_text}")
 
-            except requests.exceptions.Timeout:
+            except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as e:
                 delay = self.retry_base_delay * (attempt + 1)
                 logger.warning(
-                    f"[AgnesVideo] Timeout on {mode_desc}, "
+                    f"[AgnesVideo] Network error ({type(e).__name__}) on {mode_desc}, "
                     f"retry {attempt + 1}/{self.max_retries} in {delay:.0f}s..."
                 )
                 await asyncio.sleep(delay)
@@ -349,7 +291,7 @@ class AgnesVideoAPI:
 
         resolved_refs = []
         for p in reference_image_paths:
-            resolved_refs.append(await self._resolve_image_ref(p))
+            resolved_refs.append(await self._resolve_image_ref(p, target_width=width, target_height=height))
         n_refs = len(resolved_refs)
 
         if n_refs == 0:

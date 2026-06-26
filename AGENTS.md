@@ -1,46 +1,46 @@
 # AGENTS.md — Agnes Video Generator v2.0
 
-> **面向对象**：SoftwareCompany 团队（产品经理 / 架构师 / 工程师 / QA 工程师）及 AI Agent
-> **当前阶段**：🟢 **开发完成（v2.0） — 维护模式**
-> **配套文档**：`docs/system_design.md`（架构）、`docs/regression_test_plan.md`（大版本回归）
+> **Audience**: SoftwareCompany Team (Product Manager / Architect / Engineer / QA Engineer) and AI Agent
+> **Current Phase**: 🟢 **Development Completed (v2.0) — Maintenance Mode**
+> **Companion Documents**: `docs/system_design.md` (Architecture), `docs/regression_test_plan.md` (Regression Testing)
 
 ---
 
-## 〇、新环境部署与验证（AI Agent 必读）
+## 0. Environment Deployment & Verification (Must-read for AI Agents)
 
-> 本节为 AI Agent（Claude、Cursor、QoderWork 等）在全新环境中部署和验证本项目提供完整指引。
+> This section provides full guidelines for AI Agents (Claude, Cursor, QoderWork, etc.) to deploy and verify this project in a clean environment.
 
-### 0.1 环境检查
+### 0.1 Environment Check
 
-在执行任何操作前，先确认目标环境满足以下条件：
+Before performing any operations, ensure the target environment meets the following conditions:
 
 ```bash
-# 检查 Python 版本（需 3.10+）
+# Check Python version (requires 3.10+)
 python3 --version
 
-# 检查 ffmpeg（视频拼接和音频处理依赖）
+# Check ffmpeg (required for video concatenation and audio processing)
 ffmpeg -version
 
-# 如果 ffmpeg 未安装：
+# If ffmpeg is not installed:
 # macOS:   brew install ffmpeg
 # Ubuntu:  sudo apt install ffmpeg
-# Windows: choco install ffmpeg 或从 https://ffmpeg.org/download.html 下载
+# Windows: choco install ffmpeg or download from https://ffmpeg.org/download.html
 ```
 
-### 0.2 一键部署
+### 0.2 One-click Deployment
 
 ```bash
-# 克隆项目（如尚未克隆）
+# Clone the project (if not already cloned)
 git clone https://github.com/your-org/agnes-video-generator.git
 cd agnes-video-generator
 
-# 一键启动（自动创建 venv、安装依赖、启动服务）
+# One-click start (automatically creates venv, installs dependencies, and starts the service)
 ./start.sh
 ```
 
-启动成功后，服务监听在 `http://localhost:8765`。macOS 会自动在浏览器中打开页面。
+Upon successful startup, the service listens at `http://localhost:8765`. macOS will automatically open the page in the browser.
 
-如需手动部署：
+For manual deployment:
 
 ```bash
 python3 -m venv .venv
@@ -48,48 +48,48 @@ python3 -m venv .venv
 .venv/bin/python server.py
 ```
 
-### 0.3 API Key 配置
+### 0.3 API Key Configuration
 
-Agnes AI API Key 是视频生成的必要前提。两种配置方式：
+An Agnes AI API Key is required for video generation. Two configuration methods:
 
 ```bash
-# 方式 1：环境变量（推荐 Agent 使用）
+# Method 1: Environment Variable (Recommended for Agents)
 export AGNES_API_KEY="your-api-key"
 
-# 方式 2：通过 API 设置（模拟 Web UI 操作）
+# Method 2: Via API (simulating Web UI operations)
 curl -X POST http://localhost:8765/api/config \
   -H "Content-Type: application/json" \
   -d '{"api_key": "your-api-key"}'
 ```
 
-### 0.4 部署验证清单
+### 0.4 Deployment Verification Checklist
 
-部署完成后，按以下清单逐项验证：
+After deployment, verify each item according to the checklist:
 
-#### 第一层：基础连通性
+#### Layer 1: Basic Connectivity
 
 ```bash
-# 1. Web UI 可达
+# 1. Web UI is reachable
 curl -s -o /dev/null -w "%{http_code}" http://localhost:8765/
-# 期望：200
+# Expected: 200
 
-# 2. API 配置读取正常
+# 2. API config reads normally
 curl -s http://localhost:8765/api/config | python3 -m json.tool
-# 期望：{"ok": true, "api_key": "...(masked)"}
+# Expected: {"ok": true, "api_key": "...(masked)"}
 
-# 3. TTS 语音列表可达
+# 3. TTS voice list is reachable
 curl -s http://localhost:8765/api/voices | python3 -m json.tool
-# 期望：返回包含 4 个语音角色的 JSON 数组
+# Expected: returns a JSON array containing 4 voice roles
 
-# 4. 任务列表可达
+# 4. Task list is reachable
 curl -s http://localhost:8765/api/tasks | python3 -m json.tool
-# 期望：{"ok": true, "tasks": [...]}
+# Expected: {"ok": true, "tasks": [...]}
 ```
 
-#### 第二层：静态分析
+#### Layer 2: Static Analysis
 
 ```bash
-# Python 语法检查（所有 .py 文件）
+# Python syntax check (all .py files)
 .venv/bin/python -m py_compile server.py
 .venv/bin/python -m py_compile core/config.py
 .venv/bin/python -m py_compile core/task_manager.py
@@ -106,7 +106,7 @@ curl -s http://localhost:8765/api/tasks | python3 -m json.tool
 .venv/bin/python -m py_compile core/pipelines/manuscript_video.py
 .venv/bin/python -m py_compile models/task.py
 
-# 关键模块导入验证
+# Key module imports validation
 .venv/bin/python -c "from core.api.agnes_video import AgnesVideoAPI; print('AgnesVideoAPI OK')"
 .venv/bin/python -c "from core.api.agnes_image import AgnesImageAPI; print('AgnesImageAPI OK')"
 .venv/bin/python -c "from core.api.agnes_chat import AgnesChatAPI; print('AgnesChatAPI OK')"
@@ -116,25 +116,25 @@ curl -s http://localhost:8765/api/tasks | python3 -m json.tool
 .venv/bin/python -c "from models.task import parse_task_state, SimpleVideoTask, CreativeVideoTask, ManuscriptVideoTask; print('Models OK')"
 ```
 
-#### 第三层：端点功能验证
+#### Layer 3: Endpoint Functional Validation
 
 ```bash
-# 创建简单视频任务（参数校验）
+# Create simple video task (parameter validation)
 curl -X POST http://localhost:8765/api/tasks/simple \
   -H "Content-Type: application/json" \
-  -d '{"prompt": "一只猫在花园里追蝴蝶", "mode": "t2v", "duration": 5}'
+  -d '{"prompt": "A cat chasing a butterfly in a garden", "mode": "t2v", "duration": 5}'
 
-# 创建创意视频任务（参数校验）
+# Create creative video task (parameter validation)
 curl -X POST http://localhost:8765/api/tasks/creative \
   -H "Content-Type: application/json" \
-  -d '{"idea": "太空探险故事", "video_width": 768, "video_height": 1152}'
+  -d '{"idea": "Space exploration story", "video_width": 768, "video_height": 1152}'
 
-# 创建稿件视频任务（参数校验）
+# Create manuscript video task (parameter validation)
 curl -X POST http://localhost:8765/api/tasks/manuscript \
   -H "Content-Type: application/json" \
-  -d '{"manuscript_text": "这是第一段测试文本。这是第二段测试文本。"}'
+  -d '{"manuscript_text": "This is the first segment. This is the second segment."}'
 
-# 验证任务列表包含三种类型
+# Verify task list contains all three types
 curl -s http://localhost:8765/api/tasks | python3 -c "
 import json, sys
 data = json.load(sys.stdin)
@@ -147,353 +147,353 @@ print('All 3 task types verified!')
 "
 ```
 
-#### 第四层：字幕多行功能验证
+#### Layer 4: Subtitle Multi-line Function Validation
 
 ```bash
-# 验证字幕拆分函数逻辑
+# Verify subtitle splitting logic
 .venv/bin/python -c "
 from core.audio.subtitle import SubtitleGenerator
 
-# 短文本不拆分
-assert SubtitleGenerator._split_long_text('短视频', 14) == '短视频'
+# Short text is not split
+assert SubtitleGenerator._split_long_text('Short text', 14) == 'Short text'
 
-# 长中文文本拆为两行
+# Long Chinese text split into two lines
 result = SubtitleGenerator._split_long_text('这是一段比较长的中文字幕文本需要拆分显示在视频上方', 14)
 assert '\n' in result, f'Expected newline in: {repr(result)}'
 lines = result.split('\n')
 assert len(lines) == 2, f'Expected 2 lines, got {len(lines)}'
 
-# 标点处优先断行
+# Prioritize split at punctuation marks
 result = SubtitleGenerator._split_long_text('今天天气真好，我们一起去公园散步吧', 14)
 assert result == '今天天气真好，\n我们一起去公园散步吧', f'Got: {repr(result)}'
 
-# 长英文按单词拆分
+# Long English text split by word
 result = SubtitleGenerator._split_long_text('This is a very long English subtitle text that should be split', 14)
 assert '\n' in result
 
-# 空文本和已有换行不处理
+# Empty text and existing newlines are not modified
 assert SubtitleGenerator._split_long_text('', 14) == ''
-assert SubtitleGenerator._split_long_text('已有\n换行', 14) == '已有\n换行'
+assert SubtitleGenerator._split_long_text('Existing\nnewline', 14) == 'Existing\nnewline'
 
 print('All subtitle multi-line tests passed!')
 "
 ```
 
-### 0.5 常见问题排查
+### 0.5 Troubleshooting & Common Issues
 
-| 现象 | 原因 | 解决方案 |
+| Symptom | Cause | Solution |
 |------|------|---------|
-| `ModuleNotFoundError: No module named 'xxx'` | venv 未激活或依赖未装 | `.venv/bin/pip install -r requirements.txt` |
-| `ffmpeg not found` | ffmpeg 未安装 | `brew install ffmpeg` 或系统包管理器安装 |
-| 端口 8765 被占用 | 上一次服务未关闭 | `lsof -ti:8765 \| xargs kill` 后重试 |
-| 视频生成失败 401 | API Key 无效或未配置 | 检查 `AGNES_API_KEY` 环境变量或 `/api/config` |
-| 字幕中文显示为方块 | CJK 字体缺失 | 检查 `resource/fonts/STHeitiMedium.ttc` 是否存在 |
-| TTS 无声音 | edge_tts 版本过低 | `.venv/bin/pip install 'edge_tts>=6.1.0'` |
+| `ModuleNotFoundError: No module named 'xxx'` | venv not active or dependencies not installed | Run `.venv/bin/pip install -r requirements.txt` |
+| `ffmpeg not found` | ffmpeg is not installed | Install via `brew install ffmpeg` or system package manager |
+| Port 8765 is occupied | Previous server process did not release the port | Stop the process using `lsof -ti:8765 \| xargs kill` and retry |
+| Video generation failed with 401 | Invalid or unconfigured API Key | Check `AGNES_API_KEY` env variable or configuration on `/api/config` |
+| Subtitle characters render as blocks | Missing CJK fonts | Check if `resource/fonts/STHeitiMedium.ttc` is present |
+| TTS has no sound output | Outdated edge_tts version | Run `.venv/bin/pip install 'edge_tts>=6.1.0'` |
 
 ---
 
-## 一、AI Agent 触发词
+## 1. AI Agent Trigger Words
 
-| 用户说法 | 主理人应执行的操作 | 说明 |
+| User Phrase | Action to Perform | Description |
 |---------|-------------------|------|
-| **"修复 Bug: ..."** | 启动 `software-engineer`（BugFix 快捷路径） | 定位→修复→自验→汇报 |
-| **"执行大版本回归"** | 按 `docs/regression_test_plan.md` 执行全量回归测试 | 9 场景并发 + 端点验证 |
-| **"新增功能: ..."** | 启动 `software-product-manager` → 需求分析 | 增量功能开发 |
-| **"需求分析" / "只做 PRD"** | 启动 `software-product-manager` | 部分工作流 |
-| **"架构评审"** | 启动 `software-architect` | 部分工作流 |
-| **"部署项目" / "初始化环境"** | 按「〇、新环境部署与验证」执行 | 全新环境部署 |
-| **"验证项目" / "跑一下检查"** | 按「0.4 部署验证清单」执行 | 部署后验证 |
+| **"修复 Bug: ..."** | Invoke `software-engineer` (BugFix quick path) | Locate → Fix → Verify → Report |
+| **"执行大版本回归"** | Execute full regression tests per `docs/regression_test_plan.md` | 9 concurrent scenarios + endpoint validation |
+| **"新增功能: ..."** | Invoke `software-product-manager` → Requirements analysis | Incremental feature development |
+| **"需求分析" / "只做 PRD"** | Invoke `software-product-manager` | Partial workflow execution |
+| **"架构评审"** | Invoke `software-architect` | Partial workflow execution |
+| **"部署项目" / "初始化环境"** | Execute per "0. Environment Deployment & Verification" | Deployment in clean environment |
+| **"验证项目" / "跑一下检查"** | Execute per "0.4 Deployment Verification Checklist" | Post-deployment validation |
 
 ---
 
-## 二、项目定位
+## 2. Project Positioning
 
-基于 Agnes AI **完全免费**模型的视频生成工具，支持 **三种任务类型** 的一站式 Web 应用：
+An all-in-one Web application for video generation based on Agnes AI's **completely free** model, supporting **three task types**:
 
-- **简单视频**：单次调用 Agnes Video API，暴露全部参数的结构化 UI（t2v / i2v / ti2vid / keyframes）
-- **创意长视频**：AI 编剧 → 分镜图生成 → 视频生成 → edge_tts 旁白配音 + 细粒度字幕叠加 → 拼接
-- **稿件长视频**：长文本 → 时间估算拆段 → AI 场景 prompt → 逐段视频生成 → 统一 TTS+字幕 → 拼接
+- **Simple Video**: Single-call Agnes Video API wrapper exposing all parameter options in a structured UI form (t2v / i2v / ti2vid / keyframes).
+- **Creative Long Video**: AI scriptwriting → storyboard generation → video rendering → edge_tts voice narration + fine-grained synced subtitle overlays → merging.
+- **Manuscript Long Video**: Long text input → speaking-time estimated segmentation → AI scene prompt generation → segment video rendering → unified TTS + subtitles → merging.
 
 ---
 
-## 三、技术栈
+## 3. Technical Stack
 
-| 层 | 选型 |
+| Layer | Selection |
 |------|------|
-| 后端框架 | Python FastAPI + WebSocket |
-| 数据模型 | Pydantic v2 |
-| 视频处理 | moviepy + ffmpeg |
-| TTS | edge_tts >= 6.1.0（免费，无需 API Key） |
-| 字幕 | srt >= 3.5.0 + moviepy（词级细粒度 + 多行换行） |
-| 前端 | 原生 HTML/CSS/JS + Tailwind CDN（单文件 `static/index.html`，7 语言 i18n） |
-| LLM | Agnes Chat API (`agnes-2.0-flash`) — 免费 |
-| 图片模型 | `agnes-image-2.1-flash` (t2i) / `agnes-image-2.0-flash` (i2i) — 免费 |
-| 视频模型 | `agnes-video-v2.0` — 免费 |
-| 日志 | `logging.getLogger(__name__)` |
+| Backend | Python FastAPI + WebSocket |
+| Data Models | Pydantic v2 |
+| Video Processing | moviepy + ffmpeg |
+| TTS Engine | edge_tts >= 6.1.0 (Free, no API Key required) |
+| Subtitles | srt >= 3.5.0 + moviepy (word-level fine-grained + multi-line wrapping) |
+| Frontend | HTML/CSS/JS + Tailwind CDN (Single-file `static/index.html`, 7 languages i18n) |
+| LLM | Agnes Chat API (`agnes-2.0-flash`) — Free |
+| Image Model | `agnes-image-2.1-flash` (t2i) / `agnes-image-2.0-flash` (i2i) — Free |
+| Video Model | `agnes-video-v2.0` — Free |
+| Logging | `logging.getLogger(__name__)` |
 
 ---
 
-## 四、目录结构
+## 4. Directory Structure
 
 ```
 agnes-video-generator/
-├── server.py                         # FastAPI 主服务，三种任务路由 + WebSocket
-├── start.sh                          # 一键启动脚本（venv + pip install + run）
-├── requirements.txt                  # 依赖（含 edge_tts, srt）
+├── server.py                         # FastAPI server routing and WebSocket
+├── start.sh                          # One-click startup script
+├── requirements.txt                  # Python dependencies
 │
 ├── models/
 │   ├── __init__.py
-│   └── task.py                       # TaskType + BaseTaskState + 3 子类 + 请求/响应模型
+│   └── task.py                       # Task models, configs, requests and responses
 │
 ├── core/
 │   ├── __init__.py
-│   ├── config.py                     # API Key 持久化、字体解析、音视频默认配置
-│   ├── task_manager.py               # 任务状态持久化，多态反序列化，向后兼容
-│   ├── screenwriter.py               # 编剧 Agent（故事/脚本/旁白/角色提取/尾帧 prompt）
+│   ├── config.py                     # API key persistent logic, font resolution, default configs
+│   ├── task_manager.py               # State management and checkpoint resume
+│   ├── screenwriter.py               # Screenplay Agent (story, script, narration, keyframe prompts)
 │   │
 │   ├── api/
 │   │   ├── __init__.py
-│   │   ├── agnes_chat.py             # LLM Chat API（text + multimodal + JSON mode）
-│   │   ├── agnes_image.py            # 图片生成 API（t2i + i2i + ref image）
-│   │   └── agnes_video.py            # 视频生成 API（t2v/i2v/ti2vid/keyframes + 轮询 + 重试）
+│   │   ├── agnes_chat.py             # LLM Chat API wrapper
+│   │   ├── agnes_image.py            # Agnes Image API wrapper
+│   │   └── agnes_video.py            # Agnes Video API wrapper
 │   │
 │   ├── audio/
 │   │   ├── __init__.py
-│   │   ├── tts.py                    # EdgeTTSEngine（旁白+词级时间戳）+ SilentTTSEngine
-│   │   └── subtitle.py               # SRT 生成（词级细粒度 + 多行换行）+ moviepy 字幕叠加
+│   │   ├── tts.py                    # EdgeTTSEngine + SilentTTSEngine
+│   │   └── subtitle.py               # SRT parser (word cues to SRT) + moviepy overlay
 │   │
 │   ├── compositor/
 │   │   ├── __init__.py
-│   │   ├── concatenator.py           # 视频拼接 + 统一音频/字幕叠加（MoneyPrinterTurbo 方式）
-│   │   └── processor.py              # 视频缩放/帧提取/定格延长/静音音频生成
+│   │   ├── concatenator.py           # Concatenation and audio/subtitle overlays
+│   │   └── processor.py              # Scale, crop, freeze frames, and silence generation
 │   │
 │   └── pipelines/
-│       ├── __init__.py               # BasePipeline（共享 shutdown 和 WS 推送逻辑）
-│       ├── simple_video.py           # 类型 1：单 prompt → 单视频
-│       ├── creative_video.py         # 类型 2：10 步全流程（含旁白+字幕）
-│       └── manuscript_video.py       # 类型 3：5 步稿件流程（统一 TTS+字幕）
+│       ├── __init__.py               # BasePipeline
+│       ├── simple_video.py           # Pipeline: Simple video
+│       ├── creative_video.py         # Pipeline: Creative video (10-step flow)
+│       └── manuscript_video.py       # Pipeline: Manuscript video (5-step flow)
 │
 ├── utils/
 │   ├── __init__.py
-│   ├── image.py                      # 图片下载 / base64 转换 / URL 上传
-│   └── video.py                      # 视频下载
+│   ├── image.py                      # Image helpers (downloads, base64 utility)
+│   └── video.py                      # Video downloader
 │
 ├── resource/
-│   └── fonts/                        # 内置 CJK 字体
-│       ├── STHeitiMedium.ttc         # 默认中文字体（CJK 自动回退目标）
-│       └── MicrosoftYaHeiNormal.ttc  # 备用中文字体
+│   └── fonts/                        # Subtitle CJK fonts
+│       ├── STHeitiMedium.ttc         # CJK default fallback font
+│       └── MicrosoftYaHeiNormal.ttc  # CJK alternative font
 │
 ├── static/
-│   └── index.html                    # 三 Tab 前端（简单/创意/稿件），7 语言 i18n
+│   └── index.html                    # 3-Tab Web UI layout with 7-language localization
 │
 ├── scripts/
-│   └── regression_runner.py          # 9 场景大版本回归测试脚本
+│   └── regression_runner.py          # 9-scenario automated regression test suite
 │
 └── docs/
-    ├── system_design.md              # 系统架构设计
-    ├── regression_test_plan.md       # 大版本回归测试计划
-    ├── class-diagram.mermaid         # 类图
-    └── sequence-diagram.mermaid      # 时序图
+    ├── system_design.md              # Architecture documentation
+    ├── regression_test_plan.md       # Regression test plan
+    ├── class-diagram.mermaid         # Class diagram
+    └── sequence-diagram.mermaid      # Sequence diagram
 ```
 
 ---
 
-## 五、BugFix 工作流
+## 5. BugFix Workflow
 
-用户说 **"修复 Bug: ..."** 时，主理人按以下流程执行：
+When the user asks to **"修复 Bug: ..."**, the Lead Agent proceeds as follows:
 
 ```
-1. 定位
-   - 阅读用户描述的 bug 现象
-   - 用 codegraph / grep 定位到相关文件和代码行
-   - 复现 bug（如能通过 API 调用复现）
+1. Locate
+   - Read the user bug description.
+   - Use codegraph / grep to locate affected files and lines.
+   - Reproduce the bug (e.g., via API call if possible).
 
-2. 修复
-   - 启动 software-engineer 执行修复
-   - 确保修复不违反 AGENTS.md 中的共享知识规范
+2. Fix
+   - Invoke software-engineer to perform the fix.
+   - Ensure the fix complies with AGENTS.md specifications.
 
-3. 自验
-   - bash start.sh 正常启动（Uvicorn 监听 8765 端口无报错）
-   - 受影响的端点 curl 验证返回正确结果
-   - 已有功能不被破坏
+3. Verify
+   - Run "bash start.sh" (confirm Uvicorn starts normally on port 8765).
+   - Use curl to verify the impacted endpoint returns correct responses.
+   - Ensure existing features are not broken.
 
-4. 汇报
-   - 向用户说明：根因、修复方案、涉及文件
-   - 附 curl 验证结果
+4. Report
+   - Explain the root cause, implementation details, and modified files.
+   - Attach verification results (e.g., curl outputs).
 ```
 
 ---
 
-## 六、大版本回归测试
+## 6. Major Version Regression Testing
 
-用户说 **"执行大版本回归"** 时，主理人加载 `docs/regression_test_plan.md` 执行。
+When the user asks to **"执行大版本回归"**, the Lead Agent loads `docs/regression_test_plan.md` to execute the regression tests.
 
-### 流程概览
+### Workflow
 
 ```
-用户说 "执行大版本回归"
+User says "执行大版本回归"
        ↓
 ┌───────────────────────────────────────────┐
-│ 1. 准备 → git status + 素材检查 + 启动服务   │
-│ 2. 并发执行 → 9 场景（加权信号量，总权重≤10） │
-│ 3. 自动验证 → F1-F7、R1-R10、E1-E9          │
-│ 4. 报告输出 → JSON + 可读报告                │
-│ 5. 手动验证项 → 请用户确认音频/字幕/断点续传   │
+│ 1. Prep → git status + assets check + start │
+│ 2. Concurrent Execution → 9 scenarios      │
+│ 3. Automated Check → F1-F7, R1-R10, E1-E9  │
+│ 4. Report Generation → JSON & MD reports   │
+│ 5. Manual Checks → request user review     │
 └───────────────────────────────────────────┘
 ```
 
-### 9 场景矩阵
+### 9 Scenarios Matrix
 
-| ID | 类型 | 场景 | 权重 |
+| ID | Type | Scenario | Weight |
 |----|------|------|------|
-| S1 | 简单视频 | 纯文本 t2v | 1 |
-| S2 | 简单视频 | 图生视频 ti2vid | 1 |
-| S3 | 简单视频 | 关键帧动画 keyframes | 1 |
-| C1 | 创意视频 | 纯文字+独立+无配音 | 3 |
-| C2 | 创意视频 | 带参考图+关键帧+无配音 | 3 |
-| C3 | 创意视频 | 参考图生成尾帧+关键帧+无配音 | 3 |
-| C4 | 创意视频 | 独立场景+配音字幕验证 | 4 |
-| M1 | 稿件视频 | 短稿件+配音 | 4 |
-| M2 | 稿件视频 | 短稿件+自定义字幕 | 4 |
+| S1 | Simple | Pure text t2v | 1 |
+| S2 | Simple | Image-to-video ti2vid | 1 |
+| S3 | Simple | Keyframe animation | 1 |
+| C1 | Creative | Text + Independent + Mute | 3 |
+| C2 | Creative | Ref Image + Keyframes + Mute | 3 |
+| C3 | Creative | Ref Image End Frame + Keyframes + Mute | 3 |
+| C4 | Creative | Independent + TTS/Subtitle | 4 |
+| M1 | Manuscript | Short Manuscript + Narration | 4 |
+| M2 | Manuscript | Short Manuscript + Custom style | 4 |
 
-### 执行脚本
+### Execution Commands
 
 ```bash
-# 完整回归
+# Full regression run
 python scripts/regression_runner.py --auto-start
 
-# 断点续传
+# Resume tests
 python scripts/regression_runner.py --resume --auto-start
 
-# 仅验证已存在产物
+# Quick validation of existing files
 python scripts/regression_runner.py --quick
 ```
 
 ---
 
-## 七、各角色工作说明
+## 7. Role Responsibilities
 
-### 7.1 产品经理（许清楚）
+### 7.1 Product Manager (Xu Qingchu)
 
-**输入**：用户需求描述（新增功能）
-**产出**：`PRD_REFACTOR.md`（增量 PRD）
+**Input**: User feature request
+**Output**: `PRD_REFACTOR.md` (incremental PRD)
 
-**产出规范**：
-- 产品目标（3-5 条）
-- 用户故事
-- 需求池（P0/P1/P2）
-- UI 设计概要（ASCII 布局图）
-- 技术选型沿用现有栈，不可引入付费服务
-
----
-
-### 7.2 架构师（高见远）
-
-**输入**：PRD 文档
-**产出**：`docs/system_design.md` 增量更新
+**Output guidelines**:
+- 3-5 Product Goals
+- User Stories
+- Feature Backlog (P0/P1/P2)
+- UI Design Concept (ASCII mockups)
+- Maintain existing technical stack; paid services are forbidden.
 
 ---
 
-### 7.3 工程师（寇豆码）
+### 7.2 Architect (Gao Jianyuan)
 
-**输入**：Bug 描述 / 架构设计
-**产出**：修复代码或新功能代码
-
-**代码风格约束**：
-- Python：Google 风格 docstring，类型注解，async/await 用于 IO
-- 前端：ES6+，不引入框架
-- 所有文件 UTF-8 编码
+**Input**: PRD documentation
+**Output**: `docs/system_design.md` updates
 
 ---
 
-### 7.4 QA 工程师（严过关）
+### 7.3 Software Engineer (Kou Douma)
 
-**输入**：工程师完成的代码
-**产出**：测试验证报告
+**Input**: Bug details / System Design
+**Output**: Source code changes or bug fixes
 
-**验证层次**：
+**Code style constraints**:
+- Python: Google style docstrings, type hinting, async/await for IO operations.
+- Frontend: ES6+, zero build steps.
+- Files must use UTF-8 encoding.
 
-#### 第一层：静态分析
+---
+
+### 7.4 QA Engineer (Yan Guoguan)
+
+**Input**: Engineer code deliveries
+**Output**: Validation report
+
+**Checklist hierarchy**:
+
+#### Layer 1: Static Analysis
 ```
-[ ] Python 语法检查：python -m py_compile 所有 .py 文件
-[ ] 导入验证：python -c "from core.api.agnes_video import AgnesVideoAPI" 等
-[ ] 前端语法：HTML/JS 无语法错误
+[ ] Python Syntax Check: python -m py_compile all .py files
+[ ] Import checks: python -c "from core.api.agnes_video import AgnesVideoAPI" etc.
+[ ] Frontend: HTML/JS syntax errors check
 ```
 
-#### 第二层：单元测试
-| 模块 | 测试点 |
+#### Layer 2: Unit Testing
+| Module | Target Checklist |
 |------|--------|
-| `models/task.py` | 序列化/反序列化、多态 parse_task_state |
-| `core/audio/subtitle.py` | SRT 格式输出、`_split_long_text` 多行换行 |
+| `models/task.py` | Serialization, task parsing with union discriminator |
+| `core/audio/subtitle.py` | SRT format output, `_split_long_text` multi-line wrapping |
 | `core/audio/tts.py` | EdgeTTSEngine + SilentTTSEngine |
-| `manuscript_video.py` | split_manuscript() 拆段算法 |
-| `core/config.py` | 默认配置结构、resolve_font_path CJK 回退 |
-| `core/task_manager.py` | 旧数据兼容（无 task_type → CREATIVE） |
+| `manuscript_video.py` | `split_manuscript()` duration splitting algorithm |
+| `core/config.py` | Configuration maps, CJK font fallbacks |
+| `core/task_manager.py` | Backward compatibility (no task_type → CREATIVE) |
 
-#### 第三层：集成测试
-| 端点 | 测试点 |
+#### Layer 3: Integration Validation
+| Endpoint | Target Check |
 |------|--------|
-| `GET /` | 返回 200，三 Tab HTML |
-| `GET /api/config` | 返回 ok: true |
-| `GET /api/voices` | 返回 4 个语音角色 |
-| `POST /api/tasks/simple` | 参数校验 + task_type: simple |
-| `POST /api/tasks/creative` | 参数校验 + task_type: creative |
-| `POST /api/tasks/manuscript` | 参数校验 + task_type: manuscript |
-| `GET /api/tasks` | 列表含三种类型 |
-| `GET /api/tasks/{id}` | 返回 task_type |
-| `POST /api/tasks/{id}/stop` | 停止运行中任务 |
-| `GET /api/video/{id}` | 视频文件下载/流式播放 |
+| `GET /` | Returns 200, serves 3-Tab HTML |
+| `GET /api/config` | Returns ok: true |
+| `GET /api/voices` | Returns 4 TTS voice roles |
+| `POST /api/tasks/simple` | Schema check, type SIMPLE |
+| `POST /api/tasks/creative` | Schema check, type CREATIVE |
+| `POST /api/tasks/manuscript` | Schema check, type MANUSCRIPT |
+| `GET /api/tasks` | Returns tasks list containing all three types |
+| `GET /api/tasks/{id}` | Returns task detail containing task_type |
+| `POST /api/tasks/{id}/stop` | Terminates execution of task |
+| `GET /api/video/{id}` | Streams or downloads final MP4 |
 
 ---
 
-## 八、共享知识规范
+## 8. Shared Knowledge Specifications
 
-### 8.1 日志前缀
+### 8.1 Log Prefixes
 
-| 前缀 | 模块 |
+| Prefix | Module |
 |------|------|
-| `[Startup]` | server.py |
-| `[WS]` | WebSocket |
-| `[Resume]` | server.py resume |
-| `[Stop]` | server.py stop |
+| `[Startup]` | server.py startup |
+| `[WS]` | WebSocket connection states |
+| `[Resume]` | server.py task resumption |
+| `[Stop]` | server.py task stopping |
 | `[Pipeline]` | creative_video.py |
 | `[Simple]` | simple_video.py |
 | `[Manuscript]` | manuscript_video.py |
 | `[TTS]` | tts.py |
 | `[Subtitle]` | subtitle.py |
-| `[Compositor]` | compositor/ |
+| `[Compositor]` | compositor/ utilities |
 | `[AgnesImage]` | agnes_image.py |
 | `[AgnesVideo]` | agnes_video.py |
 | `[AgnesChat]` | agnes_chat.py |
 | `[TaskManager]` | task_manager.py |
 | `[Screenwriter]` | screenwriter.py |
 
-### 8.2 错误处理
+### 8.2 Error Strategies
 
-| 场景 | 策略 |
+| Action | Retry Plan |
 |------|------|
-| LLM 调用 | 重试 3 次，间隔 15s 递增 |
-| 视频提交 | 重试 5 次，间隔 30s 递增 |
-| 视频轮询 | 间隔 15s，每 10 次输出日志 |
-| PipelineShutdown | 所有流水线统一处理，落盘当前状态 |
-| TTS 失败 | 降级为静音 + 字幕 |
+| LLM Requests | Retry 3 times, with 15s incremental delays |
+| Video Submission | Retry 5 times, with 30s incremental delays |
+| Polling Loops | Poll every 15s, log status every 10 iterations |
+| PipelineShutdown | Bubble up exception, persist current state to task_state.json |
+| TTS Failures | Fall back to SilentTTSEngine (mute audio + subtitles) |
 
-### 8.3 向后兼容
+### 8.3 Backward Compatibility
 
-- `TaskManager.load()` 自动将无 `task_type` 字段的旧数据识别为 `CreativeVideoTask`
-- 旧 `task_state.json` 字段名保持不变
+- `TaskManager.load()` automatically converts task records without a `task_type` field into `CreativeVideoTask`.
+- Existing `task_state.json` field names are preserved.
 
-### 8.4 API 响应格式
+### 8.4 API Response Format
 
 ```json
-// 成功
+// Success
 {"ok": true, "task_id": "...", ...}
 
-// 失败
+// Failure
 HTTPException(status_code=4xx/5xx, detail="...")
 ```
 
-### 8.5 WebSocket 消息格式
+### 8.5 WebSocket Messages
 
 ```json
 {
@@ -501,118 +501,118 @@ HTTPException(status_code=4xx/5xx, detail="...")
   "task_id": "...",
   "step": "video_split",
   "status": "running",
-  "message": "正在拆分文本...",
+  "message": "Splitting text segments...",
   "progress": 0.3,
   "data": {"current": 2, "total": 5}
 }
 ```
 
-### 8.6 视频-音频同步策略
+### 8.6 Video-Audio Synchronization
 
 ```python
 final_duration = max(audio_duration + 1.0, original_video_duration)
-# padding ≤ 1 秒，不足时尾帧 freeze
+# padding ≤ 1s, freeze last frame if audio is longer than video
 ```
 
-创意视频和稿件视频均采用"MoneyPrinterTurbo 方式"：先拼接所有视频片段，再整体叠加一条合并音频 + 一套字幕，避免逐段叠加导致的 padding 累积误差。TTS 输出自动放大 2.5 倍音量以补偿 edge_tts 默认低音量。
+Both Creative Video and Manuscript Video use the "MoneyPrinterTurbo" method: concatenate all video segments first, then overlay a single merged audio track + subtitles track. This prevents compounding pacing errors. TTS volume is automatically boosted by 2.5x to compensate for default low volume in edge_tts.
 
-### 8.7 稿件拆段算法
+### 8.7 Manuscript Split Algorithm
 
 ```python
 def split_manuscript(text: str) -> list[dict]:
     """
-    1. 按句号/问号/感叹号拆分为候选句子
-    2. 每个句子 est_duration = len(text) / 4.0
-    3. 贪心合并：累计时长 ∈ [5, 12] 秒
-    4. 长句（> 12s）接受，不拆
-    5. 短句（< 5s）合并到前一段
+    1. Split text into candidate sentences using period/question/exclamation marks.
+    2. Estimate speech duration for each sentence: est_duration = len(text) / 4.0
+    3. Greedy combine: combine sentences until duration ∈ [5, 12] seconds.
+    4. Sentences longer than 12s are accepted without splitting.
+    5. Short sentences (< 5s) at the tail are combined into the previous segment.
     """
 ```
 
-### 8.8 字幕多行换行算法
+### 8.8 Subtitle Wrapping Algorithm
 
 ```python
 def _split_long_text(txt: str, max_chars_per_line: int) -> str:
     """
-    1. 检测文本是否含 CJK 字符
-    2. CJK 文本：按字符数判断，超过阈值则拆为两行
-       - 优先在中间附近的标点符号（，。、；！？）处断开
-       - 无标点则在正中间拆分
-    3. 非 CJK 文本：按单词数判断，超过阈值按单词拆为两行
-    4. max_chars_per_line 动态计算 = (video_width - 40) // fontsize
+    1. Check for CJK characters.
+    2. CJK text: If character count exceeds threshold, split into 2 lines:
+       - Prioritize breaking at middle-range CJK punctuation marks (，。、；！？).
+       - Fall back to splitting at the midpoint of character counts.
+    3. Non-CJK text: If word count exceeds threshold, split into 2 lines at word boundaries.
+    4. Dynamic character limit = (video_width - 40) // fontsize.
     """
 ```
 
-字幕渲染使用 `method="caption"` 替代 `method="label"`，配合 `size=(available_w, None)` 实现宽度约束内的自动换行。
+Subtitle rendering uses `method="caption"` instead of `method="label"`, paired with `size=(available_w, None)` to constrain subtitle width for wrapping.
 
-### 8.9 SRT 细粒度字幕生成
+### 8.9 Fine-grained SRT Generation
 
 ```python
 def _generate_fine_srt_from_word_cues(word_cues, max_duration=2.5, max_chars=18):
     """
-    1. 将 edge_tts SubMaker 词级 cues 转为 (start, end, text) 三元组
-    2. 计算词间停顿（gap）
-    3. 贪心分组：按 max_duration 和 max_chars 约束
-       - 持续时长超限 → 断开
-       - 字符数超限 → 断开
-       - 停顿 > 0.4s 且已积累内容 → 断开
-    4. 后处理：合并过短的尾部组
-    5. 确保每组 ≥ 0.3s，相邻组不重叠
+    1. Convert edge_tts SubMaker word cues to list of (start, end, text) tuples.
+    2. Calculate word pauses (gap).
+    3. Greedy group words using max_duration and max_chars thresholds:
+       - Break group if total duration limit reached.
+       - Break group if character limit reached.
+       - Break group if pause gap > 0.4s and group contains content.
+    4. Post-process: merge overly short tail groups.
+    5. Ensure group duration ≥ 0.3s, without overlap.
     """
 ```
 
-### 8.10 CJK 字体回退机制
+### 8.10 Font Fallback Resolution
 
 ```python
 def resolve_font_path(font: str) -> str:
     """
-    优先级：
-    1. 绝对路径且存在 → 直接返回
-    2. 文件名 → 在 resource/fonts/ 查找
-    3. 已知非 CJK 字体名（Arial, Helvetica 等）→ 回退到 STHeitiMedium.ttc
-    4. 其他 → 当作系统字体返回
+    Priority hierarchy:
+    1. Valid absolute path → use directly.
+    2. Valid filename → search in resource/fonts/.
+    3. Recognized non-CJK font name (Arial, Helvetica, etc.) → fallback to STHeitiMedium.ttc.
+    4. Others → treat as system font name.
     """
 ```
 
 ---
 
-## 九、API 端点完整列表
+## 9. Complete API Endpoint List
 
-| 方法 | 路径 | 说明 |
+| Method | Path | Description |
 |------|------|------|
-| GET | `/` | Web UI 页面 |
-| GET | `/api/config` | 获取 API Key（脱敏） |
-| POST | `/api/config` | 保存 API Key |
-| GET | `/api/voices` | 列出可用 TTS 语音角色（4 个） |
-| POST | `/api/tasks/simple` | 创建简单视频任务 |
-| POST | `/api/tasks/creative` | 创建创意长视频任务 |
-| POST | `/api/tasks/manuscript` | 创建稿件长视频任务 |
-| POST | `/api/tasks` | 兼容旧版（映射到 creative） |
-| GET | `/api/tasks` | 列出所有任务（含 task_type 标识） |
-| GET | `/api/tasks/{id}` | 查询任务详情 |
-| POST | `/api/tasks/{id}/resume` | 续传中断任务 |
-| POST | `/api/tasks/{id}/stop` | 停止运行中的任务 |
-| GET | `/api/video/{id}` | 下载/流式播放最终视频 |
-| WS | `/ws/{id}` | WebSocket 实时进度推送 |
+| GET | `/` | Web UI page |
+| GET | `/api/config` | Fetch API Key (masked) |
+| POST | `/api/config` | Save API Key |
+| GET | `/api/voices` | List available TTS voice roles (4 roles) |
+| POST | `/api/tasks/simple` | Submit simple video task |
+| POST | `/api/tasks/creative` | Submit creative video task |
+| POST | `/api/tasks/manuscript` | Submit manuscript video task |
+| POST | `/api/tasks` | Legacy endpoint (redirects to creative mode) |
+| GET | `/api/tasks` | List all tasks with task_type badge |
+| GET | `/api/tasks/{id}` | Get task details |
+| POST | `/api/tasks/{id}/resume` | Resume an interrupted task |
+| POST | `/api/tasks/{id}/stop` | Stop a running task |
+| GET | `/api/video/{id}` | Stream/download final video |
+| WS | `/ws/{id}` | WebSocket progress push |
 
 ---
 
-## 十、关键决策记录
+## 10. Key Decision Log
 
-| ID | 决策 | 详情 |
+| ID | Decision | Details |
 |----|------|------|
-| D1 | 稿件拆段 | 时间估算 4 字/秒，5-12s/段，不拆句子 |
-| D2 | 稿件 scene prompt | AI 生成英文 prompt，原文作旁白+字幕 |
-| D3 | TTS 默认语音 | `zh-CN-XiaoxiaoNeural` |
-| D4 | 视频 padding | ≤ 1 秒 |
-| D5 | 简单视频 prompt | 结构化暴露 Agnes API 全部 8 个参数，不做 AI 增强 |
-| D6 | 旧数据兼容 | 无 task_type → CREATIVE |
-| D7 | 多语言 | 保持 7 语言 (zh/en/ru/ja/ko/ms/id) |
-| D8 | TTS 付费方案 | 不引入，仅用 edge_tts（免费） |
-| D9 | 字幕多行换行 | 动态计算每行字符数上限，CJK 标点处断行，method="caption" |
-| D10 | 音频叠加方式 | MoneyPrinterTurbo 方式：先拼接再整体叠加，避免 padding 累积 |
-| D11 | TTS 音量补偿 | 自动 2.5 倍放大，补偿 edge_tts 默认低音量 |
+| D1 | Manuscript Segmenting | Speaking time estimation ~4 chars/sec, 5-12s segments, keep sentences whole |
+| D2 | Manuscript Scene Prompt | LLM generates English prompt, original text is used for audio and subtitles |
+| D3 | TTS Default Voice | `zh-CN-XiaoxiaoNeural` |
+| D4 | Video Padding | ≤ 1s padding |
+| D5 | Simple Video Inputs | Expose all 8 parameters of Agnes Video API, no AI enhancement |
+| D6 | Compatibility | Parse tasks lacking `task_type` as CREATIVE |
+| D7 | Localization | Maintain 7 languages (zh/en/ru/ja/ko/ms/id) |
+| D8 | TTS Integration | Use Microsoft edge_tts free solution |
+| D9 | Subtitle Wrap | Calculate character threshold dynamically, wrap on punctuation, use method="caption" |
+| D10 | Compositing | MoneyPrinterTurbo strategy: concat segments, then mix unified audio/subtitles track |
+| D11 | TTS Volume | Boost TTS voice volume by 2.5x |
 
 ---
 
-*文档版本：v5.0 | 更新日期：2026-06-15 | 阶段：🟢 开发完成（v2.0）— 维护模式*
+*Document Version: v5.0 | Last Updated: 2026-06-15 | Status: 🟢 Development Completed (v2.0) — Maintenance Mode*

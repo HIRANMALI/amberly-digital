@@ -1,6 +1,6 @@
-"""core.pipelines — 业务流水线层
+"""core.pipelines — Business Pipeline Layer
 
-BasePipeline 抽象基类 + 三种流水线导出。
+BasePipeline abstract base class + three pipeline exports.
 """
 
 import asyncio
@@ -15,21 +15,21 @@ logger = logging.getLogger(__name__)
 
 
 class PipelineShutdown(Exception):
-    """流水线中断异常。"""
+    """Pipeline shutdown exception."""
     pass
 
 
 class BasePipeline(ABC):
-    """所有流水线的抽象基类。
+    """Abstract base class for all pipelines.
 
-    提供共享的进度回调、断点续传、shutdown 控制等基础设施。
+    Provides shared infrastructure such as progress callbacks, resume capabilities, and shutdown control.
     """
 
     def __init__(
         self,
         api_key: str,
         task_id: str,
-        dir_name: str = None,
+        dir_name: Optional[str] = None,
         progress_callback: Optional[Callable] = None,
         shutdown_event: Optional[asyncio.Event] = None,
     ):
@@ -48,20 +48,20 @@ class BasePipeline(ABC):
         status: str,
         message: str,
         progress: float = 0.0,
-        data: dict = None,
+        data: Optional[dict] = None,
     ):
-        """发送进度消息到前端。"""
+        """Send progress message to frontend."""
         if self.progress_callback:
             await self.progress_callback(step, status, message, progress, data or {})
 
     def _is_shutdown(self) -> bool:
-        """检查是否收到停止信号。"""
+        """Check if shutdown/stop signal is received."""
         if self._stop_event.is_set():
             return True
         return self.shutdown_event is not None and self.shutdown_event.is_set()
 
     def stop(self):
-        """请求流水线在下一个检查点停止。"""
+        """Request pipeline to stop at the next checkpoint."""
         self._stop_event.set()
 
     @property
@@ -74,11 +74,11 @@ class BasePipeline(ABC):
 
     @abstractmethod
     async def run(self, state: BaseTaskState) -> str:
-        """执行流水线，返回最终视频路径。"""
+        """Run the pipeline, returning the final video path."""
         ...
 
 
-# 延迟导入避免循环依赖
+# Lazy imports to avoid circular dependency
 def _get_simple_pipeline():
     from core.pipelines.simple_video import SimpleVideoPipeline
     return SimpleVideoPipeline
@@ -94,7 +94,7 @@ def _get_manuscript_pipeline():
     return ManuscriptVideoPipeline
 
 
-# 导出
+# Exports
 from core.pipelines.simple_video import SimpleVideoPipeline
 from core.pipelines.creative_video import CreativeVideoPipeline
 from core.pipelines.manuscript_video import ManuscriptVideoPipeline

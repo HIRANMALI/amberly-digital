@@ -1,8 +1,8 @@
-"""core.video_generator — 向后兼容别名（v2.0 迁移至 core.api.agnes_video）"""
+"""core.video_generator — Backward compatibility alias (migrated to core.api.agnes_video in v2.0)"""
 
 from core.api.agnes_video import AgnesVideoAPI, VideoOutput
 
-# 旧类名兼容
+# Old class name compatibility
 VideoGeneratorAgnesAPI = AgnesVideoAPI
 
 __all__ = ["AgnesVideoAPI", "VideoOutput", "VideoGeneratorAgnesAPI"]

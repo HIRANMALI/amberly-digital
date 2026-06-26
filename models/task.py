@@ -1,11 +1,11 @@
 """
-Agnes Video Generator v2.0 — 数据模型层
+Agnes Video Generator v2.0 — Data Model Layer
 
-定义所有任务类型的数据结构：
-- TaskType 枚举、VideoMode 枚举
-- SubtitleStyle、AudioConfig 配置类
-- BaseTaskState（共享字段）+ 三种任务子类
-- 请求/响应模型
+Defines data structures for all task types:
+- TaskType Enum, VideoMode Enum
+- SubtitleStyle, AudioConfig config classes
+- BaseTaskState (shared fields) + 3 task subclasses
+- Request/Response models
 """
 
 from __future__ import annotations
@@ -18,7 +18,7 @@ from pydantic import BaseModel, Field, field_validator
 
 
 # ═══════════════════════════════════════════════════
-# 枚举
+# Enums
 # ═══════════════════════════════════════════════════
 
 
@@ -43,12 +43,12 @@ class VideoMode(str, Enum):
 
 
 # ═══════════════════════════════════════════════════
-# 配置类
+# Configuration Classes
 # ═══════════════════════════════════════════════════
 
 
 class SubtitleStyle(BaseModel):
-    """字幕样式配置（D4：P1 范围）"""
+    """Subtitle style configuration"""
 
     font: str = "STHeitiMedium.ttc"
     color: str = "white"
@@ -76,7 +76,7 @@ class SubtitleStyle(BaseModel):
 
 
 class AudioConfig(BaseModel):
-    """音频配置（TTS 语音 + 字幕样式）"""
+    """Audio configuration (TTS voice + subtitle style)"""
 
     enabled: bool = True
     voice: str = "zh-CN-XiaoxiaoNeural"
@@ -85,12 +85,12 @@ class AudioConfig(BaseModel):
 
 
 # ═══════════════════════════════════════════════════
-# 子结构模型
+# Sub-structure Models
 # ═══════════════════════════════════════════════════
 
 
 class ManuscriptParagraph(BaseModel):
-    """稿件段落（类型 3 专用）"""
+    """Manuscript paragraph (specific to Type 3)"""
 
     index: int
     text: str
@@ -104,7 +104,7 @@ class ManuscriptParagraph(BaseModel):
 
 
 class SceneTask(BaseModel):
-    """场景任务（类型 2 专用，v2.0 新增旁白/音频/字幕字段）"""
+    """Scene task (specific to Type 2, v2.0 added voiceover/audio/subtitle fields)"""
 
     index: int
     status: StepStatus = StepStatus.PENDING
@@ -113,7 +113,7 @@ class SceneTask(BaseModel):
     video_id: str = ""
     video_status: StepStatus = StepStatus.PENDING
     video_file: str = ""
-    # v2.0 新增
+    # Added in v2.0
     narration_text: str = ""
     narration_audio: str = ""
     subtitle_srt: str = ""
@@ -121,12 +121,12 @@ class SceneTask(BaseModel):
 
 
 # ═══════════════════════════════════════════════════
-# 任务状态模型
+# Task State Models
 # ═══════════════════════════════════════════════════
 
 
 class BaseTaskState(BaseModel):
-    """所有任务共享的基础字段（抽象父类）"""
+    """Base fields shared by all tasks (abstract parent class)"""
 
     task_id: str = Field(default_factory=lambda: uuid.uuid4().hex[:12])
     creative_name: str = ""
@@ -135,15 +135,18 @@ class BaseTaskState(BaseModel):
     video_width: int = 1152
     video_height: int = 768
     final_video_file: str = ""
+    cloudinary_url: str = ""
+    reference_cloudinary_url: str = ""
+    end_frame_cloudinary_url: str = ""
 
 
 class SimpleVideoTask(BaseTaskState):
-    """简单视频任务（类型 1）
+    """Simple video task (Type 1)
 
-    用户直接输入 prompt，选择模式/时长/分辨率，调用 Agnes Video API 生成单个视频。
+    User inputs prompt directly, selects mode/duration/resolution, and calls Agnes Video API to generate a single video.
     """
 
-    task_type: Literal[TaskType.SIMPLE] = TaskType.SIMPLE
+    task_type: Literal[TaskType.SIMPLE] = TaskType.SIMPLE  # type: ignore
 
     prompt: str = ""
     mode: VideoMode = VideoMode.T2V
@@ -156,14 +159,14 @@ class SimpleVideoTask(BaseTaskState):
 
 
 class CreativeVideoTask(BaseTaskState):
-    """创意长视频任务（类型 2）
+    """Creative long video task (Type 2)
 
-    保持现有 TaskState 全部字段向后兼容，v2.0 新增音频/字幕配置和旁白列表。
+    Keeps all existing TaskState fields backward-compatible, adds audio/subtitle config and narration lists in v2.0.
     """
 
-    task_type: Literal[TaskType.CREATIVE] = TaskType.CREATIVE
+    task_type: Literal[TaskType.CREATIVE] = TaskType.CREATIVE  # type: ignore
 
-    # ── 现有字段（保持兼容）──
+    # ── Existing fields (maintain compatibility) ──
     idea: str = ""
     user_requirement: str = ""
     style: str = ""
@@ -199,14 +202,14 @@ class CreativeVideoTask(BaseTaskState):
 
     step_video_generation: StepStatus = StepStatus.PENDING
 
-    # ── v2.0 新增：音频 + 字幕 ──
+    # ── Added in v2.0: Audio + Subtitles ──
     step_audio_subtitle: StepStatus = StepStatus.PENDING
     audio_config: AudioConfig = Field(default_factory=AudioConfig)
     narrations: List[str] = Field(default_factory=list)
 
     step_concatenation: StepStatus = StepStatus.PENDING
 
-    # ── 辅助方法（保持向后兼容）──
+    # ── Helper methods (maintain backward compatibility) ──
 
     def all_scenes_completed(self) -> bool:
         return all(s.status == StepStatus.COMPLETED for s in self.scenes)
@@ -222,12 +225,12 @@ class CreativeVideoTask(BaseTaskState):
 
 
 class ManuscriptVideoTask(BaseTaskState):
-    """稿件长视频任务（类型 3）
+    """Manuscript long video task (Type 3)
 
-    用户粘贴长文本 → 按朗读时间拆段 → 每段生成视频 prompt → 视频生成 → TTS+字幕 → 拼接。
+    User pastes long text -> split into paragraphs based on reading time -> generate video prompt for each paragraph -> video generation -> TTS + Subtitles -> concatenation.
     """
 
-    task_type: Literal[TaskType.MANUSCRIPT] = TaskType.MANUSCRIPT
+    task_type: Literal[TaskType.MANUSCRIPT] = TaskType.MANUSCRIPT  # type: ignore
 
     manuscript_text: str = ""
     paragraphs: List[ManuscriptParagraph] = Field(default_factory=list)
@@ -245,12 +248,12 @@ class ManuscriptVideoTask(BaseTaskState):
 
 
 # ═══════════════════════════════════════════════════
-# 联合类型 + 反序列化工厂
+# Union Types + Deserialization Factory
 # ═══════════════════════════════════════════════════
 
 AnyTaskState = Union[SimpleVideoTask, CreativeVideoTask, ManuscriptVideoTask]
 
-# 用于 TaskManager.load()：根据 task_type 字段选择正确的模型类
+# For TaskManager.load(): select the correct model class based on task_type field
 _TASK_TYPE_MAP: dict[str, type[BaseTaskState]] = {
     TaskType.SIMPLE: SimpleVideoTask,
     TaskType.CREATIVE: CreativeVideoTask,
@@ -259,9 +262,9 @@ _TASK_TYPE_MAP: dict[str, type[BaseTaskState]] = {
 
 
 def parse_task_state(data: dict) -> BaseTaskState:
-    """根据 task_type 字段反序列化为正确的任务子类。
+    """Deserialize to the correct task subclass based on task_type field.
 
-    向后兼容：如果 data 中没有 task_type 字段，默认视为 CREATIVE 类型（D6 决策）。
+    Backward compatibility: if there is no task_type field in data, defaults to CREATIVE type (D6 decision).
     """
     task_type_str = data.get("task_type", TaskType.CREATIVE)
     model_cls = _TASK_TYPE_MAP.get(task_type_str, CreativeVideoTask)
@@ -269,12 +272,12 @@ def parse_task_state(data: dict) -> BaseTaskState:
 
 
 # ═══════════════════════════════════════════════════
-# 请求模型
+# Request Models
 # ═══════════════════════════════════════════════════
 
 
 class CreateSimpleTaskRequest(BaseModel):
-    """创建简单视频任务的请求体"""
+    """Request body for creating a simple video task"""
 
     prompt: str
     mode: str = "t2v"
@@ -286,11 +289,11 @@ class CreateSimpleTaskRequest(BaseModel):
 
 
 class CreateCreativeTaskRequest(BaseModel):
-    """创建创意长视频任务的请求体"""
+    """Request body for creating a creative long video task"""
 
     idea: str
-    user_requirement: str = "3个场景，每个场景10秒，电影质感"
-    style: str = "电影质感写实风格"
+    user_requirement: str = "3 scenes, 10 seconds per scene, cinematic"
+    style: str = "cinematic realistic style"
     chaining_mode: str = "keyframes"
     video_width: int = 768
     video_height: int = 1152
@@ -299,7 +302,7 @@ class CreateCreativeTaskRequest(BaseModel):
 
 
 class CreateManuscriptTaskRequest(BaseModel):
-    """创建稿件长视频任务的请求体"""
+    """Request body for creating a manuscript long video task"""
 
     manuscript_text: str
     video_width: int = 768
@@ -309,7 +312,7 @@ class CreateManuscriptTaskRequest(BaseModel):
 
 
 # ═══════════════════════════════════════════════════
-# 响应模型
+# Response Models
 # ═══════════════════════════════════════════════════
 
 
@@ -332,11 +335,11 @@ class WSMessage(BaseModel):
 
 
 # ═══════════════════════════════════════════════════
-# 向后兼容别名（Batch B/C 迁移完成后移除）
+# Backward compatibility aliases (to be removed after Batch B/C migration completes)
 # ═══════════════════════════════════════════════════
 
-# 旧代码中 TaskState 等同于 CreativeVideoTask（D6）
+# TaskState is equivalent to CreativeVideoTask in legacy code (D6)
 TaskState = CreativeVideoTask
 
-# 旧请求模型映射到新的创意视频请求
+# Legacy request model mapped to the new creative video request
 CreateTaskRequest = CreateCreativeTaskRequest

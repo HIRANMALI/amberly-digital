@@ -1,5 +1,5 @@
 import logging
-import requests
+import requests  # type: ignore
 from tenacity import retry, stop_after_attempt
 
 logger = logging.getLogger(__name__)

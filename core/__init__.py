@@ -1,6 +1,6 @@
-"""core — Agnes Video Generator v2.0 核心模块
+"""core — Agnes Video Generator v2.0 Core Module
 
-导出所有子包的核心类和工具函数。
+Exports core classes and utility functions from all subpackages.
 """
 
 from core.api import AgnesImageAPI, AgnesVideoAPI, AgnesChatAPI
@@ -15,18 +15,18 @@ from core.pipelines import (
 )
 
 __all__ = [
-    # API 层
+    # API Layer
     "AgnesImageAPI",
     "AgnesVideoAPI",
     "AgnesChatAPI",
-    # 音频层
+    # Audio Layer
     "EdgeTTSEngine",
     "SilentTTSEngine",
     "SubtitleGenerator",
-    # 拼接层
+    # Compositor Layer
     "VideoConcatenator",
     "VideoProcessor",
-    # 流水线层
+    # Pipeline Layer
     "BasePipeline",
     "PipelineShutdown",
     "SimpleVideoPipeline",

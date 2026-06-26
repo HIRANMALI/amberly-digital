@@ -1,6 +1,6 @@
 classDiagram
     %% ═══════════════════════════════════════════
-    %% 枚举
+    %% Enums
     %% ═══════════════════════════════════════════
     class TaskType {
         <<enumeration>>
@@ -24,7 +24,7 @@ classDiagram
     }
 
     %% ═══════════════════════════════════════════
-    %% 配置类
+    %% Config Classes
     %% ═══════════════════════════════════════════
     class SubtitleStyle {
         +font: str = "Arial"
@@ -43,7 +43,7 @@ classDiagram
     }
 
     %% ═══════════════════════════════════════════
-    %% 数据模型 — 任务
+    %% Data Models - Tasks
     %% ═══════════════════════════════════════════
     class BaseTaskState {
         <<abstract>>
@@ -154,7 +154,7 @@ classDiagram
     AudioConfig *-- SubtitleStyle : subtitle_style
 
     %% ═══════════════════════════════════════════
-    %% API 层
+    %% API Layer
     %% ═══════════════════════════════════════════
     class AgnesImageAPI {
         -api_key: str
@@ -203,7 +203,7 @@ classDiagram
     }
 
     %% ═══════════════════════════════════════════
-    %% 音频层
+    %% Audio Layer
     %% ═══════════════════════════════════════════
     class TTSEngine {
         <<abstract>>
@@ -228,7 +228,7 @@ classDiagram
     TTSEngine <|-- SilentTTSEngine
 
     %% ═══════════════════════════════════════════
-    %% 拼接层
+    %% Compositing Layer
     %% ═══════════════════════════════════════════
     class VideoConcatenator {
         +concat_videos(video_paths, output_path) str
@@ -243,7 +243,7 @@ classDiagram
     }
 
     %% ═══════════════════════════════════════════
-    %% 业务层
+    %% Business Layer
     %% ═══════════════════════════════════════════
     class BasePipeline {
         <<abstract>>
@@ -253,6 +253,7 @@ classDiagram
         +task_manager: TaskManager
         +progress_callback: Callable
         +shutdown_event: Event
+        -api_key: str
         -_stop_event: Event
         +stop() None
         +_emit(step, status, message, progress, data) None
@@ -354,8 +355,8 @@ classDiagram
     AgnesVideoAPI --> VideoOutput : creates
     AgnesImageAPI --> ImageOutput : creates
 
-    %% 关系标注
-    note for CreativeVideoTask "保持现有字段完全不变<br/>新增: audio_config, narrations,<br/>step_audio_subtitle"
-    note for SceneTask "新增: narration_text,<br/>narration_audio, subtitle_srt,<br/>final_clip"
-    note for ManuscriptVideoTask "全新类型：稿件长视频"
-    note for SimpleVideoTask "全新类型：简单视频"
+    %% Relationship Annotations
+    note for CreativeVideoTask "Keep existing fields completely unchanged<br/>Add: audio_config, narrations,<br/>step_audio_subtitle"
+    note for SceneTask "Add: narration_text,<br/>narration_audio, subtitle_srt,<br/>final_clip"
+    note for ManuscriptVideoTask "New Type: Manuscript Long Video"
+    note for SimpleVideoTask "New Type: Simple Video"

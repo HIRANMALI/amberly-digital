@@ -1,13 +1,13 @@
-"""core.api.agnes_chat — Agnes Chat API 封装（从 core/screenwriter.py 提取）"""
+"""core.api.agnes_chat — Agnes Chat API wrapper (extracted from core/screenwriter.py)"""
 
 import base64
 import json
 import logging
 import mimetypes
 import os
-from typing import List
+from typing import Any, Dict, List
 
-import requests
+import requests  # type: ignore
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +15,7 @@ BASE_URL = "https://apihub.agnes-ai.com/v1"
 
 
 class AgnesChatAPI:
-    """Agnes LLM Chat API 封装（text + multimodal）。"""
+    """Agnes LLM Chat API wrapper (text + multimodal)."""
 
     def __init__(self, api_key: str, model: str = "agnes-2.0-flash"):
         self.api_key = api_key
@@ -32,7 +32,7 @@ class AgnesChatAPI:
         return f"data:{mime};base64,{b64}"
 
     def chat(self, system_prompt: str, user_prompt: str, max_tokens: int = 4096) -> str:
-        """纯文本 Chat 调用。"""
+        """Pure text Chat invocation."""
         logger.info(f"[AgnesChat] Calling chat ({self.model}), prompt: {len(user_prompt)} chars...")
         resp = requests.post(
             f"{BASE_URL}/chat/completions",
@@ -53,7 +53,7 @@ class AgnesChatAPI:
         return data["choices"][0]["message"]["content"]
 
     def chat_json(self, system_prompt: str, user_prompt: str, max_tokens: int = 4096) -> dict:
-        """Chat 调用并解析 JSON 响应。"""
+        """Chat invocation and parsing of JSON response."""
         content = self.chat(system_prompt, user_prompt, max_tokens=max_tokens)
         content = content.strip()
         if content.startswith("```"):
@@ -69,10 +69,10 @@ class AgnesChatAPI:
         image_paths: List[str],
         max_tokens: int = 4096,
     ) -> str:
-        """多模态 Chat 调用（文本 + 图片）。"""
-        messages = [{"role": "system", "content": system_prompt}]
+        """Multimodal Chat invocation (text + image)."""
+        messages: List[Dict[str, Any]] = [{"role": "system", "content": system_prompt}]
 
-        user_content = [{"type": "text", "text": text_prompt}]
+        user_content: List[Dict[str, Any]] = [{"type": "text", "text": text_prompt}]
         for img_path in image_paths:
             if img_path.startswith(("http://", "https://")):
                 user_content.append({

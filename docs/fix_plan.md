@@ -1,25 +1,25 @@
-# 修复计划：大版本回归测试问题修复
+# Fix Plan: Regression Test Issue Resolution
 
-> 日期：2026-06-14
-> 关联：大版本回归测试报告暴露的 3 个关键问题
+> Date: 2026-06-14
+> Related: 3 critical issues exposed in the regression test report
 
 ---
 
-## 问题 1：CreativePipeline 旁白文本过长 → 视频时长异常
+## Issue 1: CreativePipeline Narration is Too Long → Abnormal Video Duration
 
-**现象**：C4（创意+配音）最终视频 262.79s，远超预期（3×5s≈15s）。
+**Symptom**: The C4 scenario (Creative + TTS) output video is 262.79s, far exceeding the expected duration (3 × 5s ≈ 15s).
 
-**根因**：`core/pipelines/creative_video.py` 中 `_populate_narrations()` 将 AI 生成的长篇故事按段落数均分给各场景作为旁白。TTS 朗读数百字的段落 → 音频长达数十秒 → `_synthesize_single()` 通过冻结帧将视频补齐到音频长度。
+**Root Cause**: `core/pipelines/creative_video.py` `_populate_narrations()` evenly distributes the full AI-generated story paragraphs to each scene as narration. TTS speaking a long paragraph takes tens of seconds, and `_synthesize_single()` freezes the last frame to stretch the video to match the audio length.
 
-**修复**：在每个场景的旁文字符数超过 `video_duration × 4`（4字/秒朗读速度）时，按句子边界裁剪。
+**Fix**: When the narration length of a scene exceeds `video_duration × 4` (assuming 4 chars/sec speed), clip the narration at a sentence boundary.
 
-### 涉及代码
+### Impacted Code
 
-| 位置 | 修改 |
+| Location | Change |
 |------|------|
-| `creative_video.py:1026-1046` `_populate_narrations()` | 增加裁剪逻辑 |
+| `creative_video.py:1026-1046` `_populate_narrations()` | Add trimming logic |
 
-### 核心变更
+### Core Changes
 
 ```python
 _CHARS_PER_SEC = 4.0
@@ -27,7 +27,7 @@ _CHARS_PER_SEC = 4.0
 def _trim_narration(text: str, max_chars: int) -> str:
     if len(text) <= max_chars:
         return text
-    # 按句子边界裁剪
+    # Trim by sentence boundary
     trimmed = text[:max_chars]
     last_period = max(
         trimmed.rfind("。"), trimmed.rfind("！"), trimmed.rfind("？"),
@@ -40,49 +40,49 @@ def _trim_narration(text: str, max_chars: int) -> str:
 
 ---
 
-## 问题 2：ManuscriptPipeline 视频 duration 与段落实际时长不匹配
+## Issue 2: ManuscriptPipeline Video Duration Mismatches Paragraph Actual Duration
 
-**现象**：M1/M2 所有段落视频使用固定 `video_duration=5s` 提交，但段落文本可能更长（~22字≈5.5s），导致配音与视频不匹配。
+**Symptom**: M1/M2 paragraphs are submitted with a fixed `video_duration=5s`, but paragraph narration text can be longer (~22 characters ≈ 5.5s), causing mismatch between voiceover and video.
 
-**根因**：`core/pipelines/manuscript_video.py` `_step_generate_videos()` 调用 `submit_video(duration=self._state.video_duration, ...)` 对所有段落使用同一固定值。
+**Root Cause**: `core/pipelines/manuscript_video.py` `_step_generate_videos()` calls `submit_video(duration=self._state.video_duration, ...)` using the fixed default value for all segments.
 
-**修复**：使用段落实估时长 `max(ceil(len(para.text) / 4.0), 3)` 作为视频提交的 duration。
+**Fix**: Use estimated speech duration `max(ceil(len(para.text) / 4.0), 3)` as the duration parameter for submitting video.
 
-### 涉及代码
+### Impacted Code
 
-| 位置 | 修改 |
+| Location | Change |
 |------|------|
-| `manuscript_video.py:483-488` `_step_generate_videos()` | 用段落实估时长代替 `video_duration` |
+| `manuscript_video.py:483-488` `_step_generate_videos()` | Replace `video_duration` with segment estimated duration |
 
 ---
 
-## 问题 3：Regression Runner 未在创建任务时即持久化 task_id
+## Issue 3: Regression Runner Does Not Persist task_id Immediately on Task Creation
 
-**现象**：若回归脚本在任务提交后、轮询完成前中断，`--resume` 无法找到已提交的任务 ID，需要全部重跑。
+**Symptom**: If the regression script is interrupted after task submission but before completion, `--resume` cannot find the submitted task ID, requiring a full rerun.
 
-**根因**：`scripts/regression_runner.py` 中 `run_scenario()` 只在任务完成后才写入报告。
+**Root Cause**: `scripts/regression_runner.py` `run_scenario()` only writes to the report after the task finishes.
 
-**修复**：
-1. 添加 `"submitted"` 中间状态
-2. `submit_task()` 成功后立即 `report.update_scenario(sc.id, "submitted", result={task_id, dir_name})`
-3. `should_run()` 不过滤 `"submitted"` 和 `"running"` 状态（重启后视为待处理）
-4. Resume 路径：`status="submitted"` → 尝试轮询已有 task_id；超时/失败 → 重新提交
-5. 修正 E1 检查文本：`"simple-video"` → `"Agnes Video Generator"`
+**Fix**:
+1. Add a `"submitted"` intermediate state.
+2. Immediately call `report.update_scenario(sc.id, "submitted", result={task_id, dir_name})` after `submit_task()` succeeds.
+3. Keep `"submitted"` and `"running"` states in `should_run()` (so resumption processes them as pending).
+4. Resume path: If state is `"submitted"`, try to poll the existing task ID; if it times out or fails, re-submit.
+5. Fix E1 check text: Change `"simple-video"` to `"Agnes Video Generator"`.
 
-### 涉及代码
+### Impacted Code
 
-| 位置 | 修改 |
+| Location | Change |
 |------|------|
-| `regression_runner.py:324-326` `should_run()` | 不过滤 `submitted`/`running` |
-| `regression_runner.py:588-592` `run_scenario()` | 提交后立即持久化 |
-| `regression_runner.py:699-701` 端点验证 E1 | 修正检查文本 |
+| `regression_runner.py:324-326` `should_run()` | Do not filter out `submitted`/`running` |
+| `regression_runner.py:588-592` `run_scenario()` | Persist task ID immediately after submission |
+| `regression_runner.py:699-701` Endpoint check E1 | Fix matching text |
 
 ---
 
-## 验证方法
+## Verification Plan
 
-1. `bash start.sh` 正常启动
-2. 运行 `python scripts/regression_runner.py --auto-start`
-3. 检查 C4 时长 ≈ 15s（3×5s，不再被旁白拉长）
-4. 检查 M1/M2 时长 ≥ 段落估计时长
-5. 中途 `Ctrl+C` 中断后 `--resume` 续传正常
+1. Start the server: `bash start.sh`
+2. Run the regression test: `python scripts/regression_runner.py --auto-start`
+3. Verify C4 duration is ~15s (3 × 5s, no longer stretched by long narration).
+4. Verify M1/M2 segment durations match their narration lengths.
+5. Interrupt with `Ctrl+C` and verify that `--resume` resumes successfully from the checkpoints.

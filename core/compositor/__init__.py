@@ -1,4 +1,4 @@
-"""core.compositor — 视频拼接层"""
+"""core.compositor — Video composition layer"""
 
 from core.compositor.concatenator import VideoConcatenator
 from core.compositor.processor import VideoProcessor

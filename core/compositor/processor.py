@@ -1,6 +1,6 @@
-"""core.compositor.processor — 视频处理器
+"""core.compositor.processor — Video processor
 
-提供缩放、帧提取、静音音频生成、尾帧冻结等工具方法。
+Provides utility methods for scaling, frame extraction, silent audio generation, and last frame freezing.
 """
 
 import asyncio
@@ -11,11 +11,11 @@ logger = logging.getLogger(__name__)
 
 
 class VideoProcessor:
-    """视频处理工具集（缩放、帧提取、静音生成、尾帧冻结）。"""
+    """Video processing toolkit (scaling, frame extraction, silence generation, last frame freezing)."""
 
     @staticmethod
     def resize_video(input_path: str, width: int, height: int, output_path: str) -> str:
-        """缩放视频到指定分辨率。"""
+        """Scales video to specified resolution."""
         logger.info(f"[Compositor] Resizing: {input_path} → {width}x{height}")
         os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
 
@@ -32,7 +32,7 @@ class VideoProcessor:
 
     @staticmethod
     def extract_last_frame(video_path: str, output_path: str) -> str:
-        """提取视频最后一帧为图片。"""
+        """Extracts the last frame of the video as an image."""
         logger.info(f"[Compositor] Extracting last frame: {video_path} → {output_path}")
         os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
 
@@ -50,7 +50,7 @@ class VideoProcessor:
 
     @staticmethod
     def generate_silent_audio(duration_sec: float, output_path: str) -> str:
-        """生成指定时长的静音音频文件。"""
+        """Generates silent audio file of specified duration."""
         logger.info(f"[Compositor] Generating silent audio: {duration_sec:.1f}s → {output_path}")
         os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
 
@@ -68,21 +68,21 @@ class VideoProcessor:
 
     @staticmethod
     def freeze_last_frame(video_path: str, freeze_duration: float, output_path: str) -> str:
-        """将视频最后一帧冻结指定时长，输出新视频。
+        """Freezes the last frame of the video for a specified duration, outputting a new video.
 
-        用于视频-音频对齐：当视频时长不足时，冻结尾帧补齐。
+        Used for video-audio alignment: when video duration is shorter, freezes the last frame to fill.
 
         Args:
-            video_path: 输入视频
-            freeze_duration: 冻结时长（秒）
-            output_path: 输出视频路径
+            video_path: Input video
+            freeze_duration: Freeze duration (seconds)
+            output_path: Output video path
         """
         logger.info(f"[Compositor] Freezing last frame: {freeze_duration:.1f}s → {output_path}")
         os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
 
         import subprocess
 
-        # 1. 提取最后一帧
+        # 1. Extract the last frame
         frame_path = output_path + "_frame.jpg"
         subprocess.run([
             "ffmpeg", "-y",
@@ -93,13 +93,13 @@ class VideoProcessor:
             frame_path,
         ], capture_output=True, check=True, timeout=30)
 
-        # 2. 从最后一帧生成冻结视频
+        # 2. Generate freeze video from the last frame
         freeze_video_path = output_path + "_freeze.mp4"
         subprocess.run([
             "ffmpeg", "-y",
             "-loop", "1",
             "-i", frame_path,
-            "-i", video_path,  # 复用原视频参数
+            "-i", video_path,  # Reuse original video parameters
             "-filter_complex",
             f"[0:v]scale=iw:ih,trim=duration={freeze_duration},setpts=PTS-STARTPTS[freeze];"
             f"[1:v][freeze]concat=n=2:v=1:a=0[out]",
@@ -109,7 +109,7 @@ class VideoProcessor:
             freeze_video_path,
         ], capture_output=True, check=False, timeout=60)
 
-        # 如果复杂滤镜失败，回退到简单方案
+        # If complex filter fails, fall back to simple method
         if not os.path.exists(freeze_video_path) or os.path.getsize(freeze_video_path) == 0:
             from moviepy import VideoFileClip, concatenate_videoclips, ImageClip
 
@@ -123,7 +123,7 @@ class VideoProcessor:
             import shutil
             shutil.move(freeze_video_path, output_path)
 
-        # 清理临时文件
+        # Clean up temporary files
         for f in [frame_path, freeze_video_path]:
             if os.path.exists(f):
                 try:

@@ -1,7 +1,7 @@
 """
-core/config.py — Agnes Video Generator v2.0 配置模块
+core/config.py — Agnes Video Generator v2.0 Configuration Module
 
-包含 API Key 管理、工作目录、音频/字幕默认配置工厂函数。
+Contains API Key management, working directories, default audio/subtitle configuration factory functions.
 """
 
 import json
@@ -15,21 +15,21 @@ logger = logging.getLogger(__name__)
 CONFIG_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".agnes_config")
 CONFIG_FILE = os.path.join(CONFIG_DIR, "config.json")
 
-# 项目根目录
+# Project root directory
 _PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 def font_dir() -> str:
-    """返回项目内置字体目录。"""
+    """Return project built-in fonts directory."""
     return os.path.join(_PROJECT_ROOT, "resource", "fonts")
 
 
-# 默认中文字体文件名（需位于 resource/fonts/ 下）
+# Default CJK font file name (must be located under resource/fonts/)
 DEFAULT_CHINESE_FONT = "STHeitiMedium.ttc"
 
-# 不支持 CJK 字符的常见字体名（用于向后兼容旧任务）
-# 这些字体在 moviepy/pillow TextClip 中无法正确渲染中文，
-# 检测到后自动回退到 DEFAULT_CHINESE_FONT。
+# Common font names that do not support CJK characters (for backward compatibility with legacy tasks)
+# These fonts do not render CJK characters correctly in moviepy/pillow TextClip,
+# and will fall back to DEFAULT_CHINESE_FONT when detected.
 _NON_CJK_FONTS = frozenset({
     "arial", "arial bold", "arial italic", "arial black",
     "helvetica", "times", "times new roman", "courier",
@@ -39,25 +39,25 @@ _NON_CJK_FONTS = frozenset({
 
 
 def resolve_font_path(font: str) -> str:
-    """将字体名称解析为 moviepy TextClip 可用的路径。
+    """Resolve font name to a path usable by moviepy TextClip.
 
-    优先级：
-    1. 绝对路径且文件存在 → 直接返回
-    2. 文件名（含扩展名）→ 在 resource/fonts/ 目录下查找
-    3. 已知的非 CJK 字体名 → 回退到 DEFAULT_CHINESE_FONT（兼容旧任务）
-    4. 其他系统字体名 → 直接返回
+    Priority:
+    1. Absolute path and file exists -> return directly
+    2. File name (with extension) -> look inside resource/fonts/ directory
+    3. Known non-CJK font name -> fall back to DEFAULT_CHINESE_FONT (legacy task compatibility)
+    4. Other system font names -> return directly
     """
-    # 已经是绝对路径，直接返回
+    # Already an absolute path, return directly
     if os.path.isabs(font) and os.path.exists(font):
         return font
 
-    # 看起来像文件名（含扩展名），尝试在项目字体目录查找
+    # Looks like a filename (with extension), attempt to find in project font directory
     if "." in font and "/" not in font and "\\" not in font:
         candidate = os.path.join(font_dir(), font)
         if os.path.exists(candidate):
             return candidate
 
-    # 检查是否为已知的非 CJK 字体（向后兼容：旧任务的 font 可能仍为 "Arial"）
+    # Check if it is a known non-CJK font (backward compatibility: legacy task font might be "Arial")
     if font.strip().lower() in _NON_CJK_FONTS:
         fallback = os.path.join(font_dir(), DEFAULT_CHINESE_FONT)
         if os.path.exists(fallback):
@@ -67,12 +67,12 @@ def resolve_font_path(font: str) -> str:
             )
             return fallback
 
-    # 当作系统字体名称返回
+    # Return as system font name
     return font
 
 
 # ═══════════════════════════════════════════════════
-# API Key 管理（保持现有逻辑）
+# API Key Management (maintain existing logic)
 # ═══════════════════════════════════════════════════
 
 
@@ -95,35 +95,15 @@ def save_config(config: dict):
 
 
 def get_api_key() -> str:
-    env_key = os.environ.get("AGNES_API_KEY", "")
-    if env_key:
-        return env_key
-    config = load_config()
-    return config.get("api_key", "")
+    return os.environ.get("AGNES_API_KEY", "")
 
 
 def set_api_key(key: str):
-    config = load_config()
-    config["api_key"] = key
-    save_config(config)
+    raise RuntimeError("API Key can only be configured via environment variables (.env)")
 
 
 def delete_api_key() -> bool:
-    """Remove the API key from the config file.
-
-    Returns:
-        True if a key was removed, False if no key existed.
-
-    Note:
-        This does NOT affect the AGNES_API_KEY environment variable.
-        If the env var is set, get_api_key() will still return it.
-    """
-    config = load_config()
-    if "api_key" in config:
-        del config["api_key"]
-        save_config(config)
-        return True
-    return False
+    raise RuntimeError("API Key can only be configured via environment variables (.env)")
 
 
 def get_api_key_source() -> str:
@@ -131,14 +111,10 @@ def get_api_key_source() -> str:
 
     Returns:
         'env' if from AGNES_API_KEY environment variable,
-        'config' if from the config file,
         'none' if no key is configured.
     """
     if os.environ.get("AGNES_API_KEY", ""):
         return "env"
-    config = load_config()
-    if config.get("api_key"):
-        return "config"
     return "none"
 
 
@@ -147,23 +123,23 @@ def get_working_dir() -> str:
 
 
 # ═══════════════════════════════════════════════════
-# v2.0 新增：音频 / 字幕默认配置
+# Added in v2.0: default audio / subtitle configurations
 # ═══════════════════════════════════════════════════
 
-# D3：默认语音角色
+# D3: default voice role
 DEFAULT_VOICE = "zh-CN-XiaoxiaoNeural"
 
-# D3：可选中文语音角色列表
+# D3: available CJK voice roles
 AVAILABLE_VOICES = [
-    {"id": "zh-CN-XiaoxiaoNeural", "label": "Xiaoxiao（温柔女声）"},
-    {"id": "zh-CN-YunyangNeural", "label": "Yunyang（沉稳男声）"},
-    {"id": "zh-CN-XiaoyiNeural", "label": "Xiaoyi（活泼女声）"},
-    {"id": "zh-CN-YunxiNeural", "label": "Yunxi（年轻男声）"},
+    {"id": "zh-CN-XiaoxiaoNeural", "label": "Xiaoxiao (Gentle Female)"},
+    {"id": "zh-CN-YunyangNeural", "label": "Yunyang (Steady Male)"},
+    {"id": "zh-CN-XiaoyiNeural", "label": "Xiaoyi (Lively Female)"},
+    {"id": "zh-CN-YunxiNeural", "label": "Yunxi (Young Male)"},
 ]
 
 
 def get_default_subtitle_style() -> SubtitleStyle:
-    """返回默认字幕样式配置（D4）。"""
+    """Return default subtitle style configuration (D4)."""
     return SubtitleStyle(
         font=DEFAULT_CHINESE_FONT,
         color="white",
@@ -176,7 +152,7 @@ def get_default_subtitle_style() -> SubtitleStyle:
 
 
 def get_default_audio_config() -> AudioConfig:
-    """返回默认音频配置（含字幕样式）（D3）。"""
+    """Return default audio configuration (including subtitle style) (D3)."""
     return AudioConfig(
         enabled=True,
         voice=DEFAULT_VOICE,
@@ -186,16 +162,16 @@ def get_default_audio_config() -> AudioConfig:
 
 
 # ═══════════════════════════════════════════════════
-# 视频参数预设（D7）
+# Video Parameter Presets (D7)
 # ═══════════════════════════════════════════════════
 
 VIDEO_RESOLUTION_PRESETS = {
-    "portrait": {"width": 768, "height": 1152, "label": "竖屏 9:16"},
-    "landscape": {"width": 1152, "height": 768, "label": "横屏 16:9"},
-    "square": {"width": 1024, "height": 1024, "label": "方形 1:1"},
+    "portrait": {"width": 768, "height": 1152, "label": "Portrait 9:16"},
+    "landscape": {"width": 1152, "height": 768, "label": "Landscape 16:9"},
+    "square": {"width": 1024, "height": 1024, "label": "Square 1:1"},
 }
 
-# 时长 → (num_frames, frame_rate) 映射
+# Duration -> (num_frames, frame_rate) mapping
 DURATION_FRAME_MAP = {
     5: (121, 24),
     10: (241, 24),

@@ -1,26 +1,23 @@
 #!/usr/bin/env python3
 """
-Agnes Video Generator v2.0 — 大版本回归测试脚本 (并发版)
+Agnes Video Generator v2.0 — Major Version Regression Test Script (Concurrent Edition)
 
-用法:
-  python scripts/regression_runner.py                # 从头运行
-  python scripts/regression_runner.py --resume       # 从已有报告继续
-  python scripts/regression_runner.py --quick        # 跳过运行，只验证产物
+Usage:
+  python scripts/regression_runner.py                # Run from scratch
+  python scripts/regression_runner.py --resume       # Resume from existing report
+  python scripts/regression_runner.py --quick        # Skip running, verify output only
 
-机制:
-  - 10 个测试场景通过 asyncio 并发执行
-  - 加权信号量控制并行度，保证 Agnes API 总调用 ≤ 20 次/分钟
-  - 测试报告在 docs/regression_report.json 增量写入，中断后可续传
+Mechanism:
+  - 10 test scenarios are executed concurrently via asyncio
+  - Weighted semaphore controls concurrency to ensure total Agnes API calls <= 20 times/min
+  - Test reports are written incrementally to docs/regression_report.json, supporting resumption
 
-并行度评估:
-  ┌─────────────┬──────┬──────────────────────────────┐
-  │ 类型         │ 权重  │ Agnes API 调用特征           │
-  ├─────────────┼──────┼──────────────────────────────┤
-  │ 简单 (S1-S3) │  1   │ 1 submit + 轮询~4次/分钟     │
-  │ 创意 (C1-C4) │  3-4 │ Chat+N场景Image+Video+轮询   │
-  │ 稿件 (M1-M3) │  4-5 │ Chat*段数+Image*段数+轮询    │
-  └─────────────┴──────┴──────────────────────────────┘
-  总权重上限 = 10 (50% 余量，确保峰值不超 20/分钟)
+Concurrency Evaluation:
+  │ Type         │ Weight│ Agnes API Call Characteristics     │
+  │ Simple (S1-S3)│  1   │ 1 submit + polling ~4 times/min    │
+  │ Creative (C1-C4)│ 3-4│ Chat+N-scene Image+Video+polling   │
+  │ Manuscript(M1-M3)│4-5│ Chat*segments+Image*segments+poll  │
+  Total weight limit = 10 (50% margin, ensuring peak does not exceed 20/min)
 """
 
 import asyncio
@@ -36,10 +33,10 @@ from datetime import datetime, timezone
 from typing import Any, Optional
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-import requests
+import requests  # type: ignore
 
 # ═══════════════════════════════════════════════════
-# 配置常量
+# Configuration Constants
 # ═══════════════════════════════════════════════════
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -52,19 +49,19 @@ SERVER_LOG = os.path.join(PROJECT_ROOT, ".regression_server.log")
 TEST_REF_IMAGE = os.path.join(PROJECT_ROOT, "test_ref.png")
 TEST_END_IMAGE = os.path.join(PROJECT_ROOT, "test_end.png")
 
-# Agnes API 每分钟调用上限
-AGNES_RATE_LIMIT = 20          # 次/分钟
+# Agnes API per-minute call limit
+AGNES_RATE_LIMIT = 20          # calls/minute
 
-# 各场景权重 = 该场景平均每分钟发起的 Agnes API 调用数
-# 留 50% 余量 => 总权重上限 = AGNES_RATE_LIMIT / 2 = 10
+# Weights for each scenario = average Agnes API calls per minute initiated by the scenario
+# Keep 50% margin => max weight limit = AGNES_RATE_LIMIT / 2 = 10
 SCENARIO_WEIGHTS = {
-    "S1": 1, "S2": 1, "S3": 1,       # 简单: 1 submit + 轻量轮询
-    "C1": 4, "C2": 4, "C3": 3, "C4": 3,  # 创意: Chat + N*Image + N*Video + 轮询
-    "M1": 4, "M2": 4,                 # 稿件: 段落*Chat + 段落*Image + 轮询
+    "S1": 1, "S2": 1, "S3": 1,       # Simple: 1 submit + light polling
+    "C1": 4, "C2": 4, "C3": 3, "C4": 3,  # Creative: Chat + N*Image + N*Video + polling
+    "M1": 4, "M2": 4,                 # Manuscript: Segments*Chat + Segments*Image + polling
 }
 MAX_CONCURRENT_WEIGHT = AGNES_RATE_LIMIT // 2
 
-# 单场景超时（秒）
+# Scenario timeouts (seconds)
 TIMEOUT_SIMPLE = 30 * 60
 TIMEOUT_CREATIVE = 120 * 60
 TIMEOUT_MANUSCRIPT = 60 * 60
@@ -79,7 +76,7 @@ logger = logging.getLogger("RegressionTest")
 
 
 # ═══════════════════════════════════════════════════
-# 场景定义
+# Scenario Definitions
 # ═══════════════════════════════════════════════════
 
 class ScenarioConfig:
@@ -100,80 +97,82 @@ class ScenarioConfig:
 
 
 SCENARIO_DEFS = [
-    # ── 简单视频 ──
-    ScenarioConfig("S1", "纯文本 t2v", "simple",
-        "/api/tasks/simple",
-        {"prompt": "一只猫在花园里追逐蝴蝶，慢动作，柔和的阳光透过树叶",
+    # ── Simple Video ──
+    ScenarioConfig("S1", "Pure Text t2v", "simple",
+        "/api/v1/tasks/simple",
+        {"prompt": "A cat chasing a butterfly in a garden, slow motion, soft sunlight filtering through leaves",
          "mode": "t2v", "duration": 5},
         TIMEOUT_SIMPLE, SCENARIO_WEIGHTS["S1"]),
 
-    ScenarioConfig("S2", "图生视频 ti2vid", "simple",
-        "/api/tasks/simple",
-        {"prompt": "一只猫在花园里追逐蝴蝶，慢动作，柔和的阳光透过树叶",
+    ScenarioConfig("S2", "Image to Video ti2vid", "simple",
+        "/api/v1/tasks/simple",
+        {"prompt": "A cat chasing a butterfly in a garden, slow motion, soft sunlight filtering through leaves",
          "mode": "ti2vid", "duration": 5},
         TIMEOUT_SIMPLE, SCENARIO_WEIGHTS["S2"], requires_ref_image=True),
 
-    ScenarioConfig("S3", "关键帧 keyframes", "simple",
-        "/api/tasks/simple",
-        {"prompt": "一只猫在花园里追逐蝴蝶，慢动作，柔和的阳光透过树叶",
+    ScenarioConfig("S3", "Keyframes keyframes", "simple",
+        "/api/v1/tasks/simple",
+        {"prompt": "A cat chasing a butterfly in a garden, slow motion, soft sunlight filtering through leaves",
          "mode": "keyframes", "duration": 5},
         TIMEOUT_SIMPLE, SCENARIO_WEIGHTS["S3"],
         requires_ref_image=True, requires_end_image=True),
 
-    # ── 创意视频（主测无配音，三种场景模式 + 一个配音验证）──
-    ScenarioConfig("C1", "纯文字+独立+无配音", "creative",
-        "/api/tasks/creative",
-        {"idea": "一只猫在花园里探索的冒险故事",
-         "user_requirement": "3个场景，每个场景5秒，动画风格",
-         "style": "动画风格", "chaining_mode": "independent",
+    # ── Creative Video (No voice narration for main tests, 3 scene modes + 1 narration validation) ──
+    ScenarioConfig("C1", "Pure Text + Independent + No Voice", "creative",
+        "/api/v1/tasks/creative",
+        {"idea": "An adventure story of a cat exploring in the garden",
+         "user_requirement": "3 scenes, 5 seconds each, anime style",
+         "style": "Anime style", "chaining_mode": "independent",
          "video_duration": 5,
          "audio_enabled": False},
         TIMEOUT_CREATIVE, SCENARIO_WEIGHTS["C1"]),
 
-    ScenarioConfig("C2", "带参考图+关键帧+无配音", "creative",
-        "/api/tasks/creative",
-        {"idea": "一只猫在花园里探索的冒险故事",
-         "user_requirement": "3个场景，每个场景5秒，动画风格",
-         "style": "动画风格", "chaining_mode": "keyframes",
+    ScenarioConfig("C2", "With Ref Image + Keyframes + No Voice", "creative",
+        "/api/v1/tasks/creative",
+        {"idea": "An adventure story of a cat exploring in the garden",
+         "user_requirement": "3 scenes, 5 seconds each, anime style",
+         "style": "Anime style", "chaining_mode": "keyframes",
          "video_duration": 5,
          "audio_enabled": False},
         TIMEOUT_CREATIVE, SCENARIO_WEIGHTS["C2"], requires_ref_image=True),
 
-    ScenarioConfig("C3", "参考图生成尾帧+关键帧+无配音", "creative",
-        "/api/tasks/creative",
-        {"idea": "一只猫在花园里探索的冒险故事",
-         "user_requirement": "3个场景，每个场景5秒，动画风格",
-         "style": "动画风格", "chaining_mode": "keyframes",
+    ScenarioConfig("C3", "Ref Image Generates End Frame + Keyframes + No Voice", "creative",
+        "/api/v1/tasks/creative",
+        {"idea": "An adventure story of a cat exploring in the garden",
+         "user_requirement": "3 scenes, 5 seconds each, anime style",
+         "style": "Anime style", "chaining_mode": "keyframes",
          "video_duration": 5,
          "audio_enabled": False,
          "use_custom_end_frames": True,
          "generate_end_frames_from_ref": True},
         TIMEOUT_CREATIVE, SCENARIO_WEIGHTS["C3"], requires_ref_image=True),
 
-    ScenarioConfig("C4", "独立场景+配音字幕验证", "creative",
-        "/api/tasks/creative",
-        {"idea": "一只猫在花园里探索的冒险故事",
-         "user_requirement": "3个场景，每个场景5秒，动画风格",
-         "style": "动画风格", "chaining_mode": "independent",
+    ScenarioConfig("C4", "Independent Scenes + Voice & Subtitles", "creative",
+        "/api/v1/tasks/creative",
+        {"idea": "An adventure story of a cat exploring in the garden",
+         "user_requirement": "3 scenes, 5 seconds each, anime style",
+         "style": "Anime style", "chaining_mode": "independent",
          "video_duration": 5,
-         "audio_enabled": True, "audio_voice": "zh-CN-XiaoxiaoNeural"},
+         "audio_enabled": True, "audio_voice": "en-US-JennyNeural"},
         TIMEOUT_CREATIVE, SCENARIO_WEIGHTS["C4"]),
 
-    # ── 稿件视频（仅短文本，无长文本回归）──
-    ScenarioConfig("M1", "短稿件+配音", "manuscript",
-        "/api/tasks/manuscript",
-        {"manuscript_text": "春天的花园里，一只小猫正在追逐蝴蝶。阳光明媚，"
-         "花朵盛开。小猫跳来跳去，非常开心。蝴蝶停在一朵花上，小猫悄悄靠近。",
+    # ── Manuscript Video (Short text only, no long text regression) ──
+    ScenarioConfig("M1", "Short Manuscript + Voice", "manuscript",
+        "/api/v1/tasks/manuscript",
+        {"manuscript_text": "In the spring garden, a kitten is chasing a butterfly. "
+         "The sun is shining bright, and flowers are in full bloom. "
+         "The kitten jumps around, very happy. The butterfly lands on a flower, and the kitten quietly approaches.",
          "video_duration": 5, "audio_enabled": True,
-         "audio_voice": "zh-CN-XiaoxiaoNeural"},
+         "audio_voice": "en-US-JennyNeural"},
         TIMEOUT_MANUSCRIPT, SCENARIO_WEIGHTS["M1"]),
 
-    ScenarioConfig("M2", "短稿件+自定义字幕", "manuscript",
-        "/api/tasks/manuscript",
-        {"manuscript_text": "春天的花园里，一只小猫正在追逐蝴蝶。阳光明媚，"
-         "花朵盛开。小猫跳来跳去，非常开心。蝴蝶停在一朵花上，小猫悄悄靠近。",
+    ScenarioConfig("M2", "Short Manuscript + Custom Subtitles", "manuscript",
+        "/api/v1/tasks/manuscript",
+        {"manuscript_text": "In the spring garden, a kitten is chasing a butterfly. "
+         "The sun is shining bright, and flowers are in full bloom. "
+         "The kitten jumps around, very happy. The butterfly lands on a flower, and the kitten quietly approaches.",
          "video_duration": 5, "audio_enabled": True,
-         "audio_voice": "zh-CN-XiaoxiaoNeural",
+         "audio_voice": "en-US-JennyNeural",
          "subtitle_font": "SimHei", "subtitle_color": "yellow",
          "subtitle_fontsize": 52, "subtitle_position": "top",
          "subtitle_stroke_color": "blue", "subtitle_stroke_width": 3,
@@ -185,14 +184,14 @@ SCENARIO_MAP = {s.id: s for s in SCENARIO_DEFS}
 
 
 # ═══════════════════════════════════════════════════
-# 加权信号量
+# Weighted Semaphore
 # ═══════════════════════════════════════════════════
 
 class WeightedSemaphore:
-    """限流：总权重 ≤ max_weight。
+    """Rate limit: total weight <= max_weight.
 
-    每个场景的权重 = 该场景预估的每分钟 Agnes API 调用数。
-    控制并发场景数，确保总 API 调用 ≤ AGNES_RATE_LIMIT/分钟。
+    Weight of each scenario = estimated Agnes API calls per minute.
+    Controls concurrent scenarios to ensure total API calls <= AGNES_RATE_LIMIT/minute.
     """
     def __init__(self, max_weight: int):
         self.max_weight = max_weight
@@ -217,7 +216,7 @@ class WeightedSemaphore:
 
 
 # ═══════════════════════════════════════════════════
-# 报告管理器（增量写入 + 断点续传）
+# Report Manager (Incremental writes + Resume from checkpoint)
 # ═══════════════════════════════════════════════════
 
 class ReportManager:
@@ -225,15 +224,15 @@ class ReportManager:
         self.path = report_path
         self.data = self._load_or_create()
 
-    # ── 加载/初始化 ──
+    # ── Load/Initialize ──
 
     def _load_or_create(self) -> dict:
         if os.path.exists(self.path):
-            with open(self.path) as f:
+            with open(self.path, encoding="utf-8") as f:
                 data = json.load(f)
             done = data.get("summary", {}).get("completed", 0)
             failed = data.get("summary", {}).get("failed", 0)
-            logger.info(f"恢复报告: {done} 已完成 / {failed} 失败 (共 {data['summary']['total']})")
+            logger.info(f"Resume report: {done} completed / {failed} failed (total {data['summary']['total']})")
             return data
         return self._create_empty()
 
@@ -272,14 +271,14 @@ class ReportManager:
         except Exception:
             return "unknown"
 
-    # ── 更新 ──
+    # ── Update ──
 
     def set_server_pid(self, pid: int):
         self.data["server_pid"] = pid
         self._save()
 
     def update_scenario(self, id_: str, status: str,
-                        result: dict = None, errors: list = None):
+                        result: Optional[dict] = None, errors: Optional[list] = None):
         sc = self.data["scenarios"][id_]
         sc["status"] = status
         if result is not None:
@@ -319,7 +318,7 @@ class ReportManager:
     def _save(self):
         self.data["updated_at"] = datetime.now(timezone.utc).isoformat()
         os.makedirs(os.path.dirname(self.path), exist_ok=True)
-        with open(self.path, "w") as f:
+        with open(self.path, "w", encoding="utf-8") as f:
             json.dump(self.data, f, ensure_ascii=False, indent=2)
 
     def should_run(self, id_: str) -> bool:
@@ -329,10 +328,10 @@ class ReportManager:
     def print_summary(self):
         s = self.data["summary"]
         logger.info("=" * 56)
-        logger.info(f"  已完成: {s['completed']}/{s['total']}  "
-                     f"失败: {s['failed']}  跳过: {s['skipped']}  "
-                     f"运行中: {s['running']}")
-        logger.info(f"  检查项: {s['passed_checks']}/{s['total_checks']} 通过")
+        logger.info(f"  Completed: {s['completed']}/{s['total']}  "
+                     f"Failed: {s['failed']}  Skipped: {s['skipped']}  "
+                     f"Running: {s['running']}")
+        logger.info(f"  Check Items: {s['passed_checks']}/{s['total_checks']} Passed")
         logger.info("=" * 56)
 
     def generate_md_report(self, report_md_path: str):
@@ -346,35 +345,35 @@ class ReportManager:
                            "running": "🔄", "pending": "⏳", "submitted": "⏳"}.get(st, "❓")
 
         lines = []
-        lines.append(f"# Agnes Video Generator v2.0 — 大版本回归测试报告")
+        lines.append(f"# Agnes Video Generator v2.0 — Major Version Regression Test Report")
         lines.append(f"")
-        lines.append(f"| 元数据 | 值 |")
+        lines.append(f"| Metadata | Value |")
         lines.append(f"|--------|-----|")
-        lines.append(f"| 日期 | {now} |")
-        lines.append(f"| 版本 | {d.get('git_commit', 'unknown')} |")
-        lines.append(f"| 报告版本 | {d.get('version', '?')} |")
-        lines.append(f"| 自动验证 | {s['passed_checks']}/{s['total_checks']} 通过 |")
+        lines.append(f"| Date | {now} |")
+        lines.append(f"| Version | {d.get('git_commit', 'unknown')} |")
+        lines.append(f"| Report Version | {d.get('version', '?')} |")
+        lines.append(f"| Auto Validation | {s['passed_checks']}/{s['total_checks']} Passed |")
         lines.append(f"")
         ep_pass = sum(1 for e in ep.values() if e["status"] == "passed")
         ep_all = len(ep)
-        lines.append(f"## 概览")
+        lines.append(f"## Overview")
         lines.append(f"")
-        lines.append(f"| 状态 | 数量 |")
+        lines.append(f"| Status | Count |")
         lines.append(f"|------|------|")
-        lines.append(f"| 总计 | {s['total']} |")
-        lines.append(f"| ✅ 完成 | {s['completed']} |")
-        lines.append(f"| ❌ 失败 | {s['failed']} |")
-        lines.append(f"| ⏭️ 跳过 | {s['skipped']} |")
-        lines.append(f"| 🔄 运行中 | {s['running']} |")
-        lines.append(f"| ⏳ 待处理 | {s['pending']} |")
+        lines.append(f"| Total | {s['total']} |")
+        lines.append(f"| ✅ Completed | {s['completed']} |")
+        lines.append(f"| ❌ Failed | {s['failed']} |")
+        lines.append(f"| ⏭️ Skipped | {s['skipped']} |")
+        lines.append(f"| 🔄 Running | {s['running']} |")
+        lines.append(f"| ⏳ Pending | {s['pending']} |")
         lines.append(f"")
-        lines.append(f"端点验证: {ep_pass}/{ep_all} ✅")
+        lines.append(f"Endpoint verification: {ep_pass}/{ep_all} ✅")
         lines.append(f"")
 
         for type_label, type_key, type_ids in [
-            ("简单视频 (Simple)", "simple", ["S1", "S2", "S3"]),
-            ("创意视频 (Creative)", "creative", ["C1", "C2", "C3", "C4"]),
-            ("稿件视频 (Manuscript)", "manuscript", ["M1", "M2"]),
+            ("Simple Video (Simple)", "simple", ["S1", "S2", "S3"]),
+            ("Creative Video (Creative)", "creative", ["C1", "C2", "C3", "C4"]),
+            ("Manuscript Video (Manuscript)", "manuscript", ["M1", "M2"]),
         ]:
             lines.append(f"---")
             lines.append(f"")
@@ -396,15 +395,15 @@ class ReportManager:
                                       ("_width", "_height", "_duration", "_count", "_entries",
                                        "F2_duration", "F6_asr_text", "F4_speech_duration"))]
                     if not fail_checks:
-                        lines.append(f"### {sid} {label} — {tag} 通过 ({duration}s)")
+                        lines.append(f"### {sid} {label} — {tag} Passed ({duration}s)")
                     else:
-                        lines.append(f"### {sid} {label} — ⚠️ 通过但有失败检查 ({duration}s)")
+                        lines.append(f"### {sid} {label} — ⚠️ Passed with failed checks ({duration}s)")
                 else:
                     lines.append(f"### {sid} {label} — {tag} {st}")
 
             # Table
             lines.append(f"")
-            lines.append(f"| 检查项 | " + " | ".join(type_ids) + " |")
+            lines.append(f"| Check Item | " + " | ".join(type_ids) + " |")
             lines.append(f"|" + "|".join(["---" for _ in range(len(type_ids) + 1)]) + "|")
 
             all_check_names = set()
@@ -440,9 +439,9 @@ class ReportManager:
         # Endpoint results
         lines.append(f"---")
         lines.append(f"")
-        lines.append(f"## 端点验证 (E1-E9)")
+        lines.append(f"## Endpoint Verification (E1-E9)")
         lines.append(f"")
-        lines.append(f"| 端点 | 状态 | 详情 |")
+        lines.append(f"| Endpoint | Status | Detail |")
         lines.append(f"|------|------|------|")
         for eid in sorted(ep.keys()):
             e = ep[eid]
@@ -453,19 +452,19 @@ class ReportManager:
         # Manual verification section (only F5 subtitle visibility remains manual)
         lines.append(f"---")
         lines.append(f"")
-        lines.append(f"## 需手动验证")
+        lines.append(f"## Manual Verification Required")
         lines.append(f"")
-        lines.append(f"以下检查因 IMAX 视觉限制无法由脚本验证，需人工确认：")
+        lines.append(f"The following checks cannot be validated by script due to visual constraints, manual confirmation required:")
         lines.append(f"")
-        lines.append(f"| 检查项 | 操作 | 预期 |")
+        lines.append(f"| Check Item | Operation | Expected |")
         lines.append(f"|--------|------|------|")
-        lines.append(f"| F5 字幕可见性 | 播放 final_video.mp4 观察画面 | 字幕内容、位置、样式与配置一致 |")
+        lines.append(f"| F5 Subtitle Visibility | Play final_video.mp4 and observe screen | Subtitle content, position, and style match configuration |")
         lines.append(f"")
-        lines.append(f"> 音频正确性 (F4) 和字幕文本匹配 (F6) 已由脚本通过 whisper ASR 自动验证。")
+        lines.append(f"> Audio correctness (F4) and subtitle text matching (F6) are automatically verified by the script via whisper ASR.")
 
         # Error summary
         lines.append(f"")
-        lines.append(f"## 错误汇总")
+        lines.append(f"## Error Summary")
         lines.append(f"")
         has_errors = False
         for sid, sdata in sorted(sc.items()):
@@ -474,22 +473,22 @@ class ReportManager:
                 has_errors = True
                 lines.append(f"- **{sid}** ({sdata.get('label', '')}): {errs[0]}")
         if not has_errors:
-            lines.append(f"无错误。")
+            lines.append(f"No errors.")
         lines.append(f"")
 
         content = "\n".join(lines)
         os.makedirs(os.path.dirname(report_md_path), exist_ok=True)
-        with open(report_md_path, "w") as f:
+        with open(report_md_path, "w", encoding="utf-8") as f:
             f.write(content)
-        logger.info(f"MD 报告: {report_md_path}")
+        logger.info(f"MD Report: {report_md_path}")
 
 
 # ═══════════════════════════════════════════════════
-# 测试素材自动生成
+# Test Asset Generation
 # ═══════════════════════════════════════════════════
 
 def _ensure_test_assets():
-    """确保测试素材存在，不存在则自动生成。"""
+    """Ensure test assets exist, generate them if missing."""
     assets = {
         TEST_REF_IMAGE: (("test_ref.png", (100, 150, 200)),),
         TEST_END_IMAGE: (("test_end.png", (200, 150, 100)),),
@@ -503,15 +502,15 @@ def _ensure_test_assets():
                 img = Image.new("RGB", (768, 1152), color)
                 save_path = path
                 img.save(save_path)
-                logger.info(f"自动生成测试素材: {save_path}")
+                logger.info(f"Automatically generated test asset: {save_path}")
                 break
         except ImportError:
-            logger.warning(f"PIL 不可用，无法自动生成 {path}，请手动准备")
+            logger.warning(f"PIL not available, cannot automatically generate {path}, please prepare manually")
             break
 
 
 # ═══════════════════════════════════════════════════
-# 服务管理
+# Server Management
 # ═══════════════════════════════════════════════════
 
 _server_process: Optional[subprocess.Popen] = None
@@ -520,15 +519,23 @@ _server_process: Optional[subprocess.Popen] = None
 def _cleanup_server():
     global _server_process
     if _server_process is not None:
-        logger.info("停止测试服务器...")
-        os.killpg(os.getpgid(_server_process.pid), signal.SIGTERM)
-        _server_process.wait(timeout=5)
+        logger.info("Stopping test server...")
+        try:
+            if hasattr(os, "killpg") and hasattr(os, "getpgid"):
+                killpg = getattr(os, "killpg")
+                getpgid = getattr(os, "getpgid")
+                killpg(getpgid(_server_process.pid), signal.SIGTERM)
+            else:
+                _server_process.terminate()
+            _server_process.wait(timeout=5)
+        except Exception as e:
+            logger.warning(f"Error stopping test server: {e}")
         _server_process = None
 
 
 def check_server_health() -> bool:
     try:
-        r = requests.get(f"{SERVER_URL}/api/config", timeout=5)
+        r = requests.get(f"{SERVER_URL}/api/v1/config", timeout=5)
         return r.status_code == 200
     except (requests.ConnectionError, requests.Timeout):
         return False
@@ -537,11 +544,11 @@ def check_server_health() -> bool:
 async def wait_for_server(retries: int = HEALTH_CHECK_RETRIES) -> bool:
     for i in range(retries):
         if await asyncio.to_thread(check_server_health):
-            logger.info("服务器就绪 ✓")
+            logger.info("Server ready ✓")
             return True
-        logger.info(f"等待服务器... ({i + 1}/{retries})")
+        logger.info(f"Waiting for server... ({i + 1}/{retries})")
         await asyncio.sleep(HEALTH_CHECK_RETRIES // 2)
-    logger.error("服务器未就绪")
+    logger.error("Server not ready")
     return False
 
 
@@ -549,18 +556,22 @@ async def ensure_server(auto_start: bool = False) -> bool:
     if await asyncio.to_thread(check_server_health):
         return True
     if not auto_start:
-        logger.info("请先在另一终端运行: bash start.sh")
+        logger.info("Please run in another terminal: bash start.sh")
         return False
-    logger.info("自动启动服务...")
-    venv_python = os.path.join(PROJECT_ROOT, ".venv", "bin", "python")
-    python = venv_python if os.path.exists(venv_python) else "python"
+    logger.info("Automatically starting service...")
+    python = sys.executable
     global _server_process
+    kwargs = {}
+    if hasattr(os, "setsid"):
+        kwargs["preexec_fn"] = os.setsid
+    elif hasattr(subprocess, "CREATE_NEW_PROCESS_GROUP"):
+        kwargs["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP
     _server_process = subprocess.Popen(
         [python, "server.py"],
         cwd=PROJECT_ROOT,
-        stdout=open(SERVER_LOG, "w"),
+        stdout=open(SERVER_LOG, "w", encoding="utf-8"),
         stderr=subprocess.STDOUT,
-        preexec_fn=os.setsid,
+        **kwargs
     )
     import atexit
     atexit.register(_cleanup_server)
@@ -571,7 +582,7 @@ async def ensure_server(auto_start: bool = False) -> bool:
 
 
 # ═══════════════════════════════════════════════════
-# HTTP 调用
+# HTTP Invocations
 # ═══════════════════════════════════════════════════
 
 @contextmanager
@@ -596,7 +607,7 @@ def _submit_sync(scenario: ScenarioConfig) -> dict:
     r.raise_for_status()
     result = r.json()
     if not result.get("ok"):
-        raise RuntimeError(f"提交失败: {result}")
+        raise RuntimeError(f"Submission failed: {result}")
     return result
 
 
@@ -606,12 +617,12 @@ async def submit_task(scenario: ScenarioConfig) -> dict:
 
 async def get_task_status(task_id: str) -> dict:
     return await asyncio.to_thread(
-        lambda: requests.get(f"{SERVER_URL}/api/tasks/{task_id}", timeout=10).json()
+        lambda: requests.get(f"{SERVER_URL}/api/v1/tasks/{task_id}", timeout=10).json()
     )
 
 
 # ═══════════════════════════════════════════════════
-# Whisper 模型缓存（全局共享，避免每次验证重复加载）
+# Whisper Model Cache (Global shared to avoid reloading)
 # ═══════════════════════════════════════════════════
 
 _whisper_model = None
@@ -619,20 +630,21 @@ _whisper_model = None
 def _get_whisper_model():
     global _whisper_model
     if _whisper_model is None:
-        import whisper
-        logger.info("加载 whisper tiny 模型（首次）...")
+        import importlib
+        whisper = importlib.import_module("whisper")
+        logger.info("Loading whisper tiny model (first time)...")
         _whisper_model = whisper.load_model("tiny")
     return _whisper_model
 
 
 # ═══════════════════════════════════════════════════
-# 产物验证
+# Artifact Validation
 # ═══════════════════════════════════════════════════
 
 def _load_task_state(task_dir: str) -> dict:
     ts = os.path.join(task_dir, "task_state.json")
     if os.path.exists(ts):
-        with open(ts) as f:
+        with open(ts, encoding="utf-8") as f:
             return json.load(f)
     return {}
 
@@ -666,7 +678,7 @@ def _asr_validate(video_path: str) -> dict:
         except ImportError:
             result["error"] = "whisper not installed"
             return result
-        trans = model.transcribe(tmp_audio, language="zh")
+        trans = model.transcribe(tmp_audio, language="en")
         text = (trans.get("text") or "").strip()
         result["text"] = text
         result["duration"] = trans.get("duration", 0.0)
@@ -687,7 +699,7 @@ def _validate_sync(dir_name: str, scenario: ScenarioConfig) -> dict:
     task_dir = os.path.join(WORKING_DIR, dir_name)
     checks: dict[str, Any] = {}
 
-    # 防御：任务目录不存在（如 C2/C3 因缺素材而失败）
+    # Defense: task directory does not exist
     if not os.path.isdir(task_dir):
         checks["F1_final_video_exists"] = False
         checks["F1_final_video_nonempty"] = False
@@ -725,15 +737,16 @@ def _validate_sync(dir_name: str, scenario: ScenarioConfig) -> dict:
         try:
             from moviepy import VideoFileClip
             clip = VideoFileClip(video)
-            checks["F2_duration"] = round(clip.duration, 2)
-            checks["F2_duration_gt_0"] = clip.duration > 0
+            duration = clip.duration if clip.duration is not None else 0.0
+            checks["F2_duration"] = round(duration, 2)
+            checks["F2_duration_gt_0"] = duration > 0
             checks["F3_width"] = clip.w
             checks["F3_height"] = clip.h
             checks["F4_has_audio_stream"] = clip.audio is not None
-            checks["F7_duration_reasonable"] = clip.duration > 0
+            checks["F7_duration_reasonable"] = duration > 0
             clip.close()
         except ImportError:
-            logger.warning("moviepy 不可用，跳过视频元数据验证")
+            logger.warning("moviepy not available, skipping video metadata verification")
             checks["F2_duration"] = "skip"
             checks["F2_duration_gt_0"] = "skip"
             checks["F3_width"] = "skip"
@@ -758,7 +771,7 @@ def _validate_sync(dir_name: str, scenario: ScenarioConfig) -> dict:
                 checks["F4_has_speech"] = "skip"
                 checks["F6_asr_text"] = "skip"
                 checks["F6_text_match"] = "skip"
-                logger.info("whisper 不可用，跳过语音内容验证")
+                logger.info("whisper not available, skipping speech content verification")
             elif asr.get("error"):
                 checks["F4_has_speech"] = False
                 checks["F6_asr_text"] = f"err:{asr['error']}"
@@ -797,7 +810,7 @@ def _validate_sync(dir_name: str, scenario: ScenarioConfig) -> dict:
     # R1-R4: task_state.json
     ts = os.path.join(task_dir, "task_state.json")
     if os.path.exists(ts):
-        with open(ts) as f:
+        with open(ts, encoding="utf-8") as f:
             sd = json.load(f)
         checks["R1_task_state_valid"] = True
         checks["R2_task_type"] = sd.get("task_type", "?")
@@ -807,8 +820,8 @@ def _validate_sync(dir_name: str, scenario: ScenarioConfig) -> dict:
         steps = {k: v for k, v in sd.items() if k.startswith("step_")}
         checks["R3_step_count"] = len(steps)
 
-        # 对于非 keyframes 模式的创意任务，end_frame_prompts/end_frame_generation
-        # 步骤不会被触发，不应计入"未完成"
+        # For creative tasks not in keyframes mode, the end_frame_prompts/end_frame_generation
+        # steps will not be triggered and should not be counted as "unfinished"
         chaining_mode = sd.get("chaining_mode", "none")
         _SKIPPABLE_STEPS = set()
         if scenario.type == "creative" and chaining_mode not in ("keyframes",):
@@ -828,30 +841,30 @@ def _validate_sync(dir_name: str, scenario: ScenarioConfig) -> dict:
         checks["R3_all_completed"] = False
         checks["R4_final_path_exists"] = False
 
-    # R5: task.json — 创意任务在 scene_N/ 子目录，稿件任务在 para_N/ 子目录
-    # 简单视频任务在根目录
+    # R5: task.json — Creative tasks in scene_N/ subdirectories, manuscript tasks in para_N/ subdirectories,
+    # simple video tasks in root directory
     _task_json_found = False
     _has_video_id = False
     _curl_found = False
     _curl_has_video_id = False
 
-    # 检查根目录（简单视频）
+    # Check root directory (simple video)
     tj_root = os.path.join(task_dir, "task.json")
     cs_root = os.path.join(task_dir, "curl.sh")
     if os.path.exists(tj_root):
         _task_json_found = True
         try:
-            with open(tj_root) as f:
+            with open(tj_root, encoding="utf-8") as f:
                 tjd = json.load(f)
             _has_video_id = bool(tjd.get("video_id") or tjd.get("id"))
         except Exception:
             pass
     if os.path.exists(cs_root):
         _curl_found = True
-        with open(cs_root) as f:
+        with open(cs_root, encoding="utf-8") as f:
             _curl_has_video_id = "video_id=" in f.read()
 
-    # 对于创意/稿件任务，额外检查子目录
+    # For creative/manuscript tasks, additionally check subdirectories
     if scenario.type == "creative":
         for entry in os.listdir(task_dir) if os.path.isdir(task_dir) else []:
             if entry.startswith("scene_"):
@@ -863,7 +876,7 @@ def _validate_sync(dir_name: str, scenario: ScenarioConfig) -> dict:
                         _task_json_found = True
                         if not _has_video_id:
                             try:
-                                with open(tj_sub) as f:
+                                with open(tj_sub, encoding="utf-8") as f:
                                     tjd = json.load(f)
                                 _has_video_id = bool(tjd.get("video_id") or tjd.get("id"))
                             except Exception:
@@ -871,7 +884,7 @@ def _validate_sync(dir_name: str, scenario: ScenarioConfig) -> dict:
                     if os.path.exists(cs_sub):
                         _curl_found = True
                         if not _curl_has_video_id:
-                            with open(cs_sub) as f:
+                            with open(cs_sub, encoding="utf-8") as f:
                                 _curl_has_video_id = "video_id=" in f.read()
     elif scenario.type == "manuscript":
         for entry in os.listdir(task_dir) if os.path.isdir(task_dir) else []:
@@ -884,7 +897,7 @@ def _validate_sync(dir_name: str, scenario: ScenarioConfig) -> dict:
                         _task_json_found = True
                         if not _has_video_id:
                             try:
-                                with open(tj_sub) as f:
+                                with open(tj_sub, encoding="utf-8") as f:
                                     tjd = json.load(f)
                                 _has_video_id = bool(tjd.get("video_id") or tjd.get("id"))
                             except Exception:
@@ -892,7 +905,7 @@ def _validate_sync(dir_name: str, scenario: ScenarioConfig) -> dict:
                     if os.path.exists(cs_sub):
                         _curl_found = True
                         if not _curl_has_video_id:
-                            with open(cs_sub) as f:
+                            with open(cs_sub, encoding="utf-8") as f:
                                 _curl_has_video_id = "video_id=" in f.read()
 
     checks["R5_task_json"] = _task_json_found
@@ -900,8 +913,8 @@ def _validate_sync(dir_name: str, scenario: ScenarioConfig) -> dict:
     checks["R6_curl_sh"] = _curl_found
     checks["R6_has_video_id_in_curl"] = _curl_has_video_id
 
-    # R7-R8: 子目录 + 音频/字幕（创意/稿件）
-    # 判断是否需要音频验证：检查 audio_enabled 参数
+    # R7-R8: Subdirectories + audio/subtitles (creative/manuscript)
+    # Determine if audio verification is needed: check audio_enabled parameter
     audio_enabled = scenario.params.get("audio_enabled", True)
     if scenario.type in ("creative", "manuscript"):
         prefix = "scene_" if scenario.type == "creative" else "para_"
@@ -923,7 +936,7 @@ def _validate_sync(dir_name: str, scenario: ScenarioConfig) -> dict:
             checks["R7_audio_files"] = audio_found
             checks["R8_subtitle_srt"] = srt_found
         else:
-            # 无配音场景：音频/字幕检查标记为 N/A
+            # No audio scenario: audio/subtitles check marked as N/A
             checks["R7_audio_files"] = "N/A"
             checks["R8_subtitle_srt"] = "N/A"
     else:
@@ -931,14 +944,14 @@ def _validate_sync(dir_name: str, scenario: ScenarioConfig) -> dict:
         checks["R7_audio_files"] = "N/A"
         checks["R8_subtitle_srt"] = "N/A"
 
-    # R9-R10: 合稿产物（稿件专用）
+    # R9-R10: Combined manuscript outputs (manuscript exclusive)
     if scenario.type == "manuscript":
         fn9 = os.path.join(task_dir, "full_narration.mp3")
         checks["R9_full_narration"] = os.path.exists(fn9) and os.path.getsize(fn9) > 0
         fn10 = os.path.join(task_dir, "full_subtitle.srt")
         checks["R10_full_subtitle"] = os.path.exists(fn10)
         if audio_enabled and os.path.exists(fn10):
-            with open(fn10) as f:
+            with open(fn10, encoding="utf-8") as f:
                 srt_content = f.read()
             checks["R10_srt_entries"] = srt_content.count("\n\n") + 1 if "\n\n" in srt_content else 1
         elif not audio_enabled:
@@ -958,7 +971,7 @@ async def validate_task(dir_name: str, scenario: ScenarioConfig) -> dict:
 
 
 # ═══════════════════════════════════════════════════
-# 单场景执行
+# Single Scenario Execution
 # ═══════════════════════════════════════════════════
 
 async def run_scenario(scenario: ScenarioConfig,
@@ -968,11 +981,11 @@ async def run_scenario(scenario: ScenarioConfig,
         return
     start = time.monotonic()
     report.update_scenario(scenario.id, "running")
-    logger.info(f"[{scenario.id}] ▶ 开始 (weight={scenario.weight}): {scenario.label}")
+    logger.info(f"[{scenario.id}] ▶ Start (weight={scenario.weight}): {scenario.label}")
 
     try:
         await sema.acquire(scenario.weight)
-        logger.info(f"[{scenario.id}] 获许可 w={sema.current}/{sema.max_weight}")
+        logger.info(f"[{scenario.id}] Permit acquired w={sema.current}/{sema.max_weight}")
     except Exception as e:
         report.update_scenario(scenario.id, "failed", errors=[f"semaphore: {e}"])
         return
@@ -980,19 +993,19 @@ async def run_scenario(scenario: ScenarioConfig,
     try:
         # Check if this scenario was already submitted (resume from crash)
         existing = report.data["scenarios"].get(scenario.id, {}).get("result")
-        task_id = None
-        dir_name = None
+        task_id = ""
+        dir_name = ""
         if existing and existing.get("task_id"):
             task_id = existing["task_id"]
-            dir_name = existing.get("dir_name", task_id)
-            logger.info(f"[{scenario.id}] 续传已有任务 {task_id[:12]}")
+            dir_name = existing.get("dir_name") or task_id
+            logger.info(f"[{scenario.id}] Resuming existing task {task_id[:12]}")
         else:
             submit_result = await submit_task(scenario)
             task_id = submit_result["task_id"]
-            dir_name = submit_result.get("dir_name", task_id)
+            dir_name = submit_result.get("dir_name") or task_id
             report.update_scenario(scenario.id, "submitted",
                                    result={"task_id": task_id, "dir_name": dir_name})
-            logger.info(f"[{scenario.id}] 提交 → {task_id[:12]}")
+            logger.info(f"[{scenario.id}] Submitted → {task_id[:12]}")
 
         final_status = None
         deadline = time.monotonic() + scenario.timeout
@@ -1016,7 +1029,7 @@ async def run_scenario(scenario: ScenarioConfig,
                 elif st:
                     logger.info(f"[{scenario.id}] status={st}")
             except Exception as e:
-                logger.warning(f"[{scenario.id}] 轮询: {e}")
+                logger.warning(f"[{scenario.id}] Polling: {e}")
                 await asyncio.sleep(5)
         else:
             final_status = "timeout"
@@ -1028,7 +1041,7 @@ async def run_scenario(scenario: ScenarioConfig,
             na_count = sum(1 for v in checks.values() if v == "N/A" or v == "skip")
             skip_count = sum(1 for v in checks.values() if v == "skip")
             total_real = sum(1 for v in checks.values() if v not in ("N/A", "skip") or v is True or v is False)
-            logger.info(f"[{scenario.id}] 验证 {ok_count}/{total_real} 通过 ({na_count} N/A)")
+            logger.info(f"[{scenario.id}] Validation {ok_count}/{total_real} passed ({na_count} N/A)")
 
             checks_clean = {}
             for k, v in checks.items():
@@ -1053,7 +1066,7 @@ async def run_scenario(scenario: ScenarioConfig,
                                            "checks": checks_clean},
                                    errors=errors)
             tag = "✅" if not errors else "⚠️"
-            logger.info(f"[{scenario.id}] {tag} {elapsed}s" + (f" ({len(errors)} 检查失败)" if errors else ""))
+            logger.info(f"[{scenario.id}] {tag} {elapsed}s" + (f" ({len(errors)} checks failed)" if errors else ""))
         else:
             report.update_scenario(scenario.id, "failed",
                                    result={"task_id": task_id, "dir_name": dir_name,
@@ -1067,16 +1080,16 @@ async def run_scenario(scenario: ScenarioConfig,
         report.update_scenario(scenario.id, "failed", errors=[str(e)])
     finally:
         await sema.release(scenario.weight)
-        logger.info(f"[{scenario.id}] 释放 w={sema.current}/{sema.max_weight}")
+        logger.info(f"[{scenario.id}] Released w={sema.current}/{sema.max_weight}")
 
 
 # ═══════════════════════════════════════════════════
-# 端点验证 (E1-E9)
+# Endpoint Verification (E1-E9)
 # ═══════════════════════════════════════════════════
 
 async def verify_endpoints(report: ReportManager):
     logger.info("─" * 50)
-    logger.info("端点验证 E1-E9")
+    logger.info("Endpoint verification E1-E9")
 
     async def check(ep: str, desc: str, fn):
         ok = detail = False
@@ -1102,19 +1115,19 @@ async def verify_endpoints(report: ReportManager):
     await asyncio.gather(
         check("E1", "GET / → 200 + index.html",
               lambda: _200("/", "Agnes Video Generator")),
-        check("E2", "GET /api/config → 200",
-              lambda: _200("/api/config")),
-        check("E3", "POST /api/tasks/simple → ok",
-              lambda: _post_ok("/api/tasks/simple",
+        check("E2", "GET /api/v1/config → 200",
+              lambda: _200("/api/v1/config")),
+        check("E3", "POST /api/v1/tasks/simple → ok",
+              lambda: _post_ok("/api/v1/tasks/simple",
                                {"prompt": "test", "mode": "t2v", "duration": 5})),
-        check("E4", "POST /api/tasks/creative → ok",
-              lambda: _post_ok("/api/tasks/creative",
-                               {"idea": "test cat", "user_requirement": "1个场景，5秒"})),
-        check("E5", "POST /api/tasks/manuscript → ok",
-              lambda: _post_ok("/api/tasks/manuscript",
-                               {"manuscript_text": "测试稿件。第二句。"})),
-        check("E6", "GET /api/tasks → list",
-              lambda: _200("/api/tasks")),
+        check("E4", "POST /api/v1/tasks/creative → ok",
+              lambda: _post_ok("/api/v1/tasks/creative",
+                               {"idea": "test cat", "user_requirement": "1 scene, 5 seconds"})),
+        check("E5", "POST /api/v1/tasks/manuscript → ok",
+              lambda: _post_ok("/api/v1/tasks/manuscript",
+                               {"manuscript_text": "Test manuscript. Second sentence."})),
+        check("E6", "GET /api/v1/tasks → list",
+              lambda: _200("/api/v1/tasks")),
         check("E7", "GET /api/tasks/{id} → task_type",
               lambda: _e7_check()),
 
@@ -1129,7 +1142,7 @@ async def verify_endpoints(report: ReportManager):
 async def _e7_check() -> tuple:
     try:
         r = await asyncio.to_thread(
-            lambda: requests.get(f"{SERVER_URL}/api/tasks", timeout=10))
+            lambda: requests.get(f"{SERVER_URL}/api/v1/tasks", timeout=10))
         if r.status_code != 200:
             return False, f"HTTP {r.status_code}"
         tasks = r.json().get("tasks", [])
@@ -1137,7 +1150,7 @@ async def _e7_check() -> tuple:
             return True, "no tasks (skip)"
         tid = tasks[0]["task_id"]
         r2 = await asyncio.to_thread(
-            lambda: requests.get(f"{SERVER_URL}/api/tasks/{tid}", timeout=10))
+            lambda: requests.get(f"{SERVER_URL}/api/v1/tasks/{tid}", timeout=10))
         ok = r2.status_code == 200 and "task_type" in r2.json()
         return ok, f"{tid} type={r2.json().get('task_type','?')}" if ok else f"HTTP {r2.status_code}"
     except Exception as e:
@@ -1147,7 +1160,7 @@ async def _e7_check() -> tuple:
 async def _e8_e9_check(action: str) -> tuple:
     try:
         r = await asyncio.to_thread(
-            lambda: requests.get(f"{SERVER_URL}/api/tasks", timeout=10))
+            lambda: requests.get(f"{SERVER_URL}/api/v1/tasks", timeout=10))
         if r.status_code != 200:
             return False, f"HTTP {r.status_code}"
         tasks = r.json().get("tasks", [])
@@ -1172,28 +1185,28 @@ async def _e8_e9_check(action: str) -> tuple:
 
 
 # ═══════════════════════════════════════════════════
-# 主流程
+# Main Flow
 # ═══════════════════════════════════════════════════
 
 async def main(resume: bool = False, auto_start: bool = False, quick: bool = False):
     logger.info("=" * 56)
-    logger.info("  Agnes Video Generator v2.0 — 大版本回归测试")
-    logger.info(f"  并行度上限: {MAX_CONCURRENT_WEIGHT}/{AGNES_RATE_LIMIT}/min (权重/Agnes API)")
-    resume and logger.info(f"  模式: 恢复 (自动跳过已完成场景)")
-    quick and logger.info(f"  模式: 快速验证 (跳过运行)")
+    logger.info("  Agnes Video Generator v2.0 — Major Version Regression Testing")
+    logger.info(f"  Max concurrency weight: {MAX_CONCURRENT_WEIGHT}/{AGNES_RATE_LIMIT}/min (weight/Agnes API)")
+    resume and logger.info(f"  Mode: Resume (automatically skip completed scenarios)")
+    quick and logger.info(f"  Mode: Quick Verification (skip running)")
     logger.info("=" * 56)
 
-    # 确保测试素材存在
+    # Ensure test assets exist
     _ensure_test_assets()
 
     if not await ensure_server(auto_start):
-        logger.error("服务不可用，退出")
+        logger.error("Service unavailable, exiting")
         return 1
 
     report = ReportManager(REPORT_PATH)
 
     if quick:
-        logger.info("快速验证模式：仅检查已有产物")
+        logger.info("Quick validation mode: only check existing outputs")
         for sc in SCENARIO_DEFS:
             report.update_scenario(sc.id, "running")
             try:
@@ -1203,10 +1216,10 @@ async def main(resume: bool = False, auto_start: bool = False, quick: bool = Fal
                     checks = await validate_task(task.get("dir_name", task["task_id"]), sc)
                     report.update_scenario(sc.id, "completed", result={"checks": checks},
                                            errors=[k for k, v in checks.items() if v is False])
-                    logger.info(f"  {sc.id}: 已验证 (dir={task.get('dir_name','?')})")
+                    logger.info(f"  {sc.id}: Verified (dir={task.get('dir_name','?')})")
                 else:
-                    report.update_scenario(sc.id, "skipped", errors=["无已完成任务"])
-                    logger.info(f"  {sc.id}: 跳过 (无已完成任务)")
+                    report.update_scenario(sc.id, "skipped", errors=["No completed task"])
+                    logger.info(f"  {sc.id}: Skipped (no completed task)")
             except Exception as e:
                 report.update_scenario(sc.id, "failed", errors=[str(e)])
         await verify_endpoints(report)
@@ -1219,15 +1232,15 @@ async def main(resume: bool = False, auto_start: bool = False, quick: bool = Fal
     skipped = [sc for sc in SCENARIO_DEFS if not report.should_run(sc.id)]
 
     if skipped:
-        logger.info(f"跳过 {len(skipped)}: {', '.join(s.id for s in skipped)}")
+        logger.info(f"Skipped {len(skipped)}: {', '.join(s.id for s in skipped)}")
     if not pending:
-        logger.info("无待运行场景")
+        logger.info("No scenarios to run")
     else:
-        logger.info(f"并发 {len(pending)} 场景 (max_weight={MAX_CONCURRENT_WEIGHT})")
+        logger.info(f"Concurrent {len(pending)} scenario(s) (max_weight={MAX_CONCURRENT_WEIGHT})")
         sema = WeightedSemaphore(MAX_CONCURRENT_WEIGHT)
         tasks = [run_scenario(sc, sema, report) for sc in pending]
         await asyncio.gather(*tasks)
-        logger.info(f"全部场景执行完毕")
+        logger.info(f"All scenarios completed execution")
 
     await verify_endpoints(report)
     report._save()
@@ -1235,8 +1248,8 @@ async def main(resume: bool = False, auto_start: bool = False, quick: bool = Fal
 
     passed = report.data["summary"]["failed"] == 0
     report.print_summary()
-    logger.info(f"JSON 报告: {REPORT_PATH}")
-    logger.info(f"MD  报告: {REPORT_MD_PATH}")
+    logger.info(f"JSON Report: {REPORT_PATH}")
+    logger.info(f"MD  Report: {REPORT_MD_PATH}")
     return 0 if passed else 1
 
 
@@ -1246,10 +1259,10 @@ def _print_help():
 
 if __name__ == "__main__":
     import argparse
-    p = argparse.ArgumentParser(description="Agnes Video Generator 大版本回归测试")
-    p.add_argument("--resume", action="store_true", help="恢复已有报告")
-    p.add_argument("--auto-start", action="store_true", help="自动启动服务器")
-    p.add_argument("--quick", action="store_true", help="仅验证已有产物")
+    p = argparse.ArgumentParser(description="Agnes Video Generator Major Version Regression Testing")
+    p.add_argument("--resume", action="store_true", help="Resume existing report")
+    p.add_argument("--auto-start", action="store_true", help="Automatically start the server")
+    p.add_argument("--quick", action="store_true", help="Only verify existing outputs")
     args = p.parse_args()
 
     if args.quick and not args.resume:

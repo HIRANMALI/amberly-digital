@@ -1,125 +1,125 @@
-# Agnes Video Generator v2.0 — 大版本回归测试计划
+# Agnes Video Generator v2.0 — Major Version Regression Test Plan
 
-> 用户触发词：**"执行大版本回归"**
-> 主理人自动加载本文档，按以下流程逐项执行并输出报告。
+> User Trigger Phrase: **"执行大版本回归"**
+> The Lead Agent automatically loads this document, executes the steps in order, and outputs a report.
 
 ---
 
-## 一、回归范围总览
+## 1. Regression Scope Overview
 
-| 任务类型 | 测试场景数 | 涉及核心模块 |
+| Task Type | Scenarios | Core Modules Involved |
 |----------|-----------|-------------|
-| 简单视频 (Type 1) | 3 | `simple_video.py`, `agnes_video.py`, `task_manager.py` |
-| 创意视频 (Type 2) | 4 | `creative_video.py`, `agnes_image.py`, `agnes_video.py`, `screenwriter.py`, `tts.py`, `subtitle.py`, `concatenator.py` |
-| 稿件视频 (Type 3) | 2 | `manuscript_video.py`, `agnes_video.py`, `screenwriter.py`, `tts.py`, `subtitle.py`, `concatenator.py` |
-| **总计** | **9** | |
+| Simple Video (Type 1) | 3 | `simple_video.py`, `agnes_video.py`, `task_manager.py` |
+| Creative Video (Type 2) | 4 | `creative_video.py`, `agnes_image.py`, `agnes_video.py`, `screenwriter.py`, `tts.py`, `subtitle.py`, `concatenator.py` |
+| Manuscript Video (Type 3) | 2 | `manuscript_video.py`, `agnes_video.py`, `screenwriter.py`, `tts.py`, `subtitle.py`, `concatenator.py` |
+| **Total** | **9** | |
 
 ---
 
-## 二、测试场景矩阵
+## 2. Test Scenario Matrix
 
-### 2.1 简单视频 (SimpleVideoPipeline)
+### 2.1 Simple Video (SimpleVideoPipeline)
 
-| ID | 场景 | mode | 参考图 | 尾帧 | 覆盖要点 |
+| ID | Scenario | Mode | Ref Image | End Frame | Key Validation Points |
 |----|------|------|--------|------|---------|
-| S1 | 纯文本生成 | t2v | 无 | 无 | 基础 t2v 提交流程、轮询、下载 |
-| S2 | 图生视频 | ti2vid | 上传参考图 | 无 | 图片上传、i2v 参数构建 |
-| S3 | 关键帧动画 | keyframes | 上传参考图 | 上传尾帧 | 双图模式、keyframes 参数构建 |
+| S1 | Text-to-Video | t2v | None | None | Basic t2v submission flow, polling, download |
+| S2 | Image-to-Video | ti2vid | Upload Ref Image | None | Image upload, i2v parameter construction |
+| S3 | Keyframe Animation | keyframes | Upload Ref Image | Upload End Frame | Dual-image mode, keyframes parameter construction |
 
-### 2.2 创意视频 (CreativeVideoPipeline)
+### 2.2 Creative Video (CreativeVideoPipeline)
 
-测试重点：**无配音场景为主**，配音字幕有一个场景验证可用即可。
+Test focus: **Mute scenes are primary**; only one scene is required to verify TTS and subtitles.
 
-| ID | 场景 | chaining_mode | 参考图 | 配音 | 覆盖要点 |
+| ID | Scenario | Chaining Mode | Ref Image | Narration | Key Validation Points |
 |----|------|--------------|--------|------|---------|
-| C1 | 纯文字+独立+无配音 | independent | 无 | 关闭 | 纯文字输入、story→script→video→SilentTTS→concat 链路 |
-| C2 | 带参考图+关键帧+无配音 | keyframes | 上传参考图 | 关闭 | 参考图上传、端帧生成、keyframes 提交 |
-| C3 | 参考图生成尾帧+关键帧+无配音 | keyframes | 上传参考图 | 关闭 | `generate_end_frames_from_ref`、i2i 端帧生成、keyframes |
-| C4 | 独立场景+配音字幕验证 | independent | 无 | 开启 | TTS+字幕全链路验证（一个场景覆盖即可） |
+| C1 | Text + Independent + Mute | independent | None | Disabled | Pure text input, story→script→video→SilentTTS→concat workflow |
+| C2 | Ref Image + Keyframes + Mute | keyframes | Upload Ref Image | Disabled | Ref image upload, end-frame generation, keyframes submission |
+| C3 | Ref Image generated End Frame + Keyframes + Mute | keyframes | Upload Ref Image | Disabled | `generate_end_frames_from_ref` (i2i), keyframes |
+| C4 | Independent + Narration/Subtitles | independent | None | Enabled | End-to-end TTS + subtitle validation (single scene coverage) |
 
-### 2.3 稿件视频 (ManuscriptVideoPipeline)
+### 2.3 Manuscript Video (ManuscriptVideoPipeline)
 
-仅回归短文本场景，无需长文本。
+Verify short manuscript scenario only. Long manuscripts are excluded from regression.
 
-| ID | 场景 | 稿件长度 | 配音 | 覆盖要点 |
+| ID | Scenario | Manuscript Length | Narration | Key Validation Points |
 |----|------|---------|------|---------|
-| M1 | 短稿件+配音 | ~100 字 | 开启 | split→prompt→video→TTS→SRT→concat overlay |
-| M2 | 短稿件+自定义字幕 | ~100 字 | 开启 | 自定义 stroke/position/bg 字幕样式 |
+| M1 | Short Manuscript + Narration | ~100 characters | Enabled | split→prompt→video→TTS→SRT→concat overlay |
+| M2 | Short Manuscript + Custom Style | ~100 characters | Enabled | Custom stroke/position/bg subtitle style options |
 
 ---
 
-## 三、验证产物清单
+## 3. Verification Artifact List
 
-每个测试场景执行完毕后，验证以下产物。**验证方式**列说明由谁验证（自动 = 脚本可自动判断，手动 = 需要用户人工确认）。
+Verify the following artifacts after running each test scenario. The **Verification Method** indicates who performs the check: Auto (script checks automatically) or Manual (requires user manual verification).
 
-### 3.1 最终产物
+### 3.1 Final Outputs
 
-| # | 产物 | 路径模式 | 验证内容 | 验证方式 | 判断标准 |
+| # | Artifact | Path Pattern | Verification | Method | Criteria |
 |---|------|---------|---------|---------|---------|
-| F1 | 最终视频 | `{working_dir}/{task_dir}/final_video.mp4` | 文件存在、非空 | 自动 | `os.path.exists` 且 `os.path.getsize > 0` |
-| F2 | 视频时长 | — | 时长合理（> 0） | 自动 | `ffprobe` 或 `moviepy` 读取 duration |
-| F3 | 视频分辨率 | — | 匹配请求参数 | 自动 | `ffprobe` 读取宽高比 |
-| F4 | 音频轨道 + 语音内容 | — | 视频包含音频轨道 + 语音内容匹配预期 | 自动 | `moviepy` 检测 audio stream + `whisper` ASR 转录文本并与原文模糊匹配 |
-| F5 | 字幕可见性 | — | 视频画面中字幕正确显示 | 手动 | 播放查看字幕出现时机、内容、样式是否正确 |
-| F6 | 字幕文本匹配 | — | 字幕文本与原文一致 | 自动 | `whisper` 提取音频中的语音文本，与输入原文做模糊匹配（字符重叠率 > 30%） |
-| F7 | 视频总时长合理 | — | 总时长 ≈ max(各段视频和, 总音频时长+1s) | 自动 | 用 `ffprobe` 获取 duration，脚本校验 |
+| F1 | Final Video | `{working_dir}/{task_dir}/final_video.mp4` | File exists, not empty | Auto | `os.path.exists` and `os.path.getsize > 0` |
+| F2 | Video Duration | — | Duration is reasonable (> 0) | Auto | Read via `ffprobe` or `moviepy` |
+| F3 | Video Resolution | — | Matches request parameters | Auto | Read width/height via `ffprobe` |
+| F4 | Audio Track + Speech Content | — | Video contains audio stream + speech matches prompt | Auto | `moviepy` detects audio track + ASR transcription (e.g., whisper) fuzzy match with source text |
+| F5 | Subtitle Visibility | — | Subtitles are rendered on video | Manual | Play video, check appearance timing, content, styling |
+| F6 | Subtitle Text Match | — | Subtitles match input text | Auto | Transcription of audio matches original text (overlap > 30%) |
+| F7 | Reasonable Duration | — | Total duration ≈ max(video segments sum, narration duration + 1s) | Auto | Validate via `ffprobe` |
 
-### 3.2 断点续传产物 (Resume Checkpoints)
+### 3.2 Checkpoints (Resume Checkpoints)
 
-| # | 产物 | 路径模式 | 验证内容 | 验证方式 | 判断标准 |
+| # | Artifact | Path Pattern | Verification | Method | Criteria |
 |---|------|---------|---------|---------|---------|
-| R1 | task_state.json | `{task_dir}/task_state.json` | 文件有效 JSON、包含所有必要字段 | 自动 | `json.load` 成功，字段完整 |
-| R2 | task_type 字段 | task_state.json | 值正确（simple/creative/manuscript） | 自动 | 与创建时一致 |
-| R3 | 各 step 状态 | task_state.json | 已完成步骤为 `completed` | 自动 | step_xxx 字段值 |
-| R4 | final_video_file | task_state.json | 路径有效 | 自动 | `os.path.exists(路径)` |
-| R5 | task.json (video_id) | `{task_dir}/task.json` (简易) 或 `{scene_dir}/task.json` (创意/稿件) | 文件存在、包含 video_id | 自动 | `json.load` 含 `video_id` 键 |
-| R6 | curl.sh | `{task_dir}/curl.sh` 或 `{scene/para_dir}/curl.sh` | 文件存在、包含有效 curl 命令 | 自动 | 文件存在，内容含 `agnesapi?video_id=` |
-| R7 | 段落/场景级音频 | `para_{n}/narration.mp3` 等 | 音频文件存在（稿件/创意） | 自动 | `os.path.exists` |
-| R8 | 段落/场景级字幕 | `{para_dir}/narration.srt` 或 `{scene_dir}/subtitle.srt` | 字幕文件存在 | 自动 | `os.path.exists` |
-| R9 | 合稿音频 (稿件) | `{task_dir}/full_narration.mp3` | 文件存在、非空 | 自动 | 同 F1 |
-| R10 | 合稿字幕 (稿件) | `{task_dir}/full_subtitle.srt` | 文件存在、包含有效 SRT 条目 | 自动 | 可解析，条目 > 0 |
+| R1 | task_state.json | `{task_dir}/task_state.json` | Valid JSON containing required fields | Auto | `json.load` succeeds, fields complete |
+| R2 | task_type Field | task_state.json | Correct value (simple/creative/manuscript) | Auto | Matches task creation type |
+| R3 | Step Statuses | task_state.json | Finished steps are marked as `completed` | Auto | Validate step statuses |
+| R4 | final_video_file | task_state.json | Path exists and is valid | Auto | `os.path.exists(path)` |
+| R5 | task.json (video_id) | `{task_dir}/task.json` (Simple) or `{scene_dir}/task.json` (Creative/Manuscript) | File exists, contains video_id | Auto | `json.load` contains `video_id` |
+| R6 | curl.sh | `{task_dir}/curl.sh` or `{scene/para_dir}/curl.sh` | File exists, contains valid curl command | Auto | Contains `agnesapi?video_id=` |
+| R7 | Segment Audio | `para_{n}/narration.mp3` etc. | Audio file exists (Creative/Manuscript) | Auto | `os.path.exists` |
+| R8 | Segment Subtitles | `{para_dir}/narration.srt` or `{scene_dir}/subtitle.srt` | Subtitle file exists | Auto | `os.path.exists` |
+| R9 | Combined Audio | `{task_dir}/full_narration.mp3` | Combined narration audio exists | Auto | Same as F1 |
+| R10 | Combined Subtitles | `{task_dir}/full_subtitle.srt` | Combined subtitles exist with valid entries | Auto | Valid parsing, entries > 0 |
 
-### 3.3 服务端点
+### 3.3 Server Endpoints
 
-| # | 端点 | 验证内容 | 验证方式 | 期望结果 |
+| # | Endpoint | Description | Method | Expected Result |
 |---|------|---------|---------|---------|
-| E1 | `GET /` | 返回 200，HTML 含三 Tab | 自动 | status 200 |
-| E2 | `GET /api/config` | 返回 api_key | 自动 | status 200 |
-| E3 | `POST /api/tasks/simple` | 参数校验 | 自动 | 合法参数返回 200/422 |
-| E4 | `POST /api/tasks/creative` | 参数校验 | 自动 | 合法参数返回 200/422 |
-| E5 | `POST /api/tasks/manuscript` | 参数校验 | 自动 | 合法参数返回 200/422 |
-| E6 | `GET /api/tasks` | 列表包含三种类型 | 自动 | 返回 tasks 数组 |
-| E7 | `GET /api/tasks/{id}` | 返回 task_type | 自动 | status 200 |
-| E8 | `POST /api/tasks/{id}/resume` | 续传未完成的任务 | 自动 | status 200 或合理 4xx |
-| E9 | `POST /api/tasks/{id}/stop` | 停止运行中的任务 | 自动 | status 200 |
+| E1 | `GET /` | Returns Web UI HTML (with 3 tabs) | Auto | Status 200 |
+| E2 | `GET /api/config` | Returns API Key (masked) | Auto | Status 200 |
+| E3 | `POST /api/tasks/simple` | Validates parameters | Auto | Status 200 (or 422 for invalid parameters) |
+| E4 | `POST /api/tasks/creative` | Validates parameters | Auto | Status 200 |
+| E5 | `POST /api/tasks/manuscript` | Validates parameters | Auto | Status 200 |
+| E6 | `GET /api/tasks` | List containing multiple task_types | Auto | Returns list of tasks |
+| E7 | `GET /api/tasks/{id}` | Returns task detail with task_type | Auto | Status 200 |
+| E8 | `POST /api/tasks/{id}/resume` | Resumes an interrupted task | Auto | Status 200 (or reasonable 4xx) |
+| E9 | `POST /api/tasks/{id}/stop` | Stops a running task | Auto | Status 200 |
 
 ---
 
-## 四、验证方式说明
+## 4. Verification Methods Description
 
-### 4.1 自动验证（主理人执行）
+### 4.1 Automated Verification (Run by Lead Agent)
 
-以下检查由主理人通过脚本自动完成，在报告中输出 `✅ PASS` 或 `❌ FAIL`：
+The following checks are evaluated by the regression runner script, reporting `✅ PASS` or `❌ FAIL`:
 
 ```python
-# 自动验证脚本伪代码：
+# Auto verification script pseudocode:
 def auto_check(task_dir):
     checks = {}
-    # F1: 最终视频
+    # F1: Final video exists
     video = os.path.join(task_dir, "final_video.mp4")
     checks["final_video_exists"] = os.path.exists(video)
     checks["final_video_nonempty"] = os.path.getsize(video) > 0 if checks["final_video_exists"] else False
 
-    # F2: 视频时长
+    # F2: Video duration
     from moviepy import VideoFileClip
     clip = VideoFileClip(video)
     checks["video_duration"] = clip.duration > 0
 
-    # F7: 视频分辨率
-    checks["video_width"] = clip.w  # 记录值供报告
+    # F7: Video dimensions
+    checks["video_width"] = clip.w
     checks["video_height"] = clip.h
 
-    # R1-R10: 检查点产物
+    # R1-R10: Checkpoints
     task_state = os.path.join(task_dir, "task_state.json")
     checks["task_state_exists"] = os.path.exists(task_state)
     ...
@@ -127,201 +127,200 @@ def auto_check(task_dir):
     return checks
 ```
 
-### 4.2 手动验证（用户确认）
+### 4.2 Manual Verification (User Confirmed)
 
-> **音频 (F4) 和字幕文本匹配 (F6) 已由脚本自动验证**：脚本自动从 final_video.mp4 提取音频，调用 `whisper` 模型进行语音识别，转录文本与输入旁白/稿件原文做模糊匹配（字符重叠率 > 30%），同时通过 `moviepy` 检测音频流是否存在。
+> **Audio presence (F4) and subtitle text matches (F6) are verified automatically via Whisper ASR**: The script extracts audio from final_video.mp4, runs it through the `whisper` model, and checks text overlap (>30%).
 >
-> 以下检查因 IMAX 限制无法由脚本验证，仍需用户人工完成：
+> The following items require manual review:
 
-| 验证项 | 用户操作步骤 | 预期结果 |
+| Check | Steps | Expected Result |
 |--------|------------|---------|
-| 字幕可见性 (F5) | 播放时观察画面底部/顶部是否有字幕出现 | 字幕在对应时间出现，样式（字体/颜色/描边/背景）与配置一致 |
-| 断点续传 (手动) | 1. 停止服务 (`Ctrl+C`) \n2. 重启 `bash start.sh` \n3. 在任务列表点击"续传" | 任务从断点继续，成功生成最终视频 |
-| WebSocket 进度 | 打开浏览器 DevTools → Network → WS，观察消息 | 各 step 有 progress 消息推送 |
+| Subtitle Visibility (F5) | Play final video, observe styling and timing | Subtitles appear in correct sync, style (font/color/stroke/bg) matches customization form |
+| Checkpoint Resume (Manual) | 1. Terminate server (`Ctrl+C`)\n2. Restart via `bash start.sh`\n3. Click "Resume" on task list | Task resumes from last step, successfully compiling final_video.mp4 |
+| WebSocket Progress | Open DevTools → Network → WS, inspect messages | Step progress logs are pushed continuously in real time |
 
 ---
 
-## 五、报告模板
+## 5. Report Template
 
-回归测试完成后，按以下格式输出报告：
+Upon completion, the regression runner generates reports using the following structure:
 
 ```
 ═══════════════════════════════════════════════════
-  Agnes Video Generator v2.0 — 大版本回归测试报告
-  日期: {date}
-  版本: {git_commit_hash}
+  Agnes Video Generator v2.0 — Regression Test Report
+  Date: {date}
+  Version: {git_commit_hash}
 ═══════════════════════════════════════════════════
 
-【服务启动】 ✅ bash start.sh 正常启动，监听 0.0.0.0:8765
-【服务端点】 ✅ E1-E9 全部通过（详见下文）
+【Service Startup】 ✅ bash start.sh started normally on port 8765
+【Server Endpoints】 ✅ E1-E9 All Passed (details below)
 
 ────────────────────────────────────────────────
-一、简单视频 (Simple)
+1. Simple Video (Simple)
 ────────────────────────────────────────────────
 
-  S1 [纯文本 t2v]       — ✅ 最终产物全部通过
-  S2 [图生视频 ti2vid]  — ✅ 最终产物全部通过
-  S3 [关键帧 keyframes] — ✅ 最终产物全部通过
+  S1 [Text-to-Video]    — ✅ All checks passed
+  S2 [Image-to-Video]   — ✅ All checks passed
+  S3 [Keyframe Chaining] — ✅ All checks passed
 
-  │ 检查项               │ S1      │ S2      │ S3      │
+  │ Check Item           │ S1      │ S2      │ S3      │
   │──────────────────────│────────│────────│────────│
-  │ F1 最终视频存在       │ ✅      │ ✅      │ ✅      │
-  │ F2 视频时长 > 0      │ {n}s    │ {n}s    │ {n}s    │
-  │ F3 分辨率匹配         │ ✅      │ ✅      │ ✅      │
-   │ F4 音频轨道+语音内容  │ ✅      │ ✅      │ ✅      │
-   │ F7 时长合理           │ ✅      │ ✅      │ ✅      │
+  │ F1 Final Video Exists │ ✅      │ ✅      │ ✅      │
+  │ F2 Video Duration    │ {n}s    │ {n}s    │ {n}s    │
+  │ F3 Res Matches       │ ✅      │ ✅      │ ✅      │
+  │ F4 Audio Track       │ ✅      │ ✅      │ ✅      │
+  │ F7 Reasonable Dur    │ ✅      │ ✅      │ ✅      │
   │ R1 task_state.json   │ ✅      │ ✅      │ ✅      │
   │ R5 task.json         │ ✅      │ ✅      │ ✅      │
   │ R6 curl.sh           │ ✅      │ ✅      │ ✅      │
 
 ────────────────────────────────────────────────
-二、创意视频 (Creative)
+2. Creative Video (Creative)
 ────────────────────────────────────────────────
 
-  C1 [纯文字+独立+无配音]           — ✅ 最终产物全部通过
-  C2 [带参考图+关键帧+无配音]       — ✅ 最终产物全部通过
-  C3 [参考图生成尾帧+关键帧+无配音] — ✅ 最终产物全部通过
-  C4 [独立场景+配音字幕验证]         — ✅ 最终产物全部通过
+  C1 [Text + Indep + Silent]      — ✅ All checks passed
+  C2 [Ref Image + keyframes]     — ✅ All checks passed
+  C3 [i2i End Frame + keyframes]  — ✅ All checks passed
+  C4 [Indep + TTS/Subtitles]      — ✅ All checks passed
 
-  │ 检查项               │ C1      │ C2      │ C3      │ C4      │
+  │ Check Item           │ C1      │ C2      │ C3      │ C4      │
   │──────────────────────│────────│────────│────────│────────│
-  │ F1 最终视频存在       │ ✅      │ ✅      │ ✅      │ ✅      │
-  │ F2 视频时长 > 0      │ {n}s    │ {n}s    │ {n}s    │ {n}s    │
-   │ F4 音频轨道+语音内容  │ N/A¹    │ N/A¹    │ N/A¹    │ ✅      │
-   │ F6 字幕文本匹配       │ N/A¹    │ N/A¹    │ N/A¹    │ ✅      │
-   │ F7 总时长合理         │ ✅      │ ✅      │ ✅      │ ✅      │
-   │ R3 step_* 状态       │ ✅      │ ✅      │ ✅      │ ✅      │
-   │ R5 scene_N/task.json │ ✅      │ ✅      │ ✅      │ ✅      │
-   │ R7 scene_N/narration │ N/A¹    │ N/A¹    │ N/A¹    │ ✅      │
-   │ R8 scene_N/subtitle  │ N/A¹    │ N/A¹    │ N/A¹    │ ✅      │
+  │ F1 Final Video Exists │ ✅      │ ✅      │ ✅      │ ✅      │
+  │ F2 Video Duration    │ {n}s    │ {n}s    │ {n}s    │ {n}s    │
+  │ F4 Audio Track       │ N/A¹    │ N/A¹    │ N/A¹    │ ✅      │
+  │ F6 Subtitle Match    │ N/A¹    │ N/A¹    │ N/A¹    │ ✅      │
+  │ F7 Reasonable Dur    │ ✅      │ ✅      │ ✅      │ ✅      │
+  │ R3 step_* Status     │ ✅      │ ✅      │ ✅      │ ✅      │
+  │ R5 scene_N/task.json │ ✅      │ ✅      │ ✅      │ ✅      │
+  │ R7 scene_N/narration │ N/A¹    │ N/A¹    │ N/A¹    │ ✅      │
+  │ R8 scene_N/subtitle  │ N/A¹    │ N/A¹    │ N/A¹    │ ✅      │
 
-   ¹ C1-C3 无配音，音频/字幕相关检查标记为 N/A。F5 字幕可见性仍为手动验证项。
+  ¹ C1-C3 are mute; audio/subtitle checks are marked as N/A. Subtitle visibility (F5) remains a manual verify item.
 
 ────────────────────────────────────────────────
-三、稿件视频 (Manuscript)
+3. Manuscript Video (Manuscript)
 ────────────────────────────────────────────────
 
-  M1 [短稿件+配音]     — ✅ 最终产物全部通过
-  M2 [短稿件+自定义字幕] — ✅ 最终产物全部通过
+  M1 [Short + Narration] — ✅ All checks passed
+  M2 [Short + Styling]   — ✅ All checks passed
 
-  │ 检查项                      │ M1      │ M2      │
+  │ Check Item                  │ M1      │ M2      │
   │────────────────────────────│────────│────────│
-  │ F1 最终视频存在              │ ✅      │ ✅      │
-  │ F2 视频时长 > 0             │ {n}s    │ {n}s    │
-   │ F4 音频轨道+语音内容         │ ✅      │ ✅      │
-   │ F6 字幕文本匹配              │ ✅      │ ✅      │
-   │ F7 总时长合理                │ ✅      │ ✅      │
-   │ R9 full_narration.mp3       │ ✅      │ ✅      │
-   │ R10 full_subtitle.srt       │ ✅      │ ✅      │
-   │ R5 para_N/task.json         │ ✅      │ ✅      │
-   │ R6 para_N/curl.sh           │ ✅      │ ✅      │
+  │ F1 Final Video Exists       │ ✅      │ ✅      │
+  │ F2 Video Duration          │ {n}s    │ {n}s    │
+  │ F4 Audio Track             │ ✅      │ ✅      │
+  │ F6 Subtitle Match          │ ✅      │ ✅      │
+  │ F7 Reasonable Dur          │ ✅      │ ✅      │
+  │ R9 full_narration.mp3      │ ✅      │ ✅      │
+  │ R10 full_subtitle.srt      │ ✅      │ ✅      │
+  │ R5 para_N/task.json        │ ✅      │ ✅      │
+  │ R6 para_N/curl.sh          │ ✅      │ ✅      │
 
 ────────────────────────────────────────────────
-四、需用户手动验证部分
+4. Manual Verification Needed
 ────────────────────────────────────────────────
 
-   > 音频正确性 (F4) 和字幕文本匹配 (F6) 已由脚本通过 whisper ASR 自动验证。
-   > 以下为仍需人工确认的项：
+   > Audio presence (F4) and text matching (F6) verified via Whisper ASR.
+   > The following items require manual confirmation:
 
-   1. 字幕可见性 (F5)
-      - 播放 {task_dir}/final_video.mp4，观察画面中字幕的出现时机、位置和样式
-      - 预期: C4/M1/M2 字幕内容、位置、字体/颜色/描边/背景与配置一致
+   1. Subtitle Visibility (F5)
+      - Play {task_dir}/final_video.mp4, check subtitle appearance, alignment, and styling.
+      - Expected: C4/M1/M2 subtitles match config styles.
 
-   2. 断点续传
-      - 手动停止服务 → 重启 → 在任务列表点击"续传"
-      - 预期: 任务从断点继续，完成后 final_video.mp4 正常
+   2. Checkpoint Resume
+      - Kill server → restart → click "Resume" in Web UI.
+      - Expected: Generation resumes from checkpoint.
 
 ────────────────────────────────────────────────
-五、汇总
+5. Summary
 ────────────────────────────────────────────────
 
-   自动验证通过: {n}/{m}
-   需手动验证:    1 项（F5 字幕可见性，因 IMAX 视觉限制无法自动判断）
-   遗留问题:      {issues or 无}
-
+   Auto-verified: {n}/{m}
+   Manual check:  1 Item (F5 Subtitle Visibility)
+   Unresolved:    {issues or None}
 ═══════════════════════════════════════════════════
 ```
 
 ---
 
-## 六、执行流程
+## 6. Execution Flow
 
-当用户说 **"执行大版本回归"** 时，主理人执行以下操作：
+When triggered with **"执行大版本回归"**, the Lead Agent operates as follows:
 
-### 6.1 准备阶段
+### 6.1 Preparation
 
 ```
-1. git status 确认工作区干净，记录当前 commit hash
-2. 确认 test_ref.png 和 test_end.png 存在（回归素材）
-3. bash start.sh & 启动服务（等待 8 秒 health check）
-4. 确保 .working_dir/ 中无残留的半成品任务干扰测试
+1. Run "git status" to ensure working directory is clean, record commit hash.
+2. Verify test_ref.png and test_end.png are present (regression test assets).
+3. Start server via "bash start.sh" (wait 8s for health check).
+4. Clear half-baked tasks from .working_dir/ to avoid interference.
 ```
 
-### 6.2 并发执行（所有场景同时运行）
+### 6.2 Concurrent Execution
 
-使用 `scripts/regression_runner.py` 自动完成创建→轮询→验证→记录全流程。
+`scripts/regression_runner.py` is invoked to manage task submission, polling, validation, and logging.
 
-#### 并行度控制
+#### Concurrency Throttle
 
-基于 Agnes API 调用量分析，采用**加权信号量**控制并发：
+Concurrency is managed using a **weighted semaphore** based on Agnes API call limitations:
 
-| 场景类型 | 单场景权重 | 说明（每分钟 Agnes API 调用估算） |
+| Task Type | Weight | Notes (Est. Agnes API Calls / Min) |
 |---------|-----------|----------------------------------|
-| 简单 (S1-S3) | 1 | 1 次 submit + 轮询 ~4 次/分钟 |
-| 创意 (C1-C4) | 3-4 | Chat + N×Image + N×Video + 轮询 |
-| 稿件 (M1-M2) | 4 | 段落×Chat + 段落×Image + 轮询 |
+| Simple (S1-S3) | 1 | 1 submit + poll ~4 times/min |
+| Creative (C1-C4) | 3-4 | Chat + N × Image + N × Video + polling |
+| Manuscript (M1-M2) | 4 | Segments × Chat + Segments × Image + polling |
 
-- **总权重上限 = 10**（Agnes API 上限 20 次/分钟，留 50% 余量）
-- 例：可同时运行 2 个创意(权重 7) + 3 个简单(权重 3) = 10 ✅
-- 例：或 1 个稿件(权重 4) + 1 个创意(权重 4) + 2 个简单(权重 2) = 10 ✅
+- **Max Total Weight = 10** (API limit is 20 requests/minute; we target 50% margin).
+- Example: 2 Creative (weight 7) + 3 Simple (weight 3) = 10 ✅
+- Example: 1 Manuscript (weight 4) + 1 Creative (weight 4) + 2 Simple (weight 2) = 10 ✅
 
-#### 执行命令
+#### Execution Command
 
 ```bash
-# 从头执行（默认：不自动启动服务）
+# Clean run (defaults to no auto service start)
 python scripts/regression_runner.py
 
-# 自动启动服务
+# Auto-start services
 python scripts/regression_runner.py --auto-start
 
-# 断点续传（跳过报告中已完成的场景）
+# Resume tests (skips scenarios completed in regression_report.json)
 python scripts/regression_runner.py --resume --auto-start
 
-# 快速验证：不运行新任务，只验证已有产物
+# Verify existing artifacts only
 python scripts/regression_runner.py --quick
 ```
 
-#### 每场景执行逻辑
+#### Step Process per Scenario (Executed Concurrently)
 
 ```
-对每个 pending 场景（并发执行）：
+For each pending scenario:
 
-  步骤 A — 加权信号量 acquire(weight)
-    等待直到当前总权重 + 场景权重 ≤ 10
+  Step A — Weighted Semaphore acquire(weight)
+    Wait until total running weight + scenario weight ≤ 10
 
-  步骤 B — 创建任务
-    通过 HTTP POST 提交场景参数，记录 task_id 和 dir_name
+  Step B — Submit Task
+    HTTP POST task params, record task_id and dir_name
 
-  步骤 C — 异步轮询
-    每 20 秒 GET /api/tasks/{task_id} 检查 status
-    超时限制：简单 30min / 创意 120min / 稿件 60min
+  Step C — Async Polling
+    Every 20s call GET /api/tasks/{task_id}
+    Timeout limits: Simple 30min / Creative 120min / Manuscript 60min
 
-  步骤 D — 产物验证
-    调用 validate_task() 检查 F1-F7, R1-R10
-    记录每项检查结果到 report
+  Step D — Validate Artifacts
+    Run validate_task() checking F1-F7, R1-R10
+    Record check results in report
 
-  步骤 E — 释放信号量
-    release(weight)，让下一排队场景开始
+  Step E — Release Semaphore
+    Release(weight) to allow next scenario in queue to start
 
-  步骤 F — 报告更新
-    将结果写入 docs/regression_report.json（增量写入）
+  Step F — Save Report
+    Incrementally write results to docs/regression_report.json
 ```
 
-### 6.3 报告与续传
+### 6.3 Resumption & Reports
 
-#### 增量报告
+#### Incremental Reporting
 
-测试过程中，`docs/regression_report.json` 在每个场景完成后即时更新。报告结构：
+`docs/regression_report.json` is updated immediately as each scenario completes. Format:
 
 ```json
 {
@@ -352,60 +351,57 @@ python scripts/regression_runner.py --quick
 }
 ```
 
-#### 断点续传
+#### Resumption Path
 
 ```bash
-# 中断后恢复：跳过已完成的场景，继续未完成的
+# Skip completed/skipped scenarios, resume pending/failed/interrupted scenarios
 python scripts/regression_runner.py --resume
 
-# 恢复逻辑：
-#   - status=completed/skipped → 跳过，不重复执行
-#   - status=failed/pending    → 重新提交并运行
-#   - status=running           → 视为 pending（服务器已重启，旧任务失效）
+# Resume Logic:
+#   - status=completed/skipped → skip, do not rerun
+#   - status=failed/pending    → resubmit and run
+#   - status=running           → treat as pending (server restarted, old runner task dead)
 ```
 
-### 6.4 验证阶段
+### 6.4 Verification Phase
 
-所有场景执行完毕后，脚本自动执行端点验证：
+After all scenarios finish, the endpoints checks are run:
 
 ```
-1. 运行 E1-E9 服务端点验证（并发执行 9 项检查）
-2. 汇总所有场景的自动验证结果
-3. 输出汇总日志（控制台）
-4. JSON 原始记录写入 docs/regression_report.json
-5. MD 可读报告写入 docs/regression_report.md
+1. Run E1-E9 endpoint validations concurrently.
+2. Compile and aggregate all automated checks.
+3. Print summary to console.
+4. Save machine-readable JSON logs to docs/regression_report.json.
+5. Save human-readable Markdown logs to docs/regression_report.md.
 ```
 
-### 注意事项
+### Key Considerations
 
-- **手动验证项**（字幕可见性 F5）因 IMAX 视觉限制无法由脚本自动判断，需用户按报告中的文件路径播放确认字幕正确显示。音频正确性 (F4) 和字幕文本匹配 (F6) 已由脚本通过 whisper ASR 自动验证
-- **断点续传不替换已完成的场景检查**——如果某个已完成场景的产物被误删，使用 `--quick` 模式重新验证
-- **Agnes API 调用上限**由加权信号量确保，但若服务器自身的重试逻辑产生额外调用，实际调用数可能略高于估算值
-- 自动验证失败不阻塞其他场景（每个场景独立报告）
+- **Manual Verification (F5)** requires playing the resulting video to verify subtitle rendering and alignment. Speech content (F4) and subtitle accuracy (F6) are automatically checked using Whisper ASR.
+- **Resume does not re-evaluate completed scenarios** — use `--quick` mode to re-verify if local files are deleted.
+- Auto-validation failures in one scenario do not block other concurrent scenarios.
 
 ---
 
-## 七、素材来源说明
+## 7. Materials & Assets Information
 
-测试过程中需要的参考图、尾帧图等素材，优先从 `.working_dir/` 中已有的**已完成创意视频任务**中获取：
+Material inputs (e.g. reference images, end frames) are fetched from **already completed Creative task directories** in `.working_dir/`:
 
-| 素材类型 | 查找位置 | 说明 |
+| Asset Type | Search Path | Description |
 |---------|---------|------|
-| 参考图 (reference_image) | `{task_dir}/character_reference.png` | 创意视频的角色参考图 |
-| 自定义尾帧 | `{task_dir}/scene_{n}/end_frame.png` | 创意视频各场景的尾帧 |
-| 参考图缓存 | `{task_dir}/*.url` | 已上传的参考图 URL 缓存 |
+| Reference Image | `{task_dir}/character_reference.png` | Character reference image |
+| End Frame | `{task_dir}/scene_{n}/end_frame.png` | Scene end frame |
+| Reference Cache | `{task_dir}/*.url` | Cached upload URL |
 
-**查找步骤**：
-1. 执行 `ls .working_dir/` 查看已有任务目录
-2. 选择 status=completed 的创意视频任务
-3. 检查该目录下是否有 `character_reference.png` 或 `scene_0/end_frame.png`
-4. 在测试 API 调用时，将素材路径作为 `reference_image` 或 `end_frame_image` 参数传入
+**Steps**:
+1. Scan `.working_dir/` directories.
+2. Find completed Creative task.
+3. Retrieve `character_reference.png` or `scene_0/end_frame.png`.
+4. Submit paths as `reference_image` or `end_frame_image` arguments.
 
-如果 `.working_dir` 中没有合适素材，可以自行准备任意图片文件（PNG/JPG 均可），
-或使用以下命令自动生成测试素材：
+If no completed tasks are available, run this command to generate solid-color placeholders:
 
 ```bash
-# 自动生成测试用的参考图和尾帧图（使用 Python 纯色填充）
 python -c "
 from PIL import Image
 for name, color in [('test_ref.png', (100,150,200)), ('test_end.png', (200,150,100))]:
@@ -417,73 +413,64 @@ for name, color in [('test_ref.png', (100,150,200)), ('test_end.png', (200,150,1
 
 ---
 
-## 八、工具依赖与问题排查
+## 8. Tool Dependencies & Troubleshooting
 
-回归脚本依赖以下外部工具，如果不可用会影响对应的验证项：
+The following table lists tool dependencies required by the regression script:
 
-### 8.1 依赖工具清单
-
-| 工具 | 用途 | 影响的验证项 | 缺失时的行为 |
+| Tool | Purpose | Impacted Checks | Fallback Behavior |
 |------|------|-------------|-------------|
-| `ffmpeg` | 音频提取、视频元数据 | F4 (ASR), F2/F3 (时长/分辨率) | 自动跳过 ASR 验证；moviepy 可替代元数据读取 |
-| `moviepy` | 视频元数据读取 | F2/F3/F4/F7 | 相关检查标记为 `skip` |
-| `whisper` (openai-whisper) | 语音识别 (ASR) | F4 (语音内容), F6 (字幕文本匹配) | 相关检查标记为 `skip` |
-| `requests` | HTTP API 调用 | 全部场景 | 脚本无法运行（应已包含在 requirements.txt） |
-| `PIL/Pillow` | 测试素材自动生成 | 仅素材准备阶段 | 需手动准备 test_ref.png/test_end.png |
+| `ffmpeg` | Audio extraction, video parsing | F4 (ASR), F2/F3 (dur/res) | Skip ASR validation; moviepy fallback for parsing |
+| `moviepy` | Read video metadata | F2/F3/F4/F7 | Marked check as `skip` |
+| `whisper` | Speech-to-text (ASR) | F4 (audio track), F6 (subtitle match) | Marked check as `skip` |
+| `requests` | HTTP requests to API | All scenarios | Runner cannot execute |
+| `PIL/Pillow` | Auto asset creation | Asset preparation | Manual setup of test_ref.png/test_end.png |
 
-### 8.2 Whisper 安装与问题排查
+### 8.2 Whisper Setup & Issues
 
-Whisper 用于自动验证音频轨道中的语音内容是否与输入原文匹配。如果 whisper 不可用：
+Whisper automatically verifies audio presence and sync. If whisper is not installed:
 
-#### macOS 安装
+#### Installation
 
 ```bash
-# 在项目 venv 中安装
+# Inside venv
 .venv/bin/pip install openai-whisper
 
-# 如果安装失败，可能需要先安装 ffmpeg
+# Ensure ffmpeg is available
 brew install ffmpeg
 
-# 验证安装
+# Verify
 .venv/bin/python -c "import whisper; print(whisper.load_model('tiny'))"
 ```
 
-#### 常见问题
+#### Common Problems
 
-**Q: `whisper` 模型加载 OOM (内存不足)？**
-- 脚本默认使用 `tiny` 模型（~75MB），内存需求低
-- 如果仍 OOM，可修改 `scripts/regression_runner.py` 中 `_get_whisper_model()` 的模型名
-- 或者跳过 ASR 验证：whisper 不可用时自动标记为 `skip`，不影响其他检查
+**Q: Whisper OOM (Out of Memory)?**
+- Defaults to `tiny` model (~75MB), requiring minimal resources.
+- If OOM still occurs, modify `_get_whisper_model()` in `regression_runner.py` to change model size.
+- Or uninstall whisper to skip ASR checks (marks them as `skip`).
 
-**Q: `librosa` 或 `numba` 依赖冲突？**
-- openai-whisper 依赖可能与其他包冲突，建议在独立 venv 中安装
+**Q: librosa or numba conflicts?**
+- Whisper dependencies can clash with other packages; install whisper in a clean venv.
 
-**Q: 中文识别效果差？**
-- tiny 模型对中文的识别精度有限，模糊匹配阈值（字符重叠率 > 30%）已考虑此限制
-- 如需更高精度，可升级为 `base` 或 `small` 模型
-
-**Q: 如何跳过 ASR 验证？**
-- 不安装 whisper 即可 — 脚本自动检测并跳过，不影响其他检查
-
-### 8.3 FFmpeg 安装
+### 8.3 FFmpeg Installation
 
 ```bash
 # macOS
 brew install ffmpeg
 
-# Linux (Ubuntu/Debian)
+# Linux (Ubuntu)
 sudo apt install ffmpeg
 
-# 验证
-ffmpeg -version
+# Windows
+choco install ffmpeg
 ```
 
-### 8.4 执行前健康检查
+### 8.4 Pre-run Health Check
 
-建议在首次执行回归前运行以下命令确认环境就绪：
+Run this snippet before regression testing to verify dependencies are met:
 
 ```bash
-# 检查 Python 依赖
+# Python dependencies
 .venv/bin/python -c "
 deps = ['fastapi', 'moviepy', 'edge_tts', 'srt', 'requests', 'pydantic']
 for d in deps:
@@ -494,7 +481,7 @@ for d in deps:
         print(f'  [MISS] {d}')
 "
 
-# 检查外部工具
+# Binary tools
 for cmd in ffmpeg; do
     if command -v $cmd &>/dev/null; then
         echo "  [OK] $cmd"
@@ -503,118 +490,84 @@ for cmd in ffmpeg; do
     fi
 done
 
-# 检查 whisper (可选)
-.venv/bin/python -c "import whisper; print('  [OK] whisper')" 2>/dev/null || echo "  [SKIP] whisper (ASR 验证将跳过)"
+# Whisper ASR
+.venv/bin/python -c "import whisper; print('  [OK] whisper')" 2>/dev/null || echo "  [SKIP] whisper (ASR will be skipped)"
 
-# 检查测试素材
+# Assets
 for f in test_ref.png test_end.png; do
-    if [ -f "$f" ]; then echo "  [OK] $f"; else echo "  [MISS] $f (需要运行素材生成脚本)"; fi
+    if [ -f "$f" ]; then echo "  [OK] $f"; else echo "  [MISS] $f (requires asset generation)"; fi
 done
 ```
 
 ---
 
-## 九、回归流程自迭代机制
+## 9. Regression Process Self-Iteration
 
-回归流程本身也是一个需要持续优化的"活文档"。每次执行回归时，应当：
+The regression runner test suite is a living project that updates iteratively:
 
-### 9.1 执行时的问题记录
+### 9.1 Issue Reporting during Execution
 
-在执行回归测试过程中，如果遇到以下类型的问题，**不要绕过，应当记录并修复**：
+If runner validation fails while the feature functions normally, **do not bypass it; update the validation script**:
 
-| 问题类型 | 示例 | 处理方式 |
+| Failure Type | Example | Resolution |
 |---------|------|---------|
-| 工具缺失/版本不兼容 | whisper 未安装、ffmpeg 版本过低 | 尝试安装/升级，如不可行则更新文档说明 |
-| 验证误报 | 某检查项被判失败，但实际功能正常 | 分析根因，修复验证逻辑（本次执行中修复） |
-| 验证漏报 | 某功能有 bug 但未被检查覆盖 | 添加新的检查项到验证清单 |
-| 脚本自身 bug | 并发执行时偶发崩溃、报告写入不完整 | 修复脚本，测试后合并 |
-| 文档与代码不一致 | 文档描述的场景参数与实际提交的不符 | 更新场景定义或文档 |
-| 超时不合理 | 某类任务实际耗时远超 timeout 设定 | 调整超时值 |
+| Missing Tool | whisper missing or ffmpeg outdated | Upgrade tools or document skip behavior |
+| False Positive | Check fails but feature works | Fix validation logic in the runner script |
+| False Negative | Bug is missed by the runner | Add new validation assertions in checking blocks |
+| Runner Bug | Intermittent crashes during concurrency | Fix the regression script |
+| Mismatch | Scenario schema doesn't match API | Update scenario parameters |
 
-### 9.2 迭代流程
+### 9.2 Iteration Flow
 
 ```
-执行回归
+Run Regression
     │
-    ├── 工具问题? → 尝试修复 → 如不可行，记录到文档
+    ├── Tool issues? → Fix/Update tool instructions
     │
-    ├── 验证误报? → 分析根因 → 修复验证逻辑 → 重新运行
+    ├── False Positive? → Analyze root cause → Fix validation logic → Rerun
     │
-    ├── 验证漏报? → 添加检查项 → 更新验证清单
+    ├── False Negative? → Append checking assertions
     │
-    ├── 脚本 bug? → 修复 → 测试 → 提交
-    │
-    └── 完成 → 更新执行记录表
+    └── Runner bug? → Fix script and submit
 ```
 
-### 9.3 每次回归后的检查清单
+### 9.3 Post-run Verification Checklist
 
-- [ ] 所有验证项的结果是否与预期一致？不一致的项是否已分析原因？
-- [ ] 是否有新的工具依赖需要记录？
-- [ ] 场景超时设置是否合理？（实际耗时 vs 设定超时的比例是否在 30%-80% 之间？）
-- [ ] 加权信号量配置是否仍合理？（可根据实际 API 调用量调整权重和上限）
-- [ ] 是否有 C2/C3 类"因缺少测试素材而失败"的场景需要补充素材？
-- [ ] 字幕条目数是否合理？（对于 14s 稿件视频，预期 > 4 条字幕）
-
-### 9.4 验证逻辑修改原则
-
-修改 `scripts/regression_runner.py` 中的验证逻辑时，遵循以下原则：
-
-1. **只修正确认有问题的地方**：如果一个检查失败但功能实际正常 → 修验证逻辑；如果功能确实有问题 → 修业务代码
-2. **区分"跳过"和"失败"**：工具不可用标记 `skip`，功能异常标记 `False`
-3. **区分"N/A"和"失败"**：不适用场景标记 `N/A`，功能异常标记 `False`
-4. **向后兼容**：修改验证逻辑不应导致已有的通过报告变失败
-5. **记录修改原因**：每次修改后在回归计划文档的执行记录表中备注
+- [ ] All check results match expectations.
+- [ ] New dependencies are fully recorded in the requirements.
+- [ ] Scenario timeouts are appropriate.
+- [ ] Concurrency weight allocations match API limits.
 
 ---
 
-## 十、附录：回归测试脚本
+## 10. Appendix: Regression Test Script
 
-回归测试自动化脚本位于 `scripts/regression_runner.py`，包含：
-
-- **并发执行器**：asyncio 驱动，所有场景并发运行
-- **加权信号量**：基于 Agnes API 调用量的并行度控制
-- **增量报告器**：JSON 报告每场景完成后即时更新
-- **产物验证器**：验证 F1-F7、R1-R10 全部检查项
-- **端点验证器**：E1-E9 服务端点并发验证
-- **断点续传**：自动检测已有报告，跳过已完成场景
-
-### 依赖
-
-脚本依赖项目已有的 `requests` 库，无需额外安装。视频元数据验证（F2/F3/F7）需要 `moviepy`，如不可用则自动跳过。
-
-### 并行度计算公式
-
-```
-AGNES_RATE_LIMIT = 20  (次/分钟，平台限制)
-MAX_WEIGHT = AGNES_RATE_LIMIT / 2 = 10  (留 50% 余量)
-
-并发场景一例:
-  1 × Creative (w=4) + 1 × Manuscript (w=4) + 2 × Simple (w=2) = 10 ✅
-  2 × Creative (w=7) + 3 × Simple (w=3) = 10 ✅
-```
+The automated test script is located at `scripts/regression_runner.py`, managing:
+- **Concurrent execution**: Asyncio runner.
+- **Weighted concurrency**: Semaphore-controlled API limits.
+- **Incremental reporting**: Save JSON report incrementally.
+- **Artifact validation**: Verify F1-F7 and R1-R10.
+- **Endpoint validation**: Verify E1-E9.
+- **Resumption**: Skip completed scenarios.
 
 ---
 
-## 十一、回归测试执行记录
+## 11. Regression Test Execution History
 
-每次执行回归测试后，输出两个报告文件：
+Each run outputs:
+- `docs/regression_report.json` (machine-readable results)
+- `docs/regression_report.md` (human-readable Markdown summary)
 
-| 文件 | 说明 |
-|------|------|
-| `docs/regression_report.json` | JSON 原始数据（机器可读，用于断点续传和 CI） |
-| `docs/regression_report.md` | Markdown 可读报告（人类可读，可直接用于 PR/评审） |
-
-常用命令：
+Commands:
 
 ```bash
-# 查看 JSON 原始记录
+# Print raw JSON
 cat docs/regression_report.json
 
-# 查看 MD 可读报告
+# Check Markdown report
 cat docs/regression_report.md
 
-# 筛选失败项
+# Filter failed scenarios
 python -c "
 import json
 r = json.load(open('docs/regression_report.json'))
@@ -624,8 +577,8 @@ for sid, sc in r['scenarios'].items():
 "
 ```
 
-### 执行记录
+### Execution History
 
-| 日期 | 版本 | 自动验证 | 手动验证 | 遗留问题 | 报告文件 |
+| Date | Version | Auto Passed | Manual Passed | Issues | Report File |
 |------|------|---------|---------|---------|---------|
-| <!-- 在此追加 --> | | | | | |
+| <!-- Append history entries here --> | | | | | |

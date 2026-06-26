@@ -1,4 +1,4 @@
-"""core.api.agnes_image — Agnes Image API 封装（从 core/image_generator.py 迁移）"""
+"""core.api.agnes_image — Agnes Image API wrapper (migrated from core/image_generator.py)"""
 
 import asyncio
 import base64
@@ -7,7 +7,7 @@ import mimetypes
 import os
 from typing import List, Optional
 
-import requests
+import requests  # type: ignore
 
 from utils.image import download_image
 
@@ -32,7 +32,7 @@ class ImageOutput:
 
 
 class AgnesImageAPI:
-    """Agnes Image 生成 API 封装（t2i / i2i）。"""
+    """Agnes Image generation API wrapper (t2i / i2i)."""
 
     def __init__(self, api_key: str, model: str = "agnes-image-2.1-flash"):
         self.api_key = api_key
@@ -43,20 +43,15 @@ class AgnesImageAPI:
             "Content-Type": "application/json",
         }
 
-    async def _path_to_b64(self, path: str) -> str:
-        def _read():
-            with open(path, "rb") as f:
-                return base64.b64encode(f.read()).decode("utf-8")
-
-        b64 = await asyncio.to_thread(_read)
-        mime = mimetypes.guess_type(path)[0] or "image/png"
-        return f"data:{mime};base64,{b64}"
-
     async def _resolve_image_ref(self, ref: str) -> str:
         if ref.startswith(("http://", "https://", "data:")):
             return ref
         if os.path.exists(ref):
-            return await self._path_to_b64(ref)
+            from utils.image import optimize_image_to_b64
+            # Agnes Image API expects data URIs
+            return await asyncio.to_thread(
+                optimize_image_to_b64, ref, max_size=(2048, 2048), include_prefix=True
+            )
         return ref
 
     async def generate_single_image(
@@ -86,6 +81,7 @@ class AgnesImageAPI:
 
         logger.info(f"[AgnesImage] Generating ({'i2i' if use_i2i else 't2i'}): {prompt[:80]}...")
 
+        resp = None
         try:
             resp = await asyncio.to_thread(
                 requests.post,
@@ -97,13 +93,18 @@ class AgnesImageAPI:
             resp.raise_for_status()
         except requests.exceptions.HTTPError as e:
             error_detail = ""
-            try:
-                error_detail = resp.text[:500]
-            except Exception:
-                pass
-            logger.error(f"[AgnesImage] HTTP {resp.status_code}: {error_detail}")
+            status_code = "?"
+            if resp is not None:
+                try:
+                    error_detail = resp.text[:500]
+                    status_code = str(resp.status_code)
+                except Exception:
+                    pass
+            logger.error(f"[AgnesImage] HTTP {status_code}: {error_detail}")
             raise
 
+        if resp is None:
+            raise RuntimeError("Agnes image request failed without response")
         result = resp.json()
 
         if "error" in result:

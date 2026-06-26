@@ -4,7 +4,7 @@ import logging
 import mimetypes
 import os
 import time as _time
-import requests
+import requests  # type: ignore
 from typing import List
 
 from core.api.agnes_chat import AgnesChatAPI
@@ -19,7 +19,7 @@ class Screenwriter:
         self.api_key = api_key
         self.model = model
         self.chat_api = AgnesChatAPI(api_key=api_key, model=model)
-        # 保持旧 headers 供直接引用（兼容）
+        # Keep old headers for direct reference (compatibility)
         self.headers = {
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json",
@@ -72,9 +72,9 @@ otherwise.
         descriptions = []
         for i, img_path in enumerate(image_paths):
             if i == 0:
-                label = "起始帧"
+                label = "First frame"
             else:
-                label = f"尾帧 {i - 1}"
+                label = f"End frame {i - 1}"
 
             cache_key = str(i)
             if cache_key in cached_descriptions:
@@ -114,7 +114,8 @@ otherwise.
                     _time.sleep(delay)
                 else:
                     logger.error(f"[Screenwriter] {label} failed after {max_retries} attempts: {e}")
-                    return f"(分析失败: {str(e)[:100]})"
+                    return f"(Analysis failed: {str(e)[:100]})"
+        return "(Analysis failed: no attempts executed)"
 
     def develop_story(self, idea: str, user_requirement: str, style: str, image_context: str = "") -> str:
         system_prompt = """\
@@ -373,17 +374,17 @@ Rules:
         return shots
 
     def generate_scene_prompt_for_paragraph(self, text: str, style: str = "") -> str:
-        """为稿件段落生成英文视频场景 prompt（类型 3 专用）。
+        """Generates English video scene prompt for manuscript paragraph (Type 3 exclusive).
 
-        基于段落语义生成适合 AI 视频生成的英文视觉描述，
-        原文将直接作为旁白文本 + 字幕内容（D2 决策）。
+        Generates English visual description suitable for AI video generation based on paragraph semantics.
+        The original text will be directly used as narration text + subtitle content (D2 decision).
 
         Args:
-            text: 中文段落文本
-            style: 风格描述（可选）
+            text: Chinese paragraph text
+            style: Style description (optional)
 
         Returns:
-            英文视频 prompt 字符串
+            English video prompt string
         """
         system_prompt = """\
 You are a professional video director and visual prompt engineer. Given a \
@@ -423,19 +424,19 @@ Generate a detailed English visual prompt for this paragraph.
     def generate_narration_for_video(
         self, story: str, scenes: List[str], total_duration: float, style: str = ""
     ) -> str:
-        """为整个视频一次性生成旁白文案。
+        """Generates narration script for the entire video at once.
 
-        基于故事全文和所有场景描述，生成一段完整的中文旁白文本，
-        时长匹配视频总时长（num_scenes * video_duration）。
+        Generates a complete Chinese narration text based on the full story and all scene descriptions,
+        with length matching the total video duration (num_scenes * video_duration).
 
         Args:
-            story: 完整故事文本
-            scenes: 所有场景的英文视觉描述列表
-            total_duration: 视频总时长（秒）
-            style: 风格描述（可选）
+            story: Full story text
+            scenes: English visual descriptions list of all scenes
+            total_duration: Total video duration (seconds)
+            style: Style description (optional)
 
         Returns:
-            完整的中文旁白文本字符串
+            Complete Chinese narration text string
         """
         max_chars = max(int(total_duration * 4.0), 40)
         scene_count = len(scenes)

@@ -1,67 +1,67 @@
 """
-models — Agnes Video Generator v2.0 数据模型层
+models — Agnes Video Generator v2.0 Data Model Layer
 
-导出所有任务模型、枚举、配置类和请求/响应模型。
+Exports all task models, enums, config classes, and request/response models.
 """
 
 from models.task import (
-    # 枚举
+    # Enums
     StepStatus,
     TaskType,
     VideoMode,
-    # 配置类
+    # Config Classes
     AudioConfig,
     SubtitleStyle,
-    # 子结构
+    # Substuctures
     ManuscriptParagraph,
     SceneTask,
-    # 任务状态模型
+    # Task State Models
     AnyTaskState,
     BaseTaskState,
     CreativeVideoTask,
     ManuscriptVideoTask,
     SimpleVideoTask,
-    # 工厂函数
+    # Factory Functions
     parse_task_state,
-    # 请求模型
+    # Request Models
     CreateCreativeTaskRequest,
     CreateManuscriptTaskRequest,
     CreateSimpleTaskRequest,
-    # 向后兼容别名（Batch B/C 迁移完成后移除）
+    # Backward Compatibility Aliases (remove after Batch B/C migration completes)
     CreateTaskRequest,
     TaskState,
-    # 响应模型
+    # Response Models
     TaskResponse,
     WSMessage,
 )
 
 __all__ = [
-    # 枚举
+    # Enums
     "StepStatus",
     "TaskType",
     "VideoMode",
-    # 配置
+    # Config
     "AudioConfig",
     "SubtitleStyle",
-    # 子结构
+    # Substructures
     "ManuscriptParagraph",
     "SceneTask",
-    # 任务模型
+    # Task models
     "AnyTaskState",
     "BaseTaskState",
     "CreativeVideoTask",
     "ManuscriptVideoTask",
     "SimpleVideoTask",
-    # 工厂
+    # Factory
     "parse_task_state",
-    # 请求
+    # Requests
     "CreateCreativeTaskRequest",
     "CreateManuscriptTaskRequest",
     "CreateSimpleTaskRequest",
-    # 向后兼容
+    # Backward compatibility
     "CreateTaskRequest",
     "TaskState",
-    # 响应
+    # Responses
     "TaskResponse",
     "WSMessage",
 ]

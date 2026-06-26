@@ -24,7 +24,7 @@ from core.audio.tts import EdgeTTSEngine, SilentTTSEngine
 from core.compositor.concatenator import VideoConcatenator
 from core.pipelines import BasePipeline, PipelineShutdown
 from core.screenwriter import Screenwriter
-from models.task import CreativeVideoTask, SceneTask, StepStatus
+from models.task import BaseTaskState, CreativeVideoTask, SceneTask, StepStatus
 
 _CHARS_PER_SEC = 4.0
 _SENTENCE_BOUNDARY_RE = re.compile(r"(?<=[。！？.!?])")
@@ -86,11 +86,21 @@ class CreativeVideoPipeline(BasePipeline):
         self.video_generator = AgnesVideoAPI(api_key=api_key, model=video_model)
         self.video_generator.shutdown_event = shutdown_event
 
-        self._state: Optional[CreativeVideoTask] = None
+        self._state = None
 
     # ------------------------------------------------------------------
     # Properties
     # ------------------------------------------------------------------
+
+    @property
+    def _state(self) -> CreativeVideoTask:  # type: ignore
+        val = self.__dict__.get("_state")
+        assert val is not None
+        return val
+
+    @_state.setter
+    def _state(self, value: Optional[CreativeVideoTask]) -> None:
+        self.__dict__["_state"] = value
 
     @property
     def state(self) -> Optional[CreativeVideoTask]:
@@ -138,7 +148,7 @@ class CreativeVideoPipeline(BasePipeline):
             self.task_manager.update_step("step_image_analysis", StepStatus.COMPLETED)
             return ""
 
-        await self._emit("image_analysis", "running", f"分析 {len(images_to_analyze)} 张图片...", 0.0)
+        await self._emit("image_analysis", "running", f"Analyzing {len(images_to_analyze)} image(s)...", 0.0)
         image_context = await asyncio.to_thread(
             self.screenwriter.describe_images, images_to_analyze, cache_dir=self.working_dir
         )
@@ -153,7 +163,7 @@ class CreativeVideoPipeline(BasePipeline):
             step_image_analysis=StepStatus.COMPLETED,
             image_analysis_file=analysis_file,
         )
-        await self._emit("image_analysis", "completed", f"图片分析完成 ({len(image_context)} 字符)", 0.05)
+        await self._emit("image_analysis", "completed", f"Image analysis completed ({len(image_context)} chars)", 0.05)
         return image_context
 
     # ==================================================================
@@ -178,7 +188,7 @@ class CreativeVideoPipeline(BasePipeline):
             logger.warning("[Pipeline] Step story: marked completed but file missing, re-running")
 
         logger.info("[Pipeline] Step story: RUNNING")
-        await self._emit("story", "running", "正在生成故事...", 0.05)
+        await self._emit("story", "running", "Generating story...", 0.05)
         story = await asyncio.to_thread(
             self.screenwriter.develop_story,
             self._state.idea,
@@ -197,7 +207,7 @@ class CreativeVideoPipeline(BasePipeline):
             step_story=StepStatus.COMPLETED,
             story_file=story_path,
         )
-        await self._emit("story", "completed", f"故事生成完成 ({len(story)} 字符)", 0.1)
+        await self._emit("story", "completed", f"Story generation completed ({len(story)} chars)", 0.1)
         return story
 
     # ==================================================================
@@ -232,7 +242,7 @@ class CreativeVideoPipeline(BasePipeline):
                 step_character_ref=StepStatus.COMPLETED,
                 character_ref_file=self._state.reference_image,
             )
-            await self._emit("character_ref", "completed", "使用用户提供的参考图", 0.15)
+            await self._emit("character_ref", "completed", "Using user-provided reference image", 0.15)
             return self._state.reference_image
 
         ref_prompt_path = os.path.join(self.working_dir, "character_ref_prompt.txt")
@@ -247,17 +257,17 @@ class CreativeVideoPipeline(BasePipeline):
                 step_character_ref=StepStatus.COMPLETED,
                 character_ref_file=ref_img_path,
             )
-            await self._emit("character_ref", "completed", "角色参考图已缓存", 0.15)
+            await self._emit("character_ref", "completed", "Character reference image already cached", 0.15)
             return ref_img_path
 
-        await self._emit("character_ref", "running", "正在提取角色描述并生成参考图...", 0.1)
+        await self._emit("character_ref", "running", "Extracting character description and generating reference image...", 0.1)
         char_prompt = await asyncio.to_thread(
             self.screenwriter.extract_character_description, story, self._state.style
         )
         with open(ref_prompt_path, "w") as f:
             f.write(char_prompt)
 
-        await self._emit("character_ref", "running", "正在生成角色参考图 (t2i)...", 0.12)
+        await self._emit("character_ref", "running", "Generating character reference image (t2i)...", 0.12)
         img_output = await self.image_generator.generate_single_image(
             prompt=char_prompt,
             size=f"{self._state.video_width}x{self._state.video_height}",
@@ -272,7 +282,7 @@ class CreativeVideoPipeline(BasePipeline):
             character_ref_prompt=char_prompt,
             character_ref_file=ref_img_path,
         )
-        await self._emit("character_ref", "completed", "角色参考图生成完成", 0.15)
+        await self._emit("character_ref", "completed", "Character reference image generation completed", 0.15)
         return ref_img_path
 
     # ==================================================================
@@ -301,7 +311,7 @@ class CreativeVideoPipeline(BasePipeline):
                 logger.warning("[Pipeline] Step script: marked completed but file missing, re-running")
 
         logger.info("[Pipeline] Step script: RUNNING")
-        await self._emit("script", "running", "正在编写脚本...", 0.15)
+        await self._emit("script", "running", "Writing script...", 0.15)
         scenes = await asyncio.to_thread(
             self.screenwriter.write_script, story, self._state.user_requirement, self._state.style
         )
@@ -324,7 +334,7 @@ class CreativeVideoPipeline(BasePipeline):
             scene_count=len(scenes),
             scenes=[s.model_dump() for s in self._state.scenes],
         )
-        await self._emit("script", "completed", f"脚本完成，共 {len(scenes)} 个场景", 0.2)
+        await self._emit("script", "completed", f"Script completed, total of {len(scenes)} scene(s)", 0.2)
         return scenes
 
     # ==================================================================
@@ -354,7 +364,7 @@ class CreativeVideoPipeline(BasePipeline):
             logger.warning("[Pipeline] Step end_frame_prompts: marked completed but file missing, re-running")
 
         logger.info("[Pipeline] Step end_frame_prompts: RUNNING")
-        await self._emit("end_frame_prompts", "running", "正在生成尾帧提示词...", 0.2)
+        await self._emit("end_frame_prompts", "running", "Generating end-frame prompts...", 0.2)
         character_appearance = await asyncio.to_thread(
             self.screenwriter.get_character_appearance, story
         )
@@ -373,7 +383,7 @@ class CreativeVideoPipeline(BasePipeline):
             step_end_frame_prompts=StepStatus.COMPLETED,
             end_frame_prompts_file=prompts_path,
         )
-        await self._emit("end_frame_prompts", "completed", f"尾帧提示词完成，共 {len(end_frame_prompts)} 个", 0.25)
+        await self._emit("end_frame_prompts", "completed", f"End-frame prompts completed, total of {len(end_frame_prompts)} prompts", 0.25)
         return end_frame_prompts
 
     # ==================================================================
@@ -429,9 +439,9 @@ class CreativeVideoPipeline(BasePipeline):
 
             if user_ef:
                 await self._emit(
-                    "end_frame_gen", "running",
-                    f"场景 {scene_idx+1}/{len(scenes)}: 使用自定义尾帧",
-                    0.25 + 0.05 * scene_idx / len(scenes),
+                     "end_frame_gen", "running",
+                     f"Scene {scene_idx+1}/{len(scenes)}: Using custom end frame",
+                     0.25 + 0.05 * scene_idx / len(scenes),
                 )
                 if os.path.exists(user_ef):
                     dest = os.path.join(scene_dir, "end_frame.png")
@@ -456,7 +466,7 @@ class CreativeVideoPipeline(BasePipeline):
             if self._state.generate_end_frames_from_ref and character_ref_path:
                 await self._emit(
                     "end_frame_gen", "running",
-                    f"场景 {scene_idx+1}/{len(scenes)}: 基于参考图生成尾帧 (i2i)",
+                    f"Scene {scene_idx+1}/{len(scenes)}: Generating end frame from reference image (i2i)",
                     0.25 + 0.05 * scene_idx / len(scenes),
                 )
                 end_frame_prompt = (
@@ -496,7 +506,7 @@ class CreativeVideoPipeline(BasePipeline):
                 )
                 await self._emit(
                     "end_frame_gen", "running",
-                    f"场景 {scene_idx+1}/{len(scenes)}: 自动生成尾帧 (t2i)",
+                    f"Scene {scene_idx+1}/{len(scenes)}: Automatically generating end frame (t2i)",
                     0.25 + 0.05 * scene_idx / len(scenes),
                 )
                 img_output = await self.image_generator.generate_single_image(
@@ -518,7 +528,7 @@ class CreativeVideoPipeline(BasePipeline):
         )
         await self._emit(
             "end_frame_gen", "completed",
-            f"尾帧预生成全部完成 ({len(pregenerated)}/{len(scenes)})",
+            f"End-frame pre-generation completed ({len(pregenerated)}/{len(scenes)})",
             0.35,
         )
         return pregenerated
@@ -684,7 +694,7 @@ class CreativeVideoPipeline(BasePipeline):
 
             await self._emit(
                 "video_gen", "running",
-                f"场景 {scene_idx+1}/{total}: 提交任务 (ti2vid)...",
+                f"Scene {scene_idx+1}/{total}: Submitting task (ti2vid)...",
                 0.35 + 0.45 * scene_idx / total,
             )
             video_id = await self.video_generator.submit_video(
@@ -704,7 +714,7 @@ class CreativeVideoPipeline(BasePipeline):
         if pending:
             await self._emit(
                 "video_gen", "running",
-                f"等待 {len(pending)} 个视频生成完成 (independent)...",
+                f"Waiting for {len(pending)} video(s) to complete generation (independent)...",
                 0.38,
             )
 
@@ -713,7 +723,7 @@ class CreativeVideoPipeline(BasePipeline):
             scene_idx = info["scene_idx"]
             await self._emit(
                 "video_gen", "running",
-                f"场景 {scene_idx+1}/{total}: 等待生成中...",
+                f"Scene {scene_idx+1}/{total}: Waiting for generation...",
                 0.38 + 0.42 * pending.index(info) / len(pending),
             )
             try:
@@ -721,7 +731,7 @@ class CreativeVideoPipeline(BasePipeline):
                 video_output.save(info["video_path"])
                 await self._emit(
                     "video_gen", "running",
-                    f"场景 {scene_idx+1}/{total}: 完成",
+                    f"Scene {scene_idx+1}/{total}: Completed",
                     0.38 + 0.42 * (pending.index(info) + 1) / len(pending),
                 )
             except Exception as e:
@@ -771,7 +781,7 @@ class CreativeVideoPipeline(BasePipeline):
                     current_image = last_frame_path
                 await self._emit(
                     "video_gen", "running",
-                    f"场景 {scene_idx+1}/{total}: 已缓存",
+                    f"Scene {scene_idx+1}/{total}: Cached",
                     0.35 + 0.45 * (scene_idx + 1) / total,
                 )
                 continue
@@ -786,13 +796,13 @@ class CreativeVideoPipeline(BasePipeline):
                 )
                 await self._emit(
                     "video_gen", "running",
-                    f"场景 {scene_idx+1}/{total}: 续传视频 (ti2vid)...",
+                    f"Scene {scene_idx+1}/{total}: Resuming video (ti2vid)...",
                     0.35 + 0.45 * scene_idx / total,
                 )
             else:
                 await self._emit(
                     "video_gen", "running",
-                    f"场景 {scene_idx+1}/{total}: 提交任务 (ti2vid)...",
+                    f"Scene {scene_idx+1}/{total}: Submitting task (ti2vid)...",
                     0.35 + 0.45 * scene_idx / total,
                 )
                 video_id = await self.video_generator.submit_video(
@@ -807,7 +817,7 @@ class CreativeVideoPipeline(BasePipeline):
 
             await self._emit(
                 "video_gen", "running",
-                f"场景 {scene_idx+1}/{total}: 等待生成中...",
+                f"Scene {scene_idx+1}/{total}: Waiting for generation...",
                 0.35 + 0.45 * scene_idx / total,
             )
             try:
@@ -854,7 +864,7 @@ class CreativeVideoPipeline(BasePipeline):
 
             await self._emit(
                 "video_gen", "running",
-                f"场景 {scene_idx+1}/{total}: 完成",
+                f"Scene {scene_idx+1}/{total}: Completed",
                 0.35 + 0.45 * (scene_idx + 1) / total,
             )
 
@@ -970,7 +980,7 @@ class CreativeVideoPipeline(BasePipeline):
         if new_submissions:
             await self._emit(
                 "video_gen", "running",
-                f"提交 {len(new_submissions)} 个视频任务 (keyframes)...",
+                f"Submitting {len(new_submissions)} video task(s) (keyframes)...",
                 0.35,
             )
         else:
@@ -983,7 +993,7 @@ class CreativeVideoPipeline(BasePipeline):
             scene_idx = info["scene_idx"]
             await self._emit(
                 "video_gen", "running",
-                f"场景 {scene_idx+1}/{total}: 提交任务...",
+                f"Scene {scene_idx+1}/{total}: Submitting task...",
                 0.35 + 0.05 * scene_idx / total,
             )
             video_id = await self.video_generator.submit_video(
@@ -1000,7 +1010,7 @@ class CreativeVideoPipeline(BasePipeline):
         if pending:
             await self._emit(
                 "video_gen", "running",
-                f"等待 {len(pending)} 个视频生成完成...",
+                f"Waiting for {len(pending)} video(s) to complete generation...",
                 0.4,
             )
 
@@ -1008,7 +1018,7 @@ class CreativeVideoPipeline(BasePipeline):
             scene_idx = info["scene_idx"]
             await self._emit(
                 "video_gen", "running",
-                f"场景 {scene_idx+1}/{total}: 等待生成中...",
+                f"Scene {scene_idx+1}/{total}: Waiting for generation...",
                 0.4 + 0.4 * pending.index(info) / len(pending),
             )
             try:
@@ -1016,7 +1026,7 @@ class CreativeVideoPipeline(BasePipeline):
                 video_output.save(info["video_path"])
                 await self._emit(
                     "video_gen", "running",
-                    f"场景 {scene_idx+1}/{total}: 完成",
+                    f"Scene {scene_idx+1}/{total}: Completed",
                     0.4 + 0.4 * (pending.index(info) + 1) / len(pending),
                 )
             except Exception as e:
@@ -1118,7 +1128,7 @@ class CreativeVideoPipeline(BasePipeline):
             return
 
         logger.info("[Pipeline] Step generate_narrations: RUNNING (single narration for entire video)")
-        await self._emit("narrations", "running", "正在生成旁白文案...", 0.12)
+        await self._emit("narrations", "running", "Generating narration script...", 0.12)
 
         narration = await asyncio.to_thread(
             self.screenwriter.generate_narration_for_video,
@@ -1176,7 +1186,7 @@ class CreativeVideoPipeline(BasePipeline):
 
         await self._emit(
             "audio_subtitle", "running",
-            "生成旁白音频和字幕..." if audio_enabled else "生成静音时间轴...",
+            "Generating narration audio and subtitles..." if audio_enabled else "Generating silent timeline...",
             0.82,
         )
 
@@ -1217,7 +1227,7 @@ class CreativeVideoPipeline(BasePipeline):
 
         self._state.step_audio_subtitle = StepStatus.COMPLETED
         self.task_manager.update_state(step_audio_subtitle=StepStatus.COMPLETED)
-        await self._emit("audio_subtitle", "completed", "音频和字幕生成完成", 0.9)
+        await self._emit("audio_subtitle", "completed", "Audio and subtitle generation completed", 0.9)
 
     # ==================================================================
     # Step 6: Concatenation (MODIFIED in v2.0)
@@ -1252,7 +1262,7 @@ class CreativeVideoPipeline(BasePipeline):
             )
             return final_video_path
 
-        await self._emit("concatenate", "running", "正在拼接视频...", 0.92)
+        await self._emit("concatenate", "running", "Concatenating videos...", 0.92)
 
         audio_enabled = (
             self._state.audio_config.enabled
@@ -1283,14 +1293,14 @@ class CreativeVideoPipeline(BasePipeline):
             step_concatenation=StepStatus.COMPLETED,
             final_video_file=final_video_path,
         )
-        await self._emit("concatenate", "completed", "视频拼接完成", 0.95)
+        await self._emit("concatenate", "completed", "Video concatenation completed", 0.95)
         return final_video_path
 
     # ==================================================================
     # Main Run
     # ==================================================================
 
-    async def run(self, state: CreativeVideoTask) -> str:
+    async def run(self, state: BaseTaskState) -> str:
         """Execute the full creative video generation pipeline.
 
         Steps (in order):
@@ -1317,11 +1327,12 @@ class CreativeVideoPipeline(BasePipeline):
             PipelineShutdown: If a graceful shutdown was requested.
             Exception: On unrecoverable errors (state is marked FAILED).
         """
+        assert isinstance(state, CreativeVideoTask)
         self._state = state
         self._state.status = StepStatus.RUNNING
         self.task_manager.create(self._state)
 
-        await self._emit("init", "running", "开始视频生成流程...", 0.0)
+        await self._emit("init", "running", "Starting video generation process...", 0.0)
 
         try:
             image_context = await self._step_image_analysis(
@@ -1373,7 +1384,7 @@ class CreativeVideoPipeline(BasePipeline):
             self._state.status = StepStatus.COMPLETED
             self.task_manager.update_state(status=StepStatus.COMPLETED)
             await self._emit(
-                "done", "completed", "视频生成完成!", 1.0,
+                "done", "completed", "Video generation completed!", 1.0,
                 {"final_video": final_video_path},
             )
 
@@ -1381,7 +1392,7 @@ class CreativeVideoPipeline(BasePipeline):
 
         except PipelineShutdown as e:
             logger.info(f"[Pipeline] Shutdown: {e}")
-            await self._emit("error", "failed", "任务已被中断，可从任务列表续传", 0.0)
+            await self._emit("error", "failed", "Task has been interrupted, can be resumed from the task list", 0.0)
             raise
         except Exception as e:
             self._state.status = StepStatus.FAILED

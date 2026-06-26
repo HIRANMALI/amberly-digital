@@ -1,6 +1,6 @@
-"""core.pipelines.manuscript_video -- 稿件长视频生成流水线（类型 3）
+"""core.pipelines.manuscript_video -- Manuscript long-form video generation pipeline (Type 3)
 
-用户粘贴长文本稿件 -> 按朗读时长拆段 -> 每段生成视频 prompt -> 视频生成 -> TTS+字幕 -> 拼接。
+User pastes long text manuscript -> Split segments by speech duration -> Generate video prompt for each segment -> Video generation -> TTS + Subtitles -> Concatenation.
 """
 
 import asyncio
@@ -19,6 +19,7 @@ from core.screenwriter import Screenwriter
 from core.task_manager import TaskManager
 from core.pipelines import BasePipeline, PipelineShutdown
 from models.task import (
+    BaseTaskState,
     ManuscriptVideoTask,
     ManuscriptParagraph,
     StepStatus,
@@ -39,32 +40,32 @@ _MIN_SEGMENT_DURATION = 5.0
 
 
 class ManuscriptVideoPipeline(BasePipeline):
-    """稿件长视频生成流水线。
+    """Manuscript long-form video generation pipeline.
 
-    将用户提交的长文本稿件拆分为若干段落，每个段落独立生成视频片段，
-    再叠加 TTS 旁白和字幕后拼接为最终长视频。
+    Splits the user-submitted long text manuscript into several paragraphs, generates a video segment for each paragraph independently,
+    then overlays TTS narration and subtitles, and concatenates into the final long video.
 
     Pipeline steps:
-        1. ``_step_split_text``          -- 按朗读时长拆分文本
-        2. ``_step_generate_scene_prompts`` -- 为每段生成英文视频 prompt
-        3. ``_step_generate_videos``     -- 调用 Agnes Video API 生成视频
-        4. ``_step_audio_subtitle``      -- TTS 旁白 + SRT 字幕
-        5. ``_step_concatenate``         -- 拼接为最终视频
+        1. ``_step_split_text``          -- Split text by speech duration
+        2. ``_step_generate_scene_prompts`` -- Generate English video prompt for each segment
+        3. ``_step_generate_videos``     -- Call Agnes Video API to generate video
+        4. ``_step_audio_subtitle``      -- TTS narration + SRT subtitles
+        5. ``_step_concatenate``         -- Concatenate into final video
 
     Supports:
-        - Resume: 每个步骤在开始前检查是否已完成（通过 step 状态字段和产物文件是否存在）
-        - Shutdown: 在步骤之间和耗时操作前检查 ``PipelineShutdown``
+        - Resume: Checks whether each step is already completed before starting (via step status field and existence of product file)
+        - Shutdown: Checks for ``PipelineShutdown`` between steps and before time-consuming operations
 
     Attributes:
-        video_api: Agnes Video API 客户端。
-        screenwriter: LLM 编剧客户端。
+        video_api: Agnes Video API client.
+        screenwriter: LLM screenwriter client.
     """
 
     def __init__(
         self,
         api_key: str,
         task_id: str,
-        dir_name: str = None,
+        dir_name: Optional[str] = None,
         progress_callback: Optional[Callable] = None,
         shutdown_event: Optional[asyncio.Event] = None,
     ):
@@ -72,53 +73,55 @@ class ManuscriptVideoPipeline(BasePipeline):
         self.video_api = AgnesVideoAPI(api_key=api_key)
         self.video_api.shutdown_event = shutdown_event
         self.screenwriter = Screenwriter(api_key=api_key)
+        self._state: Optional[ManuscriptVideoTask] = None  # type: ignore
 
     # ------------------------------------------------------------------
     # Public entry point
     # ------------------------------------------------------------------
 
-    async def run(self, state: ManuscriptVideoTask) -> str:
-        """执行稿件长视频生成流水线。
+    async def run(self, state: BaseTaskState) -> str:
+        """Executes the manuscript long-form video generation pipeline.
 
         Args:
-            state: 稿件长视频任务状态。
+            state: Manuscript long-form video task state.
 
         Returns:
-            最终拼接视频的文件路径。
+            File path of the final concatenated video.
 
         Raises:
-            PipelineShutdown: 收到停止信号时抛出。
+            PipelineShutdown: Thrown when stop signal is received.
         """
+        assert isinstance(state, ManuscriptVideoTask)
         self._state = state
         self._state.status = StepStatus.RUNNING
         self.task_manager.create(self._state)
 
-        await self._emit("init", "running", "开始稿件长视频生成...", 0.0)
+        await self._emit("init", "running", "Starting manuscript long-form video generation...", 0.0)
 
         try:
-            # ── Step 1: 拆分文本 ──────────────────────────────────────
+            # ── Step 1: Split text ────────────────────────────────────────
             self._check_shutdown()
             paragraphs = await self._run_step_split_text()
 
-            # ── Step 2: 生成场景 prompt ──────────────────────────────
+            # ── Step 2: Generate scene prompt ─────────────────────────────
             self._check_shutdown()
             await self._run_step_generate_scene_prompts(paragraphs)
 
-            # ── Step 3: 生成视频 ─────────────────────────────────────
+            # ── Step 3: Generate video ────────────────────────────────────
             self._check_shutdown()
             await self._run_step_generate_videos(paragraphs)
 
-            # ── Step 4: 旁白 + 字幕 ──────────────────────────────────
+            # ── Step 4: Narration + Subtitles ─────────────────────────────
             self._check_shutdown()
             await self._run_step_audio_subtitle(paragraphs, state.audio_config)
 
-            # ── Step 5: 拼接 ─────────────────────────────────────────
+            # ── Step 5: Concatenation ─────────────────────────────────────
             self._check_shutdown()
             final_video = await self._run_step_concatenate(
                 paragraphs, state.audio_config
             )
 
-            # ── 完成 ─────────────────────────────────────────────────
+            # ── Completion ────────────────────────────────────────────────
             self._state.status = StepStatus.COMPLETED
             self._state.final_video_file = final_video
             self.task_manager.update_state(
@@ -126,7 +129,7 @@ class ManuscriptVideoPipeline(BasePipeline):
                 final_video_file=final_video,
             )
             await self._emit(
-                "done", "completed", "稿件长视频生成完成!", 1.0,
+                "done", "completed", "Manuscript long-form video generation completed!", 1.0,
                 {"final_video": final_video},
             )
             return final_video
@@ -134,7 +137,7 @@ class ManuscriptVideoPipeline(BasePipeline):
         except PipelineShutdown as exc:
             logger.info(f"[Manuscript] Shutdown: {exc}")
             await self._emit(
-                "error", "failed", "任务已被中断，可从任务列表续传", 0.0,
+                "error", "failed", "Task has been interrupted, can be resumed from the task list", 0.0,
             )
             raise
         except Exception as exc:
@@ -148,13 +151,14 @@ class ManuscriptVideoPipeline(BasePipeline):
     # ------------------------------------------------------------------
 
     async def _run_step_split_text(self) -> List[ManuscriptParagraph]:
-        """运行 Step 1: 文本拆分，带 resume 支持。"""
+        """Runs Step 1: Text splitting, with resume support."""
+        assert self._state is not None
         if self._state.step_split == StepStatus.COMPLETED and self._state.paragraphs:
             logger.info("[Manuscript] Step 1 (split_text): already completed, resuming")
             return self._state.paragraphs
 
         self.task_manager.update_step("step_split", StepStatus.RUNNING)
-        await self._emit("split_text", "running", "拆分文本段落...", 0.02)
+        await self._emit("split_text", "running", "Splitting text paragraphs...", 0.02)
 
         paragraphs = self._step_split_text(self._state.manuscript_text)
         self._state.paragraphs = paragraphs
@@ -165,82 +169,86 @@ class ManuscriptVideoPipeline(BasePipeline):
 
         await self._emit(
             "split_text", "completed",
-            f"文本已拆分为 {len(paragraphs)} 段", 0.05,
+            f"Text has been split into {len(paragraphs)} paragraph(s)", 0.05,
         )
         return paragraphs
 
     async def _run_step_generate_scene_prompts(
         self, paragraphs: List[ManuscriptParagraph],
     ) -> None:
-        """运行 Step 2: 场景 prompt 生成，带 resume 支持。"""
+        """Runs Step 2: Scene prompt generation, with resume support."""
+        assert self._state is not None
         if self._state.step_scene_prompts == StepStatus.COMPLETED:
             logger.info("[Manuscript] Step 2 (scene_prompts): already completed, resuming")
             return
 
         self.task_manager.update_step("step_scene_prompts", StepStatus.RUNNING)
-        await self._emit("scene_prompts", "running", "生成场景描述...", 0.05)
+        await self._emit("scene_prompts", "running", "Generating scene descriptions...", 0.05)
 
         await self._step_generate_scene_prompts(paragraphs)
 
         self.task_manager.update_state(paragraphs=paragraphs)
         self.task_manager.update_step("step_scene_prompts", StepStatus.COMPLETED)
-        await self._emit("scene_prompts", "completed", "场景描述生成完成", 0.15)
+        await self._emit("scene_prompts", "completed", "Scene description generation completed", 0.15)
 
     async def _run_step_generate_videos(
         self, paragraphs: List[ManuscriptParagraph],
     ) -> None:
-        """运行 Step 3: 视频生成，带 resume 支持。"""
+        """Runs Step 3: Video generation, with resume support."""
+        assert self._state is not None
         if self._state.step_video_generation == StepStatus.COMPLETED:
             logger.info("[Manuscript] Step 3 (video_generation): already completed, resuming")
             return
 
         self.task_manager.update_step("step_video_generation", StepStatus.RUNNING)
-        await self._emit("video_gen", "running", "生成段落视频...", 0.15)
+        await self._emit("video_gen", "running", "Generating paragraph videos...", 0.15)
 
         await self._step_generate_videos(paragraphs)
 
         self.task_manager.update_state(paragraphs=paragraphs)
         self.task_manager.update_step("step_video_generation", StepStatus.COMPLETED)
-        await self._emit("video_gen", "completed", "所有段落视频已生成", 0.60)
+        await self._emit("video_gen", "completed", "All paragraph videos have been generated", 0.60)
 
     async def _run_step_audio_subtitle(
         self,
         paragraphs: List[ManuscriptParagraph],
         audio_config: AudioConfig,
     ) -> None:
-        """运行 Step 4: TTS 旁白 + 字幕，带 resume 支持。"""
+        """Runs Step 4: TTS narration + subtitles, with resume support."""
+        assert self._state is not None
         if self._state.step_audio_subtitle == StepStatus.COMPLETED:
             logger.info("[Manuscript] Step 4 (audio_subtitle): already completed, resuming")
             return
 
         self.task_manager.update_step("step_audio_subtitle", StepStatus.RUNNING)
-        await self._emit("audio_subtitle", "running", "生成旁白和字幕...", 0.60)
+        await self._emit("audio_subtitle", "running", "Generating narration and subtitles...", 0.60)
 
         await self._step_audio_subtitle(paragraphs, audio_config)
 
         self.task_manager.update_state(paragraphs=paragraphs)
         self.task_manager.update_step("step_audio_subtitle", StepStatus.COMPLETED)
-        await self._emit("audio_subtitle", "completed", "旁白和字幕已生成", 0.80)
+        await self._emit("audio_subtitle", "completed", "Narration and subtitles have been generated", 0.80)
 
     async def _run_step_concatenate(
         self,
         paragraphs: List[ManuscriptParagraph],
         audio_config: AudioConfig,
     ) -> str:
-        """运行 Step 5: 视频拼接，带 resume 支持。"""
+        """Runs Step 5: Video concatenation, with resume support."""
+        assert self._state is not None
         if self._state.step_concatenation == StepStatus.COMPLETED:
             logger.info("[Manuscript] Step 5 (concatenation): already completed, resuming")
             if self._state.final_video_file:
                 return self._state.final_video_file
 
         self.task_manager.update_step("step_concatenation", StepStatus.RUNNING)
-        await self._emit("concatenate", "running", "拼接最终视频...", 0.80)
+        await self._emit("concatenate", "running", "Concatenating final video...", 0.80)
 
         final_video = await self._step_concatenate(paragraphs, audio_config)
 
         self.task_manager.update_state(final_video_file=final_video)
         self.task_manager.update_step("step_concatenation", StepStatus.COMPLETED)
-        await self._emit("concatenate", "completed", "视频拼接完成", 0.95)
+        await self._emit("concatenate", "completed", "Video concatenation completed", 0.95)
         return final_video
 
     # ------------------------------------------------------------------
@@ -248,20 +256,21 @@ class ManuscriptVideoPipeline(BasePipeline):
     # ------------------------------------------------------------------
 
     def _step_split_text(self, text: str) -> List[ManuscriptParagraph]:
-        """将长文本按朗读时长拆分为段落列表。
+        """Splits long text into paragraph list by reading duration.
 
-        拆分策略:
-            1. 先按换行符 (``\\n``) 切分为粗段落。
-            2. 每个粗段落再按中文句末标点 (``。！？``) 切分为候选句。
-            3. 对候选句进行贪心合并：累积时长 <= 12s，最短 >= 5s。
-            4. 短句 (< 5s) 合并到前一个段落；长句 (> 12s) 保持原样不拆分。
+        Splitting strategy:
+            1. First split into raw blocks by newline character (``\n``).
+            2. Split each block further by Chinese sentence-ending punctuation (``。！？``) into candidate sentences.
+            3. Perform greedy merging on candidate sentences: accumulated duration <= 12s, minimum >= 5s.
+            4. Short sentences (< 5s) are merged into the previous paragraph; long sentences (> 12s) are kept as-is (not split).
 
         Args:
-            text: 用户输入的稿件原文。
+            text: Original manuscript text input by user.
 
         Returns:
-            带 ``index``、``text`` 和估算时长的段落列表。
+            List of paragraphs with ``index``, ``text`` and estimated duration.
         """
+        assert self._state is not None
         # Resume: if paragraphs already populated, return them directly.
         if self._state.paragraphs:
             logger.info(
@@ -351,13 +360,13 @@ class ManuscriptVideoPipeline(BasePipeline):
     async def _step_generate_scene_prompts(
         self, paragraphs: List[ManuscriptParagraph],
     ) -> None:
-        """为每个段落生成英文视频场景描述 prompt。
+        """Generates English video scene description prompt for each paragraph.
 
-        调用 ``Screenwriter.generate_scene_prompt_for_paragraph(text, style)``
-        将中文段落文本转换为适合 AI 视频生成的英文 prompt。
+        Calls ``Screenwriter.generate_scene_prompt_for_paragraph(text, style)``
+        to convert Chinese paragraph text into English prompt suitable for AI video generation.
 
         Args:
-            paragraphs: 段落列表（就地修改 ``scene_prompt`` 字段）。
+            paragraphs: List of paragraphs (modifies ``scene_prompt`` field in-place).
         """
         total = len(paragraphs)
         for i, para in enumerate(paragraphs):
@@ -377,7 +386,7 @@ class ManuscriptVideoPipeline(BasePipeline):
             )
             await self._emit(
                 "scene_prompts", "running",
-                f"生成场景描述 {i + 1}/{total}",
+                f"Generating scene description {i + 1}/{total}",
                 0.05 + 0.10 * (i / max(total, 1)),
             )
 
@@ -429,22 +438,23 @@ class ManuscriptVideoPipeline(BasePipeline):
     async def _step_generate_videos(
         self, paragraphs: List[ManuscriptParagraph],
     ) -> None:
-        """为每个段落调用 Agnes Video API 生成视频（两阶段并行）。
+        """Calls Agnes Video API to generate video for each paragraph (two-stage parallel).
 
-        Phase 1: 批量提交所有视频请求（服务端并行生成）。
-        Phase 2: 逐个轮询等待完成并下载。
+        Phase 1: Batch submit all video requests (parallel generation on the server).
+        Phase 2: Poll one by one, wait for completion, and download.
 
-        每段视频保存到 ``{working_dir}/para_{index}/video.mp4``，
-        同时记录 video_id 和 curl 命令到 ``task.json`` / ``curl.sh``。
+        Each video is saved to ``{working_dir}/para_{index}/video.mp4``,
+        and the video_id and curl command are recorded to ``task.json`` / ``curl.sh``.
 
         Args:
-            paragraphs: 段落列表（就地修改 ``video_file``、``video_id`` 字段）。
+            paragraphs: List of paragraphs (modifies ``video_file``, ``video_id`` fields in-place).
         """
+        assert self._state is not None
         _SUBMIT_RETRIES = 3
         _WAIT_RETRIES = 3
         total = len(paragraphs)
 
-        # ── Phase 1: 批量提交 ────────────────────────────────────────────
+        # ── Phase 1: Batch Submit ────────────────────────────────────────────
         pending: list[tuple[int, str, str]] = []  # (para_index, video_id, video_path)
 
         for i, para in enumerate(paragraphs):
@@ -453,7 +463,7 @@ class ManuscriptVideoPipeline(BasePipeline):
             para_dir = os.path.join(self.working_dir, f"para_{para.index}")
             video_path = os.path.join(para_dir, "video.mp4")
 
-            # 已有视频文件 → 跳过
+            # Existing video file → skip
             if os.path.exists(video_path):
                 para.video_file = video_path
                 logger.info(
@@ -471,7 +481,7 @@ class ManuscriptVideoPipeline(BasePipeline):
 
             os.makedirs(para_dir, exist_ok=True)
 
-            # 续传：复用已提交的 video_id
+            # Resume: reuse submitted video_id
             saved_video_id = self._load_para_task(para_dir)
             if saved_video_id:
                 para.video_id = saved_video_id
@@ -482,18 +492,18 @@ class ManuscriptVideoPipeline(BasePipeline):
                 pending.append((para.index, saved_video_id, video_path))
                 continue
 
-            # 提交新视频
+            # Submit new video
             logger.info(
                 "[Manuscript] video: submitting paragraph %d/%d...",
                 i + 1, total,
             )
             await self._emit(
                 "video_gen", "running",
-                f"提交视频 {i + 1}/{total}",
+                f"Submitting video {i + 1}/{total}",
                 0.15 + 0.20 * (i / max(total, 1)),
             )
 
-            para_duration = max(int(math.ceil(len(para.text) / _CHARS_PER_SEC)), 3)
+            para_duration = max(math.ceil(len(para.text) / _CHARS_PER_SEC), 3)
             logger.info(
                 "[Manuscript] video: paragraph %d estimated duration %.1fs (chars=%d)",
                 para.index, para_duration, len(para.text),
@@ -523,21 +533,21 @@ class ManuscriptVideoPipeline(BasePipeline):
                     else:
                         raise
 
-        # 提交完毕后持久化（断点续传可恢复 video_id）
+        # Persist after submission (resume can recover video_id)
         self.task_manager.update_state(paragraphs=paragraphs)
         logger.info(
             "[Manuscript] video: all %d paragraphs submitted, now waiting...",
             len(pending),
         )
 
-        # ── Phase 2: 逐个等待完成 ────────────────────────────────────────
+        # ── Phase 2: Poll one by one ────────────────────────────────────────
         for j, (para_idx, video_id, video_path) in enumerate(pending):
             self._check_shutdown()
 
             para = paragraphs[para_idx]
             await self._emit(
                 "video_gen", "running",
-                f"等待视频 {j + 1}/{len(pending)} ({video_id[:16]}...)",
+                f"Waiting for video {j + 1}/{len(pending)} ({video_id[:16]}...)",
                 0.35 + 0.25 * (j / max(len(pending), 1)),
             )
 
@@ -570,19 +580,20 @@ class ManuscriptVideoPipeline(BasePipeline):
         paragraphs: List[ManuscriptParagraph],
         audio_config: AudioConfig,
     ) -> None:
-        """生成**整段连续 TTS 音频 + 整段 SRT 字幕**。
+        """Generates **entire continuous TTS audio + entire SRT subtitles**.
 
-        将所有段落文本拼接成一篇完整稿件 → 单次 edge_tts 调用 →
-        一条连贯音频 + 一个 ``SubMaker``（含全篇词级时间戳）→ 一个 SRT。
+        Concatenates all paragraph text into a single manuscript → single edge_tts call →
+        one continuous audio + one ``SubMaker`` (containing word-level timestamps) → one SRT.
 
-        后续拼接步骤（:meth:`_step_concatenate`）只需把整段视频与
-        这条音频+字幕做一次叠加，既避免逐段合成带来的 padding 累积，
-        也确保字幕时间轴与音频精准同步。
+        Subsequent concatenation step (:meth:`_step_concatenate`) only needs to overlay the final concatenated video
+        with this audio + subtitles once, avoiding padding accumulation from segment-by-segment synthesis,
+        and ensuring subtitle timeline matches audio perfectly.
 
         Args:
-            paragraphs: 段落列表（用于拼接全文）。
-            audio_config: 音频和字幕配置。
+            paragraphs: List of paragraphs (used to concatenate full text).
+            audio_config: Audio and subtitle configuration.
         """
+        assert self._state is not None
         full_text = "\n\n".join(p.text for p in paragraphs if p.text)
         if not full_text:
             logger.warning("[Manuscript] audio_subtitle: empty full text, skipping")
@@ -603,7 +614,7 @@ class ManuscriptVideoPipeline(BasePipeline):
 
         await self._emit(
             "audio_subtitle", "running",
-            f"生成整段旁白+字幕 ({len(full_text)} 字)...",
+            f"Generating narration + subtitles ({len(full_text)} chars)...",
             0.60,
         )
 
@@ -638,21 +649,22 @@ class ManuscriptVideoPipeline(BasePipeline):
         paragraphs: List[ManuscriptParagraph],
         audio_config: AudioConfig,
     ) -> str:
-        """先拼接所有段落视频，再统一叠加整段音频 + 整段字幕。
+        """Concatenates all paragraph videos first, then overlays the entire audio + entire subtitles.
 
-        不再逐段 ``_synthesize_single``（避免 padding 累积），
-        而是参考 MoneyPrinterTurbo 方案：
-        1. 把所有视频按段落顺序拼接成一条完整时间轴
-        2. 挂载整段 ``combined_audio``（全稿 TTS）
-        3. 叠加整段 ``combined_subtitle``（全稿 SRT，时间轴对齐音频）
+        No longer synthesizes segment-by-segment via ``_synthesize_single`` (to avoid padding accumulation),
+        but references the MoneyPrinterTurbo approach:
+        1. Concatenate all videos by paragraph order into a single complete timeline.
+        2. Attach the entire ``combined_audio`` (full TTS).
+        3. Overlay the entire ``combined_subtitle`` (full SRT, aligned with audio timeline).
 
         Args:
-            paragraphs: 已完成视频生成的段落列表。
-            audio_config: 音频和字幕样式配置。
+            paragraphs: Paragraph list with completed video generation.
+            audio_config: Audio and subtitle style configuration.
 
         Returns:
-            最终输出视频的文件路径。
+            File path of the final output video.
         """
+        assert self._state is not None
         output_path = os.path.join(self.working_dir, "final_video.mp4")
 
         if os.path.exists(output_path):
@@ -670,7 +682,7 @@ class ManuscriptVideoPipeline(BasePipeline):
             "[Manuscript] concatenate: %d videos + combined audio + subtitles → %s",
             len(video_paths), output_path,
         )
-        await self._emit("concatenate", "running", f"拼接 {len(video_paths)} 段视频+音频+字幕...", 0.80)
+        await self._emit("concatenate", "running", f"Concatenating {len(video_paths)} video segments + audio + subtitles...", 0.80)
 
         VideoConcatenator.concat_videos_with_audio_overlay(
             video_paths=video_paths,
@@ -688,10 +700,10 @@ class ManuscriptVideoPipeline(BasePipeline):
     # ------------------------------------------------------------------
 
     def _check_shutdown(self) -> None:
-        """检查是否需要停止流水线。
+        """Checks if pipeline needs to stop.
 
         Raises:
-            PipelineShutdown: 如果收到停止信号。
+            PipelineShutdown: If stop signal is received.
         """
         if self._is_shutdown():
             raise PipelineShutdown("Pipeline shutdown requested")

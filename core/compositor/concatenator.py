@@ -1,6 +1,6 @@
-"""core.compositor.concatenator — 视频拼接器
+"""core.compositor.concatenator — Video concatenator
 
-支持纯视频拼接和带音频字幕的拼接。
+Supports pure video concatenation and concatenation with audio overlay and subtitles.
 """
 
 import logging
@@ -15,7 +15,7 @@ from models.task import SubtitleStyle
 
 logger = logging.getLogger(__name__)
 
-# ── 视频输出常量（对齐 MoneyPrinterTurbo，确保播放器兼容性）──
+# ── Video output constants (aligned with MoneyPrinterTurbo to ensure player compatibility) ──
 _AUDIO_CODEC = "aac"
 _AUDIO_BITRATE = "192k"
 _AUDIO_FPS = 44100
@@ -23,18 +23,18 @@ _VIDEO_FPS = 30
 
 
 class VideoConcatenator:
-    """视频拼接器：纯拼接 + 带音频合成拼接。"""
+    """Video concatenator: pure concatenation + audio synthesis concatenation."""
 
     @staticmethod
     def concat_videos(video_paths: List[str], output_path: str) -> str:
-        """纯视频拼接（无音频处理）。
+        """Pure video concatenation (no audio processing).
 
         Args:
-            video_paths: 视频文件路径列表
-            output_path: 输出文件路径
+            video_paths: List of video file paths
+            output_path: Output file path
 
         Returns:
-            输出文件路径
+            Output file path
         """
         logger.info(f"[Compositor] Concatenating {len(video_paths)} videos → {output_path}")
         os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
@@ -72,17 +72,17 @@ class VideoConcatenator:
         output_path: str,
         subtitle_style: Optional[SubtitleStyle] = None,
     ) -> str:
-        """带音频合成的视频拼接。
+        """Video concatenation with audio synthesis.
 
-        每段视频先与音频 + 字幕合成，再整体拼接。
+        Each segment of video is first synthesized with audio + subtitles, then combined together.
 
         Args:
             clip_tuples: [(video_path, audio_path, srt_path_or_None), ...]
-            output_path: 最终输出文件路径
-            subtitle_style: 字幕样式配置
+            output_path: Final output file path
+            subtitle_style: Subtitle style configuration
 
         Returns:
-            输出文件路径
+            Output file path
         """
         logger.info(f"[Compositor] concat_with_audio: {len(clip_tuples)} segments → {output_path}")
         os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
@@ -103,7 +103,7 @@ class VideoConcatenator:
             )
             synthesized_paths.append(synthesized)
 
-        # 拼接所有合成片段
+        # Concatenate all synthesized segments
         if len(synthesized_paths) == 1:
             shutil.copy2(synthesized_paths[0], output_path)
         else:
@@ -114,7 +114,7 @@ class VideoConcatenator:
 
     @staticmethod
     def _resolve_subtitle_position(pos, default=("center", "bottom")) -> tuple:
-        """将字幕位置配置归一化为 (horizontal, vertical) 元组。"""
+        """Normalizes subtitle position configuration into a (horizontal, vertical) tuple."""
         if isinstance(pos, (list, tuple)) and len(pos) == 2:
             h, v = pos[0], pos[1]
             if isinstance(v, str):
@@ -141,14 +141,14 @@ class VideoConcatenator:
         subtitle_style: SubtitleStyle,
         video_width: int,
     ) -> list:
-        """逐条解析 SRT，返回 TextClip 列表（支持多行自动换行）。"""
+        """Parses SRT line-by-line, returning a list of TextClips (supporting automatic multi-line wrapping)."""
         from moviepy import TextClip as MpTextClip
         from core.config import resolve_font_path
         from core.audio.subtitle import SubtitleGenerator
 
         font_path = resolve_font_path(subtitle_style.font)
 
-        # 兼容旧格式 bg_color 字符串
+        # Compatible with old format bg_color strings
         bg = subtitle_style.bg_color
         if isinstance(bg, str):
             if "@" in bg:
@@ -158,7 +158,7 @@ class VideoConcatenator:
             else:
                 bg = (0, 0, 0, 128)
 
-        # 根据视频宽度动态计算每行最大字符数（与 subtitle.py 一致）
+        # Dynamically calculate max characters per line based on video width (consistent with subtitle.py)
         available_w = video_width - 40
         cjk_max_chars = max(8, available_w // subtitle_style.fontsize)
 
@@ -170,7 +170,7 @@ class VideoConcatenator:
                 end_s = sub.end.total_seconds()
                 dur = end_s - start_s
 
-                # 长文本自动拆为多行，避免单行溢出屏幕
+                # Long text is automatically split into multiple lines to avoid screen overflow
                 wrapped = SubtitleGenerator._split_long_text(txt, cjk_max_chars)
 
                 clip = MpTextClip(
@@ -204,20 +204,20 @@ class VideoConcatenator:
         output_path: str,
         subtitle_style: Optional[SubtitleStyle] = None,
     ) -> str:
-        """先拼接视频，再统一叠加单条音频 + 单条字幕。
+        """Concatenates videos first, then overlays a single audio track + single subtitle track.
 
-        MoneyPrinterTurbo 方案：不按片段做逐段合成（避免 padding 累积），
-        而是先把所有视频拼成完整时间轴，再把音频和字幕作为一个整体叠加上去。
+        MoneyPrinterTurbo strategy: does not synthesize segment-by-segment (to avoid padding accumulation),
+        but first concatenates all videos into a complete timeline, then overlays audio and subtitles as a whole.
 
         Args:
-            video_paths: 按顺序的视频路径列表。
-            audio_path: 整段音频文件路径（对应全部视频的总时间轴）。
-            srt_path: 整段 SRT 字幕路径（可选）。
-            output_path: 最终输出文件路径。
-            subtitle_style: 字幕样式配置。
+            video_paths: List of video paths in order.
+            audio_path: Entire audio file path (corresponding to the total timeline of all videos).
+            srt_path: Entire SRT subtitle path (optional).
+            output_path: Final output file path.
+            subtitle_style: Subtitle style configuration.
 
         Returns:
-            输出文件路径。
+            Output file path.
         """
         logger.info(
             f"[Compositor] concat_videos_with_audio_overlay: "
@@ -234,29 +234,31 @@ class VideoConcatenator:
         audio_clip = None
 
         try:
-            # ── Step 1: 拼接所有视频 ──────────────────────────────────────
+            # ── Step 1: Concatenate all videos ────────────────────────────
             VideoConcatenator.concat_videos(video_paths, naked_path)
 
-            # ── Step 2: 加载拼接视频 + 音频 ────────────────────────────────
+            # ── Step 2: Load concatenated video + audio ────────────────────
             video_clip = VideoFileClip(naked_path)
             audio_clip = AudioFileClip(audio_path)
 
-            # ── Step 2.5: 提升音频音量（TTS 默认音量偏低）────────────────
+            # ── Step 2.5: Boost audio volume (TTS default volume is low) ──
             _AUDIO_VOLUME_FACTOR = 2.5
             audio_clip = audio_clip.with_volume_scaled(_AUDIO_VOLUME_FACTOR)
 
-            # ── Step 3: 若音频比视频长，冻结尾帧补齐 ─────────────────────
-            if video_clip.duration < audio_clip.duration:
-                freeze_duration = audio_clip.duration - video_clip.duration
+            # ── Step 3: If audio is longer than video, freeze last frame to pad ──
+            v_dur = video_clip.duration if video_clip.duration is not None else 0.0
+            a_dur = audio_clip.duration if audio_clip.duration is not None else 0.0
+            if v_dur < a_dur:
+                freeze_duration = a_dur - v_dur
                 from core.compositor.processor import VideoProcessor
                 VideoProcessor.freeze_last_frame(naked_path, freeze_duration, freeze_path)
                 video_clip.close()
                 video_clip = VideoFileClip(freeze_path)
 
-            # ── Step 4: 叠加音频 ──────────────────────────────────────────
+            # ── Step 4: Overlay audio ─────────────────────────────────────
             video_with_audio = video_clip.with_audio(audio_clip)
 
-            # ── Step 5: 叠加字幕 ──────────────────────────────────────────
+            # ── Step 5: Overlay subtitles ─────────────────────────────────
             if srt_path and os.path.exists(srt_path) and subtitle_style:
                 try:
                     subs_clips = VideoConcatenator._parse_srt_to_clips(
@@ -330,17 +332,17 @@ class VideoConcatenator:
         output_path: str,
         subtitle_style: Optional[SubtitleStyle] = None,
     ) -> str:
-        """合成单段视频 + 音频 + 字幕。
+        """Synthesizes a single segment of video + audio + subtitles.
 
         Args:
-            video_path: 视频文件路径
-            audio_path: 音频文件路径
-            srt_path: SRT 字幕路径（可选）
-            output_path: 输出路径
-            subtitle_style: 字幕样式
+            video_path: Video file path
+            audio_path: Audio file path
+            srt_path: SRT subtitle path (optional)
+            output_path: Output path
+            subtitle_style: Subtitle style configuration
 
         Returns:
-            输出路径
+            Output path
         """
         logger.info(f"[Compositor] Synthesizing: {video_path} + {audio_path}")
         os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
@@ -353,22 +355,24 @@ class VideoConcatenator:
             video_clip = VideoFileClip(video_path)
             audio_clip = AudioFileClip(audio_path)
 
-            # 提升音频音量（TTS 默认音量偏低）
+            # Boost audio volume (TTS default volume is low)
             _AUDIO_VOLUME_FACTOR = 2.5
             audio_clip = audio_clip.with_volume_scaled(_AUDIO_VOLUME_FACTOR)
 
-            # 若音频比视频长，冻结最后一帧补齐
-            if video_clip.duration < audio_clip.duration:
-                freeze_duration = audio_clip.duration - video_clip.duration
+            # If audio is longer than video, freeze the last frame to pad
+            v_dur = video_clip.duration if video_clip.duration is not None else 0.0
+            a_dur = audio_clip.duration if audio_clip.duration is not None else 0.0
+            if v_dur < a_dur:
+                freeze_duration = a_dur - v_dur
                 from core.compositor.processor import VideoProcessor
                 VideoProcessor.freeze_last_frame(video_path, freeze_duration, freeze_path)
                 video_clip.close()
                 video_clip = VideoFileClip(freeze_path)
 
-            # 合成音频
+            # Synthesize audio
             video_with_audio = video_clip.with_audio(audio_clip)
 
-            # 叠加字幕
+            # Overlay subtitles
             if srt_path and os.path.exists(srt_path) and subtitle_style:
                 try:
                     subs_clips = VideoConcatenator._parse_srt_to_clips(

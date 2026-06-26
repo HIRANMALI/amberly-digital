@@ -1,222 +1,220 @@
-# Agnes Video Generator v2.0 大规模改造 PRD
+# Agnes Video Generator v2.0 Large-Scale Refactoring PRD
 
-> **当前阶段**：📦 已归档 — v2.0 开发已全部完成
-> **配套文档**：`AGENTS.md`（开发规范）、`docs/system_design.md`（架构设计）
+> **Current Phase**: 📦 Archived — v2.0 development is fully completed
+> **Companion Documents**: `AGENTS.md` (Development Guidelines), `docs/system_design.md` (Architecture Design)
 
-## 项目信息
+## Project Information
 
-| 属性 | 值 |
+| Attribute | Value |
 |------|-----|
-| **Language** | 中文 (zh-CN) |
-| **Programming Language** | Python FastAPI + 原生 HTML/CSS/JS + Tailwind CSS CDN |
+| **Language** | English (en-US) |
+| **Programming Language** | Python FastAPI + Native HTML/CSS/JS + Tailwind CSS CDN |
 | **Project Name** | `agnes_video_generator` |
-| **原始需求** | 在现有"创意长视频生成"基础上，新增"简单视频生成"和"稿件长视频生成"两种任务类型，并引入基于 edge_tts 的免费旁白音频 + 字幕能力，同时完成代码分层重构。 |
+| **Original Requirement** | On top of the existing "Creative Video Generation" feature, add two new task types: "Simple Video Generation" and "Manuscript Video Generation". Introduce free voiceover narration + subtitle capabilities based on edge_tts, and complete code layered refactoring. |
 
 ---
 
-## 1. 产品目标
+## 1. Product Goals
 
-1. **三种任务类型统一入口**：用户可在一个页面上选择「简单视频」「创意长视频」「稿件长视频」三种模式，按需配置参数并生成视频，互不干扰。
-2. **免费旁白音频 + 字幕能力**：基于 edge_tts（免费，无需 API Key）为视频自动生成配音旁白和同步字幕，字幕样式可轻度自定义，覆盖创意长视频和稿件长视频两种场景。
-3. **代码分层架构重构**：将现有紧耦合代码拆分为 `core/api/`、`core/compositor/`、`core/audio/`、`core/pipelines/` 四层，确保通用组件可复用、各 Pipeline 互不影响。
-
----
-
-## 2. 用户故事
-
-### 类型 1：简单视频生成
-
-- **US1-1**：作为普通用户，我只需输入一段 prompt，选择「文生视频」模式，设置时长和分辨率，点击生成，就能快速得到一个 AI 视频，无需关心故事编剧等复杂流程。
-- **US1-2**：作为进阶用户，我可以在「图生视频」模式中上传一张参考图，Agnes 模型基于该图 + prompt 生成视频；也可以在「关键帧」模式中上传首帧和尾帧两张图来控制视频的运动轨迹。
-
-### 类型 2：创意长视频生成（现有功能增强）
-
-- **US2-1**：作为内容创作者，我在现有的"创意 → 故事 → 场景 → 视频"流程中，生成完视频后系统自动为每段视频配上 AI 旁白音频和字幕，最终得到一个带配音的完整故事视频。
-- **US2-2**：作为有定制需求的内容创作者，我可以选择旁白语音角色（如"温柔女声 Xiaoxiao"或"沉稳男声 Yunyang"），并调整字幕样式（字体颜色、大小、位置）以匹配我的视频风格。
-
-### 类型 3：稿件长视频生成
-
-- **US3-1**：作为自媒体运营者，我粘贴一篇文章（如公众号文章、新闻稿），系统自动拆分成多段，每段生成对应的视频画面，并配上原文朗读旁白 + 同步字幕，快速将文字内容转化为视频。
-- **US3-2**：作为视频编辑，我可以在"连续模式"下让多段视频共用同一角色/场景（keyframes 串联），确保视觉连续性；也可以在"独立模式"下让每段视频拥有不同的视觉风格。
+1. **Unified Entry for Three Task Types**: Users can select from "Simple Video", "Creative Long Video", and "Manuscript Long Video" modes on a single page, configure parameters, and generate videos independently.
+2. **Free Narration Audio + Subtitles**: Auto-generate voiceover narration and synced subtitles for videos based on edge_tts (free, no API Key required). Support subtitle style customization, covering both Creative Video and Manuscript Video scenarios.
+3. **Layered Code Architecture Refactoring**: Split tightly coupled code into four layers: `core/api/`, `core/compositor/`, `core/audio/`, and `core/pipelines/`. Ensure common components are reusable and pipelines operate independently.
 
 ---
 
-## 3. 需求池
+## 2. User Stories
 
-### P0 — 核心需求（Must have，必须实现）
+### Type 1: Simple Video Generation
 
-| ID | 需求 | 说明 |
+- **US1-1**: As a general user, I want to input a prompt, select "Text-to-Video" mode, set the duration and resolution, and click generate to quickly get an AI video without needing complex workflows like story writing.
+- **US1-2**: As an advanced user, I want to upload a reference image in "Image-to-Video" mode, where the Agnes model generates a video based on that image + my prompt; or upload both a start frame and an end frame in "Keyframes" mode to control the video's motion trajectory.
+
+### Type 2: Creative Video Generation (Existing Feature Enhancement)
+
+- **US2-1**: As a content creator, during the existing "idea → story → script → scenes → video" workflow, the system should automatically generate AI voiceover narration and subtitles for each video segment after video generation, resulting in a complete story video with narration.
+- **US2-2**: As a content creator with custom needs, I want to select different voice roles (e.g., "Gentle Female - Xiaoxiao" or "Steady Male - Yunyang") and adjust subtitle styles (font color, size, position) to match my video's theme.
+
+### Type 3: Manuscript Video Generation
+
+- **US3-1**: As a media operator, I want to paste an article, and have the system automatically split it into segments, generate corresponding video frames for each, and overlay narration read directly from the original text + synced subtitles, quickly converting text to video.
+- **US3-2**: As a video editor, I want to allow multiple video segments to share a single character/scene in "Chaining Mode" (keyframes chaining) to ensure visual continuity; or choose "Independent Mode" so each segment has a different visual style.
+
+---
+
+## 3. Product Backlog
+
+### P0 — Core Requirements (Must have)
+
+| ID | Feature | Description |
 |----|------|------|
-| P0-1 | **简单视频生成 Pipeline** | 创建 `SimpleVideoPipeline`：用户输入 prompt → 选择模式（t2v / i2v / keyframes）→ 调用 Agnes video API → 返回视频。复用现有 `video_generator.py` 的 `generate_single_video()` 方法。 |
-| P0-2 | **稿件长视频生成 Pipeline** | 创建 `ArticleVideoPipeline`：长文本 → AI 拆段 → 每段生成视频 prompt → 调用 video API → 拼接。支持"连续场景"和"独立场景"两种模式。 |
-| P0-3 | **edge_tts 旁白音频生成** | 迁移 MoneyPrinterTurbo 中 edge_tts 免费方案到 `core/audio/tts.py`：支持 Azure Edge TTS v1（免费），含语速调节、多语音角色选择。 |
-| P0-4 | **SRT 字幕生成与叠加** | 迁移字幕逻辑到 `core/audio/subtitle.py`：基于 edge_tts cues 自动生成 SRT 字幕，通过 moviepy SubtitlesClip 叠加到视频。 |
-| P0-5 | **创意长视频音频集成** | 现有 `VideoPipeline` 在视频生成后增加音频+字幕步骤：每段视频先生成 TTS 音频和字幕 → moviepy 合成 → 整体拼接。 |
-| P0-6 | **代码分层重构（API 层 + 拼接层）** | 将 `image_generator.py` → `core/api/image_api.py`，`video_generator.py` → `core/api/video_api.py`；将拼接逻辑从 pipeline 中提取到 `core/compositor/compositor.py`。 |
-| P0-7 | **前端任务类型切换** | 将现有单页面改为三种任务类型的 Tab/选择器，每种类型展示不同的配置表单。 |
+| P0-1 | **Simple Video Generation Pipeline** | Create `SimpleVideoPipeline`: User inputs prompt → selects mode (t2v / i2v / keyframes) → calls Agnes video API → returns video. Reuses the `generate_single_video()` logic in `video_generator.py`. |
+| P0-2 | **Manuscript Video Generation Pipeline** | Create `ArticleVideoPipeline` (ManuscriptVideoPipeline): Long text → AI split → segment prompt generation → video API call → concatenation. Supports "Chaining" and "Independent" scene modes. |
+| P0-3 | **edge_tts Narration Generation** | Migrate edge_tts free solution from MoneyPrinterTurbo to `core/audio/tts.py`: supports Azure Edge TTS v1 (free), including speech rate adjustment and multiple voice role options. |
+| P0-4 | **SRT Subtitle Generation & Overlay** | Migrate subtitle logic to `core/audio/subtitle.py`: automatically generate SRT subtitles from edge_tts cues, overlay onto video using moviepy SubtitlesClip. |
+| P0-5 | **Creative Video Audio Integration** | Add audio + subtitle synthesis step to existing `VideoPipeline` after video generation: generate TTS audio and subtitles for each scene → merge with moviepy → concatenate. |
+| P0-6 | **Code Layered Refactoring (API & Compositor)** | Migrate `image_generator.py` → `core/api/agnes_image.py`, `video_generator.py` → `core/api/agnes_video.py`; extract concatenation logic from pipelines to `core/compositor/concatenator.py`. |
+| P0-7 | **Frontend Task Type Switcher** | Change the single-page layout to a Tab structure supporting three task types, displaying distinct configuration forms for each. |
 
-### P1 — 重要需求（Should have，应该实现）
+### P1 — Important Requirements (Should have)
 
-| ID | 需求 | 说明 |
+| ID | Feature | Description |
 |----|------|------|
-| P1-1 | **旁白语音角色选择** | 创意长视频和稿件长视频中，用户可选择 edge_tts 中文语音角色（zh-CN-XiaoxiaoNeural / YunyangNeural / XiaoyiNeural / YunxiNeural 等）。 |
-| P1-2 | **字幕样式配置** | 支持用户调整字幕字体、字号、颜色、位置（底部/顶部）、描边颜色。 |
-| P1-3 | **稿件长视频 - 连续场景模式** | 稿件被拆分后，按 keyframes 模式串联：首段生成角色参考图 → 每段首帧 = 前段尾帧 → 保证视觉连续性。 |
-| P1-4 | **音频+字幕先合成再拼接** | 每段视频先生成音频+字幕并单独合成（video + audio + subtitle → output_segment.mp4），再整体拼接。确保音视频同步。 |
-| P1-5 | **无配音模式（静音占位）** | 用户可选择"不配音"，系统生成静音音频作为时间轴驱动字幕显示，字幕仍可正常叠加。 |
-| P1-6 | **视频略长于音频** | 稿件模式下每段视频时长比音频多 1-2 秒，避免旁白结束时画面突然截断。 |
+| P1-1 | **Narration Voice Role Selection** | In Creative and Manuscript modes, users can select from edge_tts Chinese voice roles (zh-CN-XiaoxiaoNeural, YunyangNeural, XiaoyiNeural, YunxiNeural, etc.). |
+| P1-2 | **Subtitle Style Configuration** | Support adjusting subtitle font, size, color, position (bottom/top), stroke color, and stroke width. |
+| P1-3 | **Manuscript - Chaining Mode** | After splitting text, chain scenes using keyframes mode: generate reference image for the first segment → first frame of segment N = end frame of segment N-1 → ensure visual continuity. |
+| P1-4 | **Pre-concatenate Audio + Subtitles per Clip** | Generate audio + subtitles for each scene segment and composite them (video + audio + subtitle → output_segment.mp4), then concatenate them to ensure sync. |
+| P1-5 | **Silent Narration Mode (Mute Placeholder)** | Users can choose "No Voiceover". The system generates silent audio as a timeline to drive subtitle display so subtitles still render properly. |
+| P1-6 | **Video Padded for Audio Duration** | In manuscript mode, ensure each video clip duration is 1-2 seconds longer than its narration audio to prevent abrupt video truncation at narration end. |
 
-### P2 — 锦上添花（Nice to have，有余力则做）
+### P2 — Nice to Have (Nice to have)
 
-| ID | 需求 | 说明 |
+| ID | Feature | Description |
 |----|------|------|
-| P2-1 | **字幕样式实时预览** | 用户调整字幕样式时提供静态预览图。 |
-| P2-2 | **多语言 TTS 支持** | 扩展 edge_tts 语音角色列表，支持英文、日文、韩文等更多语言。 |
-| P2-3 | **稿件文本格式保留** | 支持从富文本/Markdown 粘贴，自动清洗格式后拆段。 |
-| P2-4 | **视频生成进度优化** | 简单视频模式下，轮询期间展示预估剩余时间。 |
+| P2-1 | **Real-Time Subtitle Preview** | Provide static preview images when users adjust subtitle styling. |
+| P2-2 | **Multilingual TTS Support** | Expand the edge_tts voice role list to support English, Japanese, Korean, and other languages. |
+| P2-3 | **Retain Manuscript Format** | Support pasting rich text/Markdown, automatically cleaning format before splitting segments. |
+| P2-4 | **Video Generation Progress Optimization** | In simple video mode, display estimated remaining time during polling. |
 
 ---
 
-## 4. UI 设计概要
+## 4. UI Design Overview
 
-### 整体布局（原生 HTML，单页应用）
+### Overall Layout (Native HTML, Single Page App)
 
 ```
 ┌─────────────────────────────────────────────────┐
-│  Header: Agnes Video Generator 标题 + 语言选择  │
+│  Header: Agnes Video Generator Title + Lang      │
 ├─────────────────────────────────────────────────┤
-│  API Key 配置栏（复用现有）                      │
+│  API Key Configuration Area (Shared)             │
 ├─────────────────────────────────────────────────┤
 │  ┌─────────────┬─────────────┬─────────────┐    │
-│  │ 🎬 简单视频  │ 🎥 创意长视频 │ 📝 稿件长视频│    │
-│  │   (新增)    │   (现有)    │   (新增)    │    │
+│  │ 🎬 Simple    │ 🎥 Creative │ 📝 Manuscript│    │
+│  │   Video     │   Video     │   Video     │    │
 │  └─────────────┴─────────────┴─────────────┘    │
-│  ←── 三种任务类型的 Tab 切换（选中高亮紫色）──→  │
+│  ←── Three Task Type Tabs (Active highlighted) ──→  │
 ├─────────────────────────────────────────────────┤
-│  根据所选 Tab 显示不同的配置表单：              │
+│  Display different forms depending on active Tab:│
 │                                                 │
-│  [简单视频 Tab]                                 │
-│  • Prompt 输入框                                │
-│  • 模式选择：文生视频 / 图生视频 / 关键帧       │
-│  • 参考图上传区（i2v/keyframes 时显示）         │
-│  • 分辨率选择  • 时长选择（5/10/15/18/20s）     │
-│  • [生成视频] 按钮                              │
+│  [Simple Video Tab]                             │
+│  • Prompt Input                                 │
+│  • Mode Selection: Text2Video / Image2Video /   │
+│    Keyframes                                    │
+│  • Reference Image Upload (if applicable)       │
+│  • Res Choice  • Duration Choice (5/10/15/18/20s)│
+│  • [Generate Video] Button                      │
 │                                                 │
-│  [创意长视频 Tab]（复用现有表单 + 扩展）         │
-│  • 现有所有字段：创意、要求、风格、串联模式等   │
-│  • 新增：旁白语音角色下拉框                      │
-│  • 新增：字幕样式配置（折叠面板，默认隐藏）      │
-│    - 字体 / 字号 / 颜色 / 描边色 / 位置         │
-│  • [生成创意视频] 按钮                          │
+│  [Creative Video Tab]                           │
+│  • Creative Idea, Requirements, Style, Chaining │
+│  • Voiceover Narration toggle & Voice Role      │
+│  • Subtitle Style Customization (Accordion)     │
+│  • [Generate Creative Video] Button             │
 │                                                 │
-│  [稿件长视频 Tab]                               │
-│  • 稿件标题（可选）                             │
-│  • 稿件正文输入框（大 textarea，支持长文本）    │
-│  • 场景模式：连续场景 / 独立场景                │
-│  • 每段时长：5-12 秒选择                        │
-│  • 风格描述（可选）                             │
-│  • 旁白语音角色下拉框                            │
-│  • 字幕样式配置（折叠面板）                      │
-│  • [生成稿件视频] 按钮                          │
+│  [Manuscript Video Tab]                         │
+│  • Manuscript Text Box (Large textarea)         │
+│  • Scene Mode: Chaining / Independent           │
+│  • Segment Duration: 5-12s range                │
+│  • Style Description (Optional)                 │
+│  • Voice Role / Subtitle Configuration          │
+│  • [Generate Manuscript Video] Button           │
 ├─────────────────────────────────────────────────┤
-│  进度展示区域（复用现有 WebSocket 进度条）      │
-│  任务列表 Tab（复用现有）                       │
+│  Progress Display Panel (Shared WS Progress Bar)│
+│  Task History List (Shared)                     │
 └─────────────────────────────────────────────────┘
 ```
 
-### 关键交互说明
+### Key Interactions
 
-- **Tab 切换时**，清空/保留当前表单内容（用户可切换回来继续编辑）
-- **简单视频模式**下不显示音频相关配置（不涉及旁白）
-- **字幕样式配置**默认折叠，点击展开后显示字体、颜色、位置等选项
-- 所有三种模式共享同一个进度展示和 WebSocket 通道
+- **Tab switching** preserves/clears form data per tab (allowing users to switch back and continue editing).
+- **Simple Video mode** does not display narration or subtitle options (no audio processing involved).
+- **Subtitle style configuration** is collapsed by default, expanding to show options like font, color, position, etc.
+- All three modes share the same real-time progress panel and WebSocket communication channel.
 
 ---
 
-## 5. 代码分层架构
+## 5. Layered Code Architecture
 
 ```
 core/
-├── api/                          # API 调用层（通用）
+├── api/                          # API Service Layer (Common)
 │   ├── __init__.py
-│   ├── image_api.py              # 从 image_generator.py 迁移
-│   └── video_api.py              # 从 video_generator.py 迁移
+│   ├── agnes_image.py            # Migrated from image_generator.py
+│   └── agnes_video.py            # Migrated from video_generator.py
 │
-├── audio/                        # 音频字幕层（通用）
+├── audio/                        # Audio & Subtitle Layer (Common)
 │   ├── __init__.py
-│   ├── tts.py                    # edge_tts 调用（迁移自 MoneyPrinterTurbo）
-│   ├── subtitle.py               # 字幕生成 + 叠加（迁移自 MoneyPrinterTurbo）
-│   └── voices.py                 # 语音角色列表
+│   ├── tts.py                    # edge_tts integration
+│   ├── subtitle.py               # SRT subtitle generation & overlay
+│   └── voices.py                 # TTS voice role lists
 │
-├── compositor/                   # 视频拼接层（通用）
+├── compositor/                   # Video Compositing Layer (Common)
 │   ├── __init__.py
-│   └── compositor.py             # 视频拼接、缩放、音频合成
+│   └── concatenator.py           # Video concatenation, audio mixing
 │
-├── pipelines/                    # 业务逻辑层（各 Pipeline 互不影响）
+├── pipelines/                    # Business Pipeline Layer (Independent pipelines)
 │   ├── __init__.py
-│   ├── simple_video.py           # 类型 1：简单视频生成
-│   ├── creative_video.py         # 类型 2：创意长视频（从 pipeline.py 迁入）
-│   └── article_video.py          # 类型 3：稿件长视频生成
+│   ├── simple_video.py           # Pipeline 1: Simple video generation
+│   ├── creative_video.py         # Pipeline 2: Creative video (from pipeline.py)
+│   └── manuscript_video.py       # Pipeline 3: Manuscript video generation
 │
-├── screenwriter.py               # 保留（编剧/脚本生成，创意视频专用）
-├── config.py                     # 保留
-└── task_manager.py               # 保留
+├── screenwriter.py               # Screenplay & Script Generator Agent (Creative Video)
+├── config.py                     # Configuration & defaults
+└── task_manager.py               # Task status and checkpoints persistence
 ```
 
-**分层原则**：
-- `core/api/` 和 `core/audio/` 和 `core/compositor/` 是通用层，所有 Pipeline 共享
-- `core/pipelines/` 是业务层，各 Pipeline 之间不互相引用
-- `screenwriter.py` 仅被 creative_video 和 article_video 使用
+**Architecture Principles**:
+- `core/api/`, `core/audio/`, and `core/compositor/` are common utilities shared by all pipelines.
+- `core/pipelines/` holds the business logic; pipelines do not depend on one another.
+- `screenwriter.py` is shared by Creative and Manuscript pipelines.
 
 ---
 
-## 6. 决策确认（已由用户确认）
+## 6. Key Decisions (Approved by User)
 
-| # | 问题 | 最终决策 |
+| # | Question | Decision |
 |---|------|---------|
-| D1 | 稿件拆段策略 | **按时间估算分段**：预估每句旁白朗读时长，拆为 5-12 秒的段落，但**不拆开完整句子**（以句号为最小不可分割单元）。如一个自然段预估朗读 20 秒，则按句子拆分到两个 ~10 秒的段。 |
-| D2 | 稿件场景 prompt 生成 | 由 AI（Screenwriter）基于每段语义生成场景视频 prompt（英文），**原文直接作为旁白朗读文本 + 字幕内容**，不做额外旁白文本生成。 |
-| D3 | edge_tts 默认语音 | `zh-CN-XiaoxiaoNeural`（年轻女声），同时提供 4 个中文语音角色可选。 |
-| D4 | 字幕样式配置范围 | P1：字体 / 字号 / 颜色 / 位置（底部/顶部）/ 描边色 / 描边宽度 / 背景色（半透明）。P2 后扩展。 |
-| D5 | 简单视频 prompt | 将 Agnes Video API 全部参数暴露为结构化 UI 选项（模式、参考图上传、时长、分辨率、seed、negative_prompt），不依赖单个 prompt 框。**不做 AI 增强**——用户 prompt 直接透传给 video API。 |
-| D6 | 旧任务兼容 | 向后兼容：`TaskManager.load()` 自动将无 `task_type` 字段的旧数据识别为 `CreativeVideoTask`。 |
-| D7 | 视频默认分辨率 | 沿用 768×1152（竖屏 9:16），同时在前端提供 3 种预设可选（竖屏/横屏/方形）。 |
-| D8 | 视频比音频 padding | **≤ 1 秒**。`video_duration = max(audio_duration + 1.0, original_video_duration)`。 |
+| D1 | Manuscript Segmenting Strategy | **Duration-based split**: Estimate narrator duration per sentence (~4 chars/sec), target **5-12 seconds** segments, using punctuation boundaries (periods, question marks) to avoid cutting middle sentences. |
+| D2 | Manuscript Scene Prompting | AI (Screenwriter) generates English scene prompts based on segment content. **The original text is used directly as narration audio + subtitles** (no extra narration rewriting). |
+| D3 | edge_tts Default Voice | `zh-CN-XiaoxiaoNeural` (Young female), with 4 Chinese voice roles selectable. |
+| D4 | Subtitle Customization Scope | P1: Font, size, color, position (top/bottom), stroke color, stroke width, background color (semi-transparent). |
+| D5 | Simple Video Inputs | Expose all Agnes API parameters (mode, reference images, duration, resolution, seed, negative prompt) directly on the UI form. **No AI enhancement** is performed. |
+| D6 | Compatibility | Backward compatibility: `TaskManager.load()` automatically parses older records lacking `task_type` as `CreativeVideoTask`. |
+| D7 | Default Resolution | Default to 768×1152 (Portrait 9:16), with 3 resolution presets (portrait, landscape, square) provided in the UI. |
+| D8 | Video-Audio Pacing | **≤ 1 second**. `video_duration = max(audio_duration + 1.0, original_video_duration)`. |
 
 ---
 
-## 7. Agnes Video API 接口面分析
+## 7. Agnes Video API Analysis
 
-基于 `core/video_generator.py` 和 `core/screenwriter.py` 中实际调用的 Agnes API 梳理：
+Based on parameters used in `core/api/agnes_video.py`:
 
-### 7.1 Video API — `POST https://apihub.agnes-ai.com/v1/videos`
+### 7.1 Video API Parameters — `POST /v1/videos`
 
-| 参数 | 类型 | 说明 |
+| Parameter | Type | Description |
 |------|------|------|
-| `model` | str | `"agnes-video-v2.0"`（固定） |
-| `prompt` | str | 视频描述 prompt（英文效果最佳） |
-| `width` | int | 视频宽度（px） |
-| `height` | int | 视频高度（px） |
-| `num_frames` | int | 总帧数，由时长和帧率计算 |
-| `frame_rate` | int | 帧率（24 或 22 fps） |
-| `seed` | int? | 随机种子，用于结果复现 |
-| `negative_prompt` | str? | 负面 prompt，排除不希望出现的元素 |
-| `image` | str? | 参考图 URL/base64（i2v/ti2vid 模式用） |
-| `mode` | str? | `"ti2vid"`（image 存在时） |
-| `extra_body.image` | str[]? | 多张关键帧图片（keyframes 模式） |
-| `extra_body.mode` | str? | `"keyframes"`（多图时） |
+| `model` | str | `"agnes-video-v2.0"` (Fixed) |
+| `prompt` | str | Scene description prompt (English works best) |
+| `width` | int | Video width (px) |
+| `height` | int | Video height (px) |
+| `num_frames` | int | Total frames = duration × frame_rate + 1 |
+| `frame_rate` | int | Framerate (24 or 22 fps) |
+| `seed` | int? | Random seed for reproducibility |
+| `negative_prompt` | str? | Negative prompt to exclude elements |
+| `image` | str? | Reference image URL/base64 (for i2v/ti2vid modes) |
+| `mode` | str? | `"ti2vid"` (when image is present) |
+| `extra_body.image` | str[]? | Keyframe images list (for keyframes mode) |
+| `extra_body.mode` | str? | `"keyframes"` (when keyframe images are present) |
 
-### 7.2 生成模式
+### 7.2 Generation Modes
 
-| 模式 | 英文标识 | 所需参数 |
+| Mode | Identifier | Required Parameters |
 |------|---------|---------|
-| 文生视频 | `t2v` | prompt, duration, resolution, seed?, negative_prompt? |
-| 图生视频 | `i2v` / `ti2vid` | 上述 + 1 张参考图 (image) |
-| 关键帧视频 | `keyframes` | 上述 + 2 张参考图 (首帧 + 尾帧, extra_body.image) |
+| Text-to-Video | `t2v` | prompt, duration, resolution, seed?, negative_prompt? |
+| Image-to-Video | `i2v` / `ti2vid` | above + 1 reference image (image) |
+| Keyframes Animation | `keyframes` | above + 2 reference images (start + end frame, extra_body.image) |
 
-### 7.3 时长-帧数映射
+### 7.3 Duration-to-Frames Map
 
-| 时长 | num_frames | frame_rate |
+| Duration | num_frames | frame_rate |
 |------|-----------|------------|
 | 5s | 121 | 24 |
 | 10s | 241 | 24 |
@@ -224,19 +222,6 @@ core/
 | 18s | 441 | 24 |
 | 20s | 441 | 22 |
 
-### 7.4 → 简单视频 UI 暴露的参数
-
-基于以上分析，简单视频 Tab 将暴露 **8 个结构化选项**（而非单一 prompt 框）：
-
-1. **生成模式**（下拉）：文生视频 / 图生视频 / 关键帧
-2. **Prompt**（文本框）：视频描述
-3. **参考图**（文件上传，i2v/keyframes 时显示）
-4. **尾帧图**（文件上传，仅 keyframes 时显示）
-5. **时长**（下拉）：5s / 10s / 15s / 18s / 20s
-6. **分辨率**（下拉）：竖屏 768×1152 / 横屏 1152×768 / 方形 1024×1024
-7. **Seed**（数字框，可选）
-8. **Negative Prompt**（文本框，可选，折叠）
-
 ---
 
-*文档版本：v2.0 | 作者：PM + Architect | 日期：2025-06-14 | 状态：已确认*
+*Document Version: v2.0 | Authors: PM + Architect | Date: 2025-06-14 | Status: Approved*

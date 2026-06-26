@@ -23,35 +23,51 @@
 
 <div class="max-w-4xl mx-auto px-4 py-8">
 
+  <!-- Top Bar -->
+  <div class="flex justify-end items-center gap-3 mb-6">
+    <div id="auth-container">
+      <a href="/api/v1/auth/google" id="btn-login-google" class="flex items-center gap-2 bg-white text-gray-900 border border-gray-300 rounded-lg px-3 py-1.5 text-sm font-medium hover:bg-gray-50 transition">
+        <svg class="w-4 h-4" viewBox="0 0 24 24">
+          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+        </svg>
+        <span>Continue with Google</span>
+      </a>
+      <div id="user-profile" class="hidden flex items-center gap-3 bg-gray-900 border border-gray-700 rounded-lg px-3 py-1.5">
+        <img id="user-avatar" src="" alt="avatar" class="w-6 h-6 rounded-full hidden">
+        <span id="user-name" class="text-sm font-medium text-gray-200"></span>
+        <button onclick="logout()" class="text-xs px-2 py-0.5 bg-gray-800 hover:bg-gray-700 border border-gray-600 rounded text-gray-300 ml-2">Logout</button>
+      </div>
+    </div>
+    <select id="lang-selector" onchange="switchLang(this.value)" class="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-purple-500 transition cursor-pointer">
+      <option value="zh">🇨🇳 中文</option>
+      <option value="en">🇺🇸 English</option>
+      <option value="ru">🇷🇺 Русский</option>
+      <option value="ja">🇯🇵 日本語</option>
+      <option value="ko">🇰🇷 한국어</option>
+      <option value="ms">🇲🇾 Bahasa Melayu</option>
+      <option value="id">🇮🇩 Bahasa Indonesia</option>
+    </select>
+  </div>
+
   <!-- Header -->
   <div class="text-center mb-10 relative">
-    <div class="absolute right-0 top-0">
-      <select id="lang-selector" onchange="switchLang(this.value)" class="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-purple-500 transition cursor-pointer">
-        <option value="zh">🇨🇳 中文</option>
-        <option value="en">🇺🇸 English</option>
-        <option value="ru">🇷🇺 Русский</option>
-        <option value="ja">🇯🇵 日本語</option>
-        <option value="ko">🇰🇷 한국어</option>
-        <option value="ms">🇲🇾 Bahasa Melayu</option>
-        <option value="id">🇮🇩 Bahasa Indonesia</option>
-      </select>
-    </div>
     <h1 class="text-4xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 bg-clip-text text-transparent">
       Agnes Video Generator
     </h1>
     <p class="text-gray-400 mt-2" data-i18n="subtitle">AI 视频，一键生成</p>
   </div>
 
-  <!-- API Key -->
+  <!-- API Key Status -->
   <div id="apikey-section" class="bg-gray-900 rounded-2xl p-6 mb-6 border border-gray-800">
-    <div class="flex items-center justify-between mb-3">
-      <h2 class="text-lg font-semibold text-purple-300" data-i18n="apiKeyTitle">API Key 配置</h2>
-      <span id="apikey-status" class="text-xs px-2 py-1 rounded-full bg-gray-800 text-gray-400" data-i18n="apiKeyNotConfigured">未配置</span>
-    </div>
-    <div class="flex gap-3">
-      <input id="apikey-input" type="password" data-i18n-placeholder="apiKeyPlaceholder" placeholder="输入 Agnes API Key" class="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-purple-500 transition">
-      <button id="apikey-save" class="px-5 py-2.5 bg-purple-600 hover:bg-purple-500 rounded-lg text-sm font-medium transition" data-i18n="save">保存</button>
-      <button id="apikey-clear" class="px-5 py-2.5 bg-red-600 hover:bg-red-500 rounded-lg text-sm font-medium transition hidden" data-i18n="clear">清除</button>
+    <div class="flex items-center justify-between">
+      <div>
+        <h2 class="text-lg font-semibold text-purple-300" data-i18n="apiKeyTitle">API Key Configuration</h2>
+        <p id="apikey-desc" class="text-xs text-gray-500 mt-1">API Key is managed securely via server environment variables.</p>
+      </div>
+      <span id="apikey-status" class="text-xs px-2 py-1 rounded-full bg-gray-800 text-gray-400" data-i18n="apiKeyNotConfigured">Not Configured</span>
     </div>
   </div>
 
@@ -184,11 +200,11 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>
             <label class="block text-sm text-gray-400 mb-1.5" data-i18n="userRequirement">用户要求</label>
-            <input id="c_requirement" value="3个场景，每个场景5秒，电影质感" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-purple-500 transition">
+            <input id="c_requirement" placeholder="3个场景，每个场景5秒，电影质感" data-i18n-placeholder="reqPlaceholder" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-purple-500 transition">
           </div>
           <div>
             <label class="block text-sm text-gray-400 mb-1.5" data-i18n="visualStyle">视觉风格</label>
-            <input id="c_style" value="电影质感写实风格" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-purple-500 transition">
+            <input id="c_style" placeholder="电影质感写实风格" data-i18n-placeholder="stylePlaceholder" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-purple-500 transition">
           </div>
         </div>
       </div>
@@ -481,6 +497,47 @@
 
 <script>
 // ═══════════════════════════════════════════════════
+// Auth
+// ═══════════════════════════════════════════════════
+
+function getCookie(name) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) {
+    let val = parts.pop().split(';').shift();
+    if (val.startsWith('"') && val.endsWith('"')) val = val.slice(1, -1);
+    return val;
+  }
+}
+
+function checkAuth() {
+  const userNameCookie = getCookie('user_name');
+  if (userNameCookie) {
+    document.getElementById('btn-login-google').classList.add('hidden');
+    const profile = document.getElementById('user-profile');
+    profile.classList.remove('hidden');
+    profile.classList.add('flex');
+    
+    document.getElementById('user-name').textContent = decodeURIComponent(userNameCookie);
+    
+    const userAvatarCookie = getCookie('user_avatar');
+    if (userAvatarCookie) {
+      const avatar = document.getElementById('user-avatar');
+      avatar.src = decodeURIComponent(userAvatarCookie);
+      avatar.classList.remove('hidden');
+    }
+  }
+}
+
+function logout() {
+  document.cookie = "user_name=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+  document.cookie = "user_avatar=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+  // Optionally call backend logout endpoint here if needed, but local UI clear is usually enough for UX
+  fetch('/api/v1/auth/logout', { method: 'POST' }).catch(() => {});
+  window.location.reload();
+}
+
+// ═══════════════════════════════════════════════════
 // i18n
 // ═══════════════════════════════════════════════════
 
@@ -503,7 +560,7 @@ const T = {
     advancedSettings: '高级设置', optional: '可选', seedPlaceholder: '留空随机', negativePlaceholder: '排除不希望出现的元素',
     taskName: '任务名称', taskNamePlaceholder: '可选，留空自动生成',
     ideaLabel: '创意描述', ideaPlaceholder: '描述你心中的故事、场景和角色...',
-    userRequirement: '用户要求', visualStyle: '视觉风格',
+    userRequirement: '用户要求', visualStyle: '视觉风格', reqPlaceholder: '3个场景，每个场景5秒，电影质感', stylePlaceholder: '电影质感写实风格',
     chainingMode: '串联模式', modeKeyframes: 'keyframes (推荐)', modeTi2vid: 'ti2vid (过渡帧)', modeNone: 'none (独立场景)',
     referenceImage: '参考图 (可选)', refDescription: '可选。提供后所有场景将以该图为视觉锚点；不提供则自动从故事中生成角色参考图',
     customEndFrames: '自定义尾帧 (可选)', enableCustomEndFrames: '启用自定义尾帧',
@@ -563,7 +620,7 @@ const T = {
     advancedSettings: 'Advanced Settings', optional: 'Optional', seedPlaceholder: 'Leave blank for random', negativePlaceholder: 'Elements to exclude',
     taskName: 'Task Name', taskNamePlaceholder: 'Optional, auto-generated if blank',
     ideaLabel: 'Idea Description', ideaPlaceholder: 'Describe your story, scenes, and characters...',
-    userRequirement: 'Requirements', visualStyle: 'Visual Style',
+    userRequirement: 'Requirements', visualStyle: 'Visual Style', reqPlaceholder: '3 scenes, 5s each, cinematic', stylePlaceholder: 'Cinematic realistic style',
     chainingMode: 'Chaining Mode', modeKeyframes: 'keyframes (recommended)', modeTi2vid: 'ti2vid (transition)', modeNone: 'none (independent)',
     referenceImage: 'Reference Image (Optional)', refDescription: 'Optional. All scenes use this as visual anchor. Auto-generated if not provided.',
     customEndFrames: 'Custom End Frames (Optional)', enableCustomEndFrames: 'Enable custom end frames',
@@ -620,7 +677,7 @@ const T = {
     advancedSettings: 'Расширенные', optional: 'Опционально', seedPlaceholder: 'Пусто = случайно', negativePlaceholder: 'Исключить элементы',
     taskName: 'Название', taskNamePlaceholder: 'Необязательно',
     ideaLabel: 'Идея', ideaPlaceholder: 'Опишите историю, сцены, персонажей...',
-    userRequirement: 'Требования', visualStyle: 'Стиль',
+    userRequirement: 'Требования', visualStyle: 'Стиль', reqPlaceholder: '3 сцены, по 5с, кинематографично', stylePlaceholder: 'Реалистичный киностиль',
     chainingMode: 'Связывание', modeKeyframes: 'keyframes', modeTi2vid: 'ti2vid', modeNone: 'none',
     referenceImage: 'Референс', refDescription: 'Все сцены используют это изображение.',
     customEndFrames: 'Финальные кадры', enableCustomEndFrames: 'Включить',
@@ -675,7 +732,7 @@ const T = {
     advancedSettings: '詳細設定', optional: '任意', seedPlaceholder: '空欄=ランダム', negativePlaceholder: '除外要素',
     taskName: 'タスク名', taskNamePlaceholder: '任意',
     ideaLabel: 'アイデア', ideaPlaceholder: 'ストーリーを記述...',
-    userRequirement: '要件', visualStyle: 'スタイル',
+    userRequirement: '要件', visualStyle: 'スタイル', reqPlaceholder: '3シーン、各5秒、シネマティック', stylePlaceholder: 'シネマティックリアル',
     chainingMode: '連鎖', modeKeyframes: 'keyframes', modeTi2vid: 'ti2vid', modeNone: 'none',
     referenceImage: '参照画像', refDescription: '全シーンの視覚アンカー。',
     customEndFrames: '最終フレーム', enableCustomEndFrames: '有効化',
@@ -727,7 +784,7 @@ const T = {
     advancedSettings: '고급 설정', optional: '선택', seedPlaceholder: '비우기=랜덤', negativePlaceholder: '제외 요소',
     taskName: '작업 이름', taskNamePlaceholder: '선택사항',
     ideaLabel: '아이디어', ideaPlaceholder: '스토리를 설명하세요...',
-    userRequirement: '요구사항', visualStyle: '스타일',
+    userRequirement: '요구사항', visualStyle: '스타일', reqPlaceholder: '3장면, 각 5초, 시네마틱', stylePlaceholder: '시네마틱 리얼리즘',
     chainingMode: '체인', modeKeyframes: 'keyframes', modeTi2vid: 'ti2vid', modeNone: 'none',
     referenceImage: '참조 이미지', refDescription: '모든 장면의 시각 기준.',
     customEndFrames: '엔드 프레임', enableCustomEndFrames: '활성화',
@@ -779,7 +836,7 @@ const T = {
     advancedSettings: 'Tetapan Lanjutan', optional: 'Pilihan', seedPlaceholder: 'Kosong=rawak', negativePlaceholder: 'Kecualikan elemen',
     taskName: 'Nama Tugas', taskNamePlaceholder: 'Pilihan',
     ideaLabel: 'Idea', ideaPlaceholder: 'Terangkan cerita anda...',
-    userRequirement: 'Keperluan', visualStyle: 'Gaya',
+    userRequirement: 'Keperluan', visualStyle: 'Gaya', reqPlaceholder: '3 babak, 5s setiap satu, sinematik', stylePlaceholder: 'Gaya realistik sinematik',
     chainingMode: 'Rantai', modeKeyframes: 'keyframes', modeTi2vid: 'ti2vid', modeNone: 'none',
     referenceImage: 'Imej Rujukan', refDescription: 'Semua babak guna imej ini.',
     customEndFrames: 'Bingkai Akhir', enableCustomEndFrames: 'Aktifkan',
@@ -831,7 +888,7 @@ const T = {
     advancedSettings: 'Pengaturan Lanjutan', optional: 'Opsional', seedPlaceholder: 'Kosong=acak', negativePlaceholder: 'Kecualikan elemen',
     taskName: 'Nama Tugas', taskNamePlaceholder: 'Opsional',
     ideaLabel: 'Ide', ideaPlaceholder: 'Jelaskan cerita Anda...',
-    userRequirement: 'Persyaratan', visualStyle: 'Gaya',
+    userRequirement: 'Persyaratan', visualStyle: 'Gaya', reqPlaceholder: '3 adegan, masing-masing 5s, sinematik', stylePlaceholder: 'Gaya realistis sinematik',
     chainingMode: 'Rantai', modeKeyframes: 'keyframes', modeTi2vid: 'ti2vid', modeNone: 'none',
     referenceImage: 'Gambar Referensi', refDescription: 'Semua adegan pakai gambar ini.',
     customEndFrames: 'Bingkai Akhir', enableCustomEndFrames: 'Aktifkan',
@@ -938,10 +995,19 @@ const STEPS = {
   applyLanguage(currentLang);
 
   try {
-    const r = await fetch('/api/config');
+    const r = await fetch('/api/v1/config');
     const d = await r.json();
-    if (d.api_key) {
-      setApiKeyConfiguredUI(d.source, d.can_clear);
+    const data = d.data || d;
+    const statusEl = document.getElementById('apikey-status');
+    const descEl = document.getElementById('apikey-desc');
+    if (data.api_key) {
+      statusEl.textContent = t('apiKeyFromEnv');
+      statusEl.className = 'text-xs px-2.5 py-1 rounded-full bg-green-900/50 text-green-400 border border-green-800';
+      if (descEl) descEl.textContent = 'API Key is securely managed via server environment variable (AGNES_API_KEY) and is active.';
+    } else {
+      statusEl.textContent = t('apiKeyNotConfigured');
+      statusEl.className = 'text-xs px-2.5 py-1 rounded-full bg-red-900/50 text-red-400 border border-red-800';
+      if (descEl) descEl.textContent = 'Warning: AGNES_API_KEY environment variable is not configured. Please add it to your .env file.';
     }
   } catch(e) {}
 
@@ -1115,7 +1181,7 @@ async function submitSimple() {
   if (endFile) form.append('end_frame_image', endFile);
 
   try {
-    const r = await fetch('/api/tasks/simple', { method: 'POST', body: form });
+    const r = await apiFetch('/api/v1/tasks/simple', { method: 'POST', body: form });
     const d = await r.json();
     if (!d.ok) throw new Error(d.detail || t('failCreate'));
     currentTaskType = 'simple';
@@ -1166,7 +1232,7 @@ async function submitCreative() {
   form.append('subtitle_bg_color', document.getElementById('c_sub_bg_color').value);
 
   try {
-    const r = await fetch('/api/tasks/creative', { method: 'POST', body: form });
+    const r = await apiFetch('/api/v1/tasks/creative', { method: 'POST', body: form });
     const d = await r.json();
     if (!d.ok) throw new Error(d.detail || t('failCreate'));
     currentTaskType = 'creative';
@@ -1209,7 +1275,7 @@ async function submitManuscript() {
   form.append('subtitle_bg_color', document.getElementById('m_sub_bg_color').value);
 
   try {
-    const r = await fetch('/api/tasks/manuscript', { method: 'POST', body: form });
+    const r = await apiFetch('/api/v1/tasks/manuscript', { method: 'POST', body: form });
     const d = await r.json();
     if (!d.ok) throw new Error(d.detail || t('failCreate'));
     currentTaskType = 'manuscript';
@@ -1255,7 +1321,7 @@ function showProgress(taskId, dirName) {
 function connectWS(taskId) {
   if (ws) { ws.close(); ws = null; }
   const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
-  ws = new WebSocket(proto + '//' + location.host + '/ws/' + taskId);
+  ws = new WebSocket(proto + '//' + location.host + '/api/v1/ws/' + taskId);
 
   ws.onmessage = (e) => {
     const msg = JSON.parse(e.data);
@@ -1342,7 +1408,7 @@ function connectWS(taskId) {
 function showResult(videoPath) {
   document.getElementById('result-area').classList.remove('hidden');
   if (videoPath && currentTaskId) {
-    document.getElementById('result-video').src = '/api/video/' + currentTaskId;
+    document.getElementById('result-video').src = '/api/v1/video/' + currentTaskId;
   }
 }
 
@@ -1352,7 +1418,7 @@ function showResult(videoPath) {
 
 async function autoReconnectRunningTask() {
   try {
-    const r = await fetch('/api/tasks');
+    const r = await apiFetch('/api/v1/tasks');
     const d = await r.json();
     const running = (d.tasks || []).find(t => t.status === 'running');
     if (running) {
@@ -1368,7 +1434,7 @@ async function autoReconnectRunningTask() {
 
 async function restoreProgressFromTask(taskId) {
   try {
-    const r = await fetch('/api/tasks/' + taskId);
+    const r = await apiFetch('/api/v1/tasks/' + taskId);
     const state = await r.json();
     currentDirName = state.dir_name || taskId;
     currentTaskType = state.task_type || 'creative';
@@ -1406,7 +1472,7 @@ function markStepCompleted(stepKey) {
 async function loadTaskList() {
   const container = document.getElementById('task-list-container');
   try {
-    const r = await fetch('/api/tasks');
+    const r = await apiFetch('/api/v1/tasks');
     const d = await r.json();
     const tasks = d.tasks || [];
     if (!tasks.length) {
@@ -1446,7 +1512,7 @@ async function loadTaskList() {
 
 async function viewTask(taskId) {
   try {
-    const r = await fetch('/api/tasks/' + taskId);
+    const r = await apiFetch('/api/v1/tasks/' + taskId);
     const state = await r.json();
     currentTaskType = state.task_type || 'creative';
     showTaskDetail(taskId, state);
@@ -1455,7 +1521,7 @@ async function viewTask(taskId) {
 
 async function viewRunningTask(taskId) {
   try {
-    const r = await fetch('/api/tasks/' + taskId);
+    const r = await apiFetch('/api/v1/tasks/' + taskId);
     const state = await r.json();
     currentTaskType = state.task_type || 'creative';
   } catch(e) { currentTaskType = 'creative'; }
@@ -1468,12 +1534,12 @@ async function viewRunningTask(taskId) {
 async function resumeTask(taskId) {
   if (isTaskRunning) return showToast(t('taskRunningWarn'));
   try {
-    const r = await fetch('/api/tasks/' + taskId + '/resume', { method: 'POST' });
+    const r = await apiFetch('/api/v1/tasks/' + taskId + '/resume', { method: 'POST' });
     const d = await r.json();
     if (!d.ok) throw new Error(d.detail || t('failResume'));
     // Determine task type from detail
     try {
-      const sr = await fetch('/api/tasks/' + taskId);
+      const sr = await apiFetch('/api/v1/tasks/' + taskId);
       const st = await sr.json();
       currentTaskType = st.task_type || 'creative';
     } catch(e) { currentTaskType = 'creative'; }
@@ -1496,7 +1562,7 @@ async function stopTask() {
   const btn = document.getElementById('btn-stop');
   btn.disabled = true; btn.textContent = t('stopping');
   try {
-    const r = await fetch('/api/tasks/' + currentTaskId + '/stop', { method: 'POST' });
+    const r = await apiFetch('/api/v1/tasks/' + currentTaskId + '/stop', { method: 'POST' });
     const d = await r.json();
     if (!d.ok) throw new Error(d.detail || t('failStop'));
     showToast(t('stopped'), 4000);
@@ -1509,7 +1575,7 @@ async function stopTask() {
 async function stopTaskById(taskId) {
   if (!confirm(t('stopConfirmById'))) return;
   try {
-    const r = await fetch('/api/tasks/' + taskId + '/stop', { method: 'POST' });
+    const r = await apiFetch('/api/v1/tasks/' + taskId + '/stop', { method: 'POST' });
     const d = await r.json();
     if (!d.ok) throw new Error(d.detail || t('failStop'));
     showToast(t('stoppedById'), 3000);
@@ -1583,84 +1649,122 @@ function showTaskDetail(taskId, state) {
 
   if (state.final_video_file) {
     document.getElementById('result-area').classList.remove('hidden');
-    document.getElementById('result-video').src = '/api/video/' + taskId;
+    document.getElementById('result-video').src = '/api/v1/video/' + taskId;
   }
 }
+
+// API Key is managed securely on server-side via environment variables.
 
 // ═══════════════════════════════════════════════════
-// API Key
+// Auth Utilities + Silent Token Refresh
 // ═══════════════════════════════════════════════════
 
-function setApiKeyConfiguredUI(source, canClear) {
-  const input = document.getElementById('apikey-input');
-  const saveBtn = document.getElementById('apikey-save');
-  const clearBtn = document.getElementById('apikey-clear');
-  const statusEl = document.getElementById('apikey-status');
-
-  input.placeholder = t('apiKeyMasked');
-  input.value = '';
-  input.disabled = true;
-  input.classList.add('opacity-50', 'cursor-not-allowed');
-
-  saveBtn.disabled = true;
-  saveBtn.classList.add('opacity-50', 'cursor-not-allowed');
-
-  statusEl.textContent = source === 'env' ? t('apiKeyFromEnv') : t('apiKeyConfigured');
-  statusEl.className = 'text-xs px-2 py-1 rounded-full bg-green-900 text-green-300';
-
-  clearBtn.classList.remove('hidden');
-  clearBtn.dataset.source = source;
+function getCookie(name) {
+  const match = document.cookie.match(
+    new RegExp('(?:^|; )' + name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '=([^;]*)'));
+  return match ? decodeURIComponent(match[1]) : null;
 }
 
-function resetApiKeyUI() {
-  const input = document.getElementById('apikey-input');
-  const saveBtn = document.getElementById('apikey-save');
-  const clearBtn = document.getElementById('apikey-clear');
-  const statusEl = document.getElementById('apikey-status');
+let _refreshToken = null;
+let _isRefreshing = false;
+let _refreshQueue = [];
 
-  input.placeholder = t('apiKeyPlaceholder');
-  input.value = '';
-  input.disabled = false;
-  input.classList.remove('opacity-50', 'cursor-not-allowed');
-
-  saveBtn.disabled = false;
-  saveBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-
-  statusEl.textContent = t('apiKeyNotConfigured');
-  statusEl.className = 'text-xs px-2 py-1 rounded-full bg-gray-800 text-gray-400';
-
-  clearBtn.classList.add('hidden');
+function initAuthTokens() {
+  _refreshToken = getCookie('refresh_token');
 }
 
-document.getElementById('apikey-save').onclick = async () => {
-  const key = document.getElementById('apikey-input').value.trim();
-  if (!key) return alert(t('enterApiKey'));
-  const form = new FormData();
-  form.append('api_key', key);
-  const r = await fetch('/api/config', { method: 'POST', body: form });
-  if (r.ok) {
-    setApiKeyConfiguredUI('config', true);
-  }
-};
-
-document.getElementById('apikey-clear').onclick = async () => {
-  if (document.getElementById('apikey-clear').dataset.source === 'env') {
-    alert(t('clearEnvHint'));
-    return;
-  }
-  if (!confirm(t('clearConfirm'))) return;
+async function tryRefreshToken() {
+  if (!_refreshToken) return false;
   try {
-    const r = await fetch('/api/config', { method: 'DELETE' });
+    const r = await fetch('/api/v1/auth/refresh', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refresh_token: _refreshToken }),
+    });
     if (r.ok) {
-      resetApiKeyUI();
-    } else {
-      const d = await r.json();
-      alert(d.detail || 'Failed to clear');
+      const data = await r.json();
+      // Server re-sets the access_token HttpOnly cookie automatically.
+      // Keep our in-memory refresh token up to date.
+      if (data.refresh_token) _refreshToken = data.refresh_token;
+      return true;
     }
-  } catch(e) {
-    alert('Network error');
+    return false;
+  } catch { return false; }
+}
+
+/**
+ * Drop-in replacement for fetch() for all authenticated API calls.
+ * On a 401 it silently refreshes the access token and retries once.
+ * If the refresh also fails it calls handleAuthExpired().
+ */
+async function apiFetch(url, options = {}) {
+  let res = await fetch(url, options);
+  if (res.status !== 401) return res;
+
+  // If another request is already refreshing, queue this one
+  if (_isRefreshing) {
+    await new Promise(resolve => _refreshQueue.push(resolve));
+    return fetch(url, options);
   }
-};
+
+  _isRefreshing = true;
+  const refreshed = await tryRefreshToken();
+  _isRefreshing = false;
+  // Unblock all queued requests
+  _refreshQueue.forEach(resolve => resolve());
+  _refreshQueue = [];
+
+  if (refreshed) return fetch(url, options);
+
+  handleAuthExpired();
+  return res; // return original 401 so callers can inspect if needed
+}
+
+function handleAuthExpired() {
+  _refreshToken = null;
+  document.getElementById('user-profile')?.classList.add('hidden');
+  document.getElementById('btn-login-google')?.classList.remove('hidden');
+  showToast('Session expired — please log in again.', 5000);
+}
+
+// Initialize auth state and update the top-bar UI
+function checkAuth() {
+  initAuthTokens();
+  const name = getCookie('user_name');
+  const avatar = getCookie('user_avatar');
+  if (name) {
+    document.getElementById('btn-login-google')?.classList.add('hidden');
+    const profileEl = document.getElementById('user-profile');
+    if (profileEl) {
+      profileEl.classList.remove('hidden');
+      const nameEl = document.getElementById('user-name');
+      if (nameEl) nameEl.textContent = name;
+      const avatarEl = document.getElementById('user-avatar');
+      if (avatar && avatarEl) {
+        avatarEl.src = avatar;
+        avatarEl.classList.remove('hidden');
+      }
+    }
+  }
+}
+
+async function logout() {
+  try {
+    if (_refreshToken) {
+      await fetch('/api/v1/auth/logout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refresh_token: _refreshToken }),
+      });
+    }
+  } catch { /* ignore network errors on logout */ }
+  _refreshToken = null;
+  // Redirect to root — the server clears the access_token cookie
+  window.location.href = '/';
+}
+
+// Initialize Auth State
+checkAuth();
 </script>
 
 </body>

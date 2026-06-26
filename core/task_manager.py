@@ -1,8 +1,8 @@
 """
-core/task_manager.py — Agnes Video Generator v2.0 任务状态管理器
+core/task_manager.py — Agnes Video Generator v2.0 Task State Manager
 
-泛化支持三种任务类型（Simple / Creative / Manuscript），保持向后兼容。
-D6：load() 自动将无 task_type 字段的旧数据识别为 CreativeVideoTask。
+General support for three task types (Simple / Creative / Manuscript), maintaining backward compatibility.
+D6: load() automatically identifies legacy data without task_type field as CreativeVideoTask.
 """
 
 import json
@@ -26,13 +26,14 @@ logger = logging.getLogger(__name__)
 
 
 class TaskManager:
-    """任务状态持久化管理器。
+    """Task state persistence manager.
 
-    负责在文件系统（.working_dir/{dir_name}/task_state.json）中
-    创建、加载、更新和列举任务状态。v2.0 支持三种任务类型的多态序列化。
+    Responsible for creating, loading, updating and enumerating task states
+    in the file system (.working_dir/{dir_name}/task_state.json).
+    v2.0 supports polymorphic serialization of the three task types.
     """
 
-    def __init__(self, task_id: str, dir_name: str = None):
+    def __init__(self, task_id: str, dir_name: Optional[str] = None):
         self.task_id = task_id
         self.dir_name = dir_name or task_id
         self.task_dir = os.path.join(get_working_dir(), self.dir_name)
@@ -43,7 +44,7 @@ class TaskManager:
         os.makedirs(self.task_dir, exist_ok=True)
 
     def create(self, state: BaseTaskState) -> BaseTaskState:
-        """创建新任务并持久化。"""
+        """Create new task and persist it."""
         self._ensure_dir()
         self._state = state
         self._state.task_id = self.task_id
@@ -52,10 +53,10 @@ class TaskManager:
         return self._state
 
     def load(self) -> Optional[BaseTaskState]:
-        """加载任务状态。
+        """Load task state.
 
-        v2.0：使用 parse_task_state() 根据 task_type 字段反序列化为正确的子类。
-        向后兼容：旧数据无 task_type → 自动视为 CreativeVideoTask（D6）。
+        v2.0: Uses parse_task_state() to deserialize to the correct subclass based on task_type field.
+        Backward compatibility: legacy data without task_type -> automatically treated as CreativeVideoTask (D6).
         """
         self._ensure_dir()
         if not os.path.exists(self._task_file):
@@ -65,14 +66,14 @@ class TaskManager:
             with open(self._task_file, "r") as f:
                 data = json.load(f)
 
-            # v2.0：通过 parse_task_state 工厂函数反序列化
-            # 旧数据没有 task_type，parse_task_state 会默认设为 CREATIVE
+            # v2.0: Deserialize via parse_task_state factory function
+            # Legacy data has no task_type, parse_task_state defaults to CREATIVE
             self._state = parse_task_state(data)
 
-            # 对 CreativeVideoTask 确保 scenes 字段正确反序列化
+            # For CreativeVideoTask, ensure scenes field is correctly deserialized
             if isinstance(self._state, CreativeVideoTask):
-                # Pydantic v2 已自动处理 List[SceneTask] 反序列化，
-                # 这里做一次防御性校验
+                # Pydantic v2 handles List[SceneTask] deserialization automatically.
+                # Doing a defensive validation check here.
                 self._state.scenes = [
                     SceneTask(**s) if isinstance(s, dict) else s
                     for s in (data.get("scenes") or self._state.scenes)
@@ -89,20 +90,20 @@ class TaskManager:
             return None
 
     def _save(self):
-        """持久化当前状态到 JSON 文件。"""
+        """Persist current state to JSON file."""
         self._ensure_dir()
         if self._state:
             with open(self._task_file, "w") as f:
                 json.dump(self._state.model_dump(), f, ensure_ascii=False, indent=2)
 
     def update_step(self, step_name: str, status: StepStatus):
-        """更新某个步骤的状态并持久化。"""
+        """Update a step status and persist it."""
         if self._state:
             setattr(self._state, step_name, status)
             self._save()
 
     def update_scene(self, scene: SceneTask):
-        """更新某个场景的状态并持久化（仅 CreativeVideoTask）。"""
+        """Update a scene status and persist it (CreativeVideoTask only)."""
         if self._state and isinstance(self._state, CreativeVideoTask):
             for i, s in enumerate(self._state.scenes):
                 if s.index == scene.index:
@@ -111,7 +112,7 @@ class TaskManager:
                     return
 
     def update_state(self, **kwargs):
-        """批量更新状态字段并持久化。"""
+        """Batch update state fields and persist them."""
         if self._state:
             for key, value in kwargs.items():
                 if hasattr(self._state, key):
@@ -130,15 +131,15 @@ class TaskManager:
             self._save()
 
     def get_state(self) -> Optional[BaseTaskState]:
-        """返回当前加载的任务状态。"""
+        """Return the currently loaded task state."""
         return self._state
 
     def exists(self) -> bool:
-        """检查任务状态文件是否存在。"""
+        """Check if the task state file exists."""
         return os.path.exists(self._task_file)
 
     def list_tasks(self) -> list:
-        """列举所有任务（包含 task_type 字段，v2.0 增强）。"""
+        """Enumerate all tasks (includes task_type field, v2.0 enhanced)."""
         working_dir = get_working_dir()
         if not os.path.exists(working_dir):
             return []
