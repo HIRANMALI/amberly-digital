@@ -111,12 +111,17 @@ if os.path.exists(static_dir):
     app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 
+@app.get("/api/v1/health")
+async def health():
+    return {"status": "ok"}
+
+
 @app.get("/")
 async def root():
     index_path = os.path.join(os.path.dirname(__file__), "static", "index.html")
     if os.path.exists(index_path):
         return FileResponse(index_path)
-    return {"message": "Agnes Video Generator API"}
+    return {"message": "Amberly Digital Video Generator API"}
 
 
 # ═══════════════════════════════════════════════════
