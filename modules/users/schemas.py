@@ -13,13 +13,13 @@ class UserRead(UserBase):
     id: uuid.UUID
     email: str
     role: UserRole
-    weekly_task_limit: int
+    daily_task_limit: int
     created_at: datetime
     last_login_at: datetime
 
 class UserProfile(UserRead):
     """Returned by /users/me, includes computed fields."""
-    tasks_this_week: int
+    tasks_today: int
 
 class UserUpdate(BaseModel):
     name: str | None = None
@@ -29,4 +29,4 @@ class UserAdminUpdate(BaseModel):
     """For admins to update a user's role or limits."""
     is_active: bool | None = None
     role: UserRole | None = None
-    weekly_task_limit: int | None = None
+    daily_task_limit: int | None = None

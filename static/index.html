@@ -82,6 +82,9 @@
 
     <!-- Task Type Tabs -->
     <div class="flex gap-2 mb-4">
+      <button onclick="switchTaskType('image')" id="ttype-image" class="ttype-btn flex-1 px-4 py-3 rounded-xl text-sm font-medium tab-inactive transition text-center">
+        <span class="text-lg">🖼️</span><br><span data-i18n="ttImage">图片生成</span>
+      </button>
       <button onclick="switchTaskType('simple')" id="ttype-simple" class="ttype-btn flex-1 px-4 py-3 rounded-xl text-sm font-medium tab-inactive transition text-center">
         <span class="text-lg">🎬</span><br><span data-i18n="ttSimple">简单视频</span>
       </button>
@@ -91,6 +94,52 @@
       <button onclick="switchTaskType('manuscript')" id="ttype-manuscript" class="ttype-btn flex-1 px-4 py-3 rounded-xl text-sm font-medium tab-inactive transition text-center">
         <span class="text-lg">📝</span><br><span data-i18n="ttManuscript">稿件长视频</span>
       </button>
+    </div>
+
+    <!-- ═══════ Tab 0: Image Generation ═══════ -->
+    <div id="form-image" class="hidden">
+      <div class="bg-gray-900 rounded-2xl p-6 mb-4 border border-gray-800">
+        <h2 class="text-lg font-semibold text-purple-300 mb-4" data-i18n="imageSettings">图片生成 (Text to Image / Image to Image)</h2>
+
+        <div class="mb-4">
+          <label class="block text-sm text-gray-400 mb-1.5"><span data-i18n="imagePromptLabel">提示词</span> (prompt) <span class="text-red-400">*</span></label>
+          <textarea id="i_prompt" rows="3" placeholder="描述你想要生成的图片..." data-i18n-placeholder="promptPlaceholder" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-purple-500 transition resize-y"></textarea>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <label class="block text-sm text-gray-400 mb-1.5" data-i18n="resolution">分辨率</label>
+            <select id="i_size" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-purple-500 transition">
+              <option value="1024x1024">1:1 (1024x1024)</option>
+              <option value="768x1152">2:3 (768x1152)</option>
+              <option value="1152x768">3:2 (1152x768)</option>
+              <option value="1024x576">16:9 (1024x576)</option>
+              <option value="576x1024">9:16 (576x1024)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm text-gray-400 mb-1.5" data-i18n="refImageOptional">参考图 (i2i 可选)</label>
+            <div class="flex items-center gap-4">
+              <label class="cursor-pointer px-4 py-2 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg text-sm transition inline-block">
+                <span data-i18n="chooseImage">选择参考图</span>
+                <input id="i_ref_image" type="file" accept="image/*" class="hidden" onchange="updateLabel('i_ref_image','i_ref_name')">
+              </label>
+              <span id="i_ref_name" class="text-sm text-gray-500">未选择</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button id="btn-image" onclick="submitImage()" class="w-full py-3.5 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 rounded-xl text-base font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed" data-i18n="genImgBtn">
+        开始生成图片
+      </button>
+
+      <!-- Image Result Container -->
+      <div id="image-result-container" class="hidden mt-6 bg-gray-900 rounded-2xl p-6 border border-gray-800 text-center">
+        <h3 class="text-md font-semibold text-gray-300 mb-3" data-i18n="genResult">生成结果</h3>
+        <img id="generated-image" class="mx-auto rounded-lg max-w-full h-auto border border-gray-700 shadow-lg" src="" alt="Result">
+        <a id="download-image" href="#" target="_blank" download="generated_image.png" class="mt-4 inline-block px-5 py-2 bg-purple-600 hover:bg-purple-500 rounded-lg text-sm text-white transition" data-i18n="downloadImage">下载图片 / 查看原图</a>
+      </div>
     </div>
 
     <!-- ═══════ Tab 1: Simple Video ═══════ -->
@@ -549,6 +598,9 @@ const T = {
     clear: '清除', clearConfirm: '确定要清除已配置的 API Key 吗？', apiKeyFromEnv: '已配置 (环境变量)',
     clearEnvHint: '当前 API Key 来自环境变量 AGNES_API_KEY，无法从界面清除。请取消环境变量后重试。',
     tabCreate: '新建任务', tabList: '任务列表',
+    ttImage: '图片生成', imageSettings: '图片设置 (t2i / i2i)', imagePromptLabel: '图片描述',
+    refImageOptional: '参考图 (i2i 可选)', genImgBtn: '开始生成图片', genImgWait: '正在生成... (约10-30秒)',
+    genResult: '生成结果', downloadImage: '下载图片 / 查看原图', imgSuccess: '图片生成成功！', promptReq: '请输入提示词',
     ttSimple: '简单视频', ttCreative: '创意长视频', ttManuscript: '稿件长视频',
     simpleSettings: '简单视频设置', creativeSettings: '创意设置', manuscriptSettings: '稿件设置',
     promptLabel: '视频描述', promptPlaceholder: '描述你想要的视频画面...',
@@ -609,6 +661,9 @@ const T = {
     clear: 'Clear', clearConfirm: 'Are you sure you want to clear the configured API Key?', apiKeyFromEnv: 'Configured (env)',
     clearEnvHint: 'The API Key is set via environment variable AGNES_API_KEY and cannot be cleared from the UI.',
     tabCreate: 'New Task', tabList: 'Task List',
+    ttImage: 'Image Generation', imageSettings: 'Image Settings (t2i / i2i)', imagePromptLabel: 'Image Description',
+    refImageOptional: 'Reference Image (Optional)', genImgBtn: 'Start Generation', genImgWait: 'Generating... (10-30s)',
+    genResult: 'Generated Result', downloadImage: 'Download / View Image', imgSuccess: 'Image generated successfully!', promptReq: 'Please enter prompt',
     ttSimple: 'Simple Video', ttCreative: 'Creative Video', ttManuscript: 'Article Video',
     simpleSettings: 'Simple Video Settings', creativeSettings: 'Creative Settings', manuscriptSettings: 'Article Settings',
     promptLabel: 'Video Description', promptPlaceholder: 'Describe the video you want...',
@@ -965,6 +1020,7 @@ const STEPS = {
     { key: 'submit', labelKey: 'sStepSubmit' },
     { key: 'video_gen', labelKey: 'sStepVideoGen' },
   ],
+  image: [],
   creative: [
     { key: 'init', labelKey: 'cStepInit' },
     { key: 'image_analysis', labelKey: 'cStepImageAnalysis' },
@@ -1071,7 +1127,7 @@ function switchTaskType(type) {
   });
   document.getElementById('ttype-' + type).className = document.getElementById('ttype-' + type).className.replace(/tab-inactive/, 'tab-active');
 
-  ['simple', 'creative', 'manuscript'].forEach(t => {
+  ['image', 'simple', 'creative', 'manuscript'].forEach(t => {
     document.getElementById('form-' + t).classList.toggle('hidden', t !== type);
   });
 }
@@ -1153,6 +1209,46 @@ function clearRunning() {
     if (btn) { btn.disabled = false; btn.textContent = t('startGenerate'); }
   });
   document.getElementById('btn-stop').classList.add('hidden');
+}
+
+async function submitImage() {
+  const prompt = document.getElementById('i_prompt').value.trim();
+  if (!prompt) return showToast(t('promptReq') || '请输入提示词');
+
+  const form = new FormData();
+  form.append('prompt', prompt);
+  form.append('size', document.getElementById('i_size').value);
+  
+  const refFile = document.getElementById('i_ref_image').files[0];
+  if (refFile) form.append('reference_image', refFile);
+
+  const btn = document.getElementById('btn-image');
+  btn.disabled = true;
+  btn.textContent = t('genImgWait') || '正在生成... (约10-30秒)';
+  document.getElementById('image-result-container').classList.add('hidden');
+
+  try {
+    const r = await apiFetch('/api/v1/tasks/image', { method: 'POST', body: form });
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.detail || '生成失败');
+    
+    let imgSrc = '';
+    if (d.format === 'url') {
+      imgSrc = d.url;
+    } else if (d.format === 'b64') {
+      imgSrc = `data:image/${d.ext};base64,${d.base64}`;
+    }
+
+    document.getElementById('generated-image').src = imgSrc;
+    document.getElementById('download-image').href = imgSrc;
+    document.getElementById('image-result-container').classList.remove('hidden');
+    showToast(t('imgSuccess') || '图片生成成功！', 3000);
+  } catch (e) {
+    showToast(e.message, 5000);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = t('genImgBtn') || '开始生成图片';
+  }
 }
 
 async function submitSimple() {

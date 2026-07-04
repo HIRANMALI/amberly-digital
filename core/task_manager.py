@@ -63,7 +63,7 @@ class TaskManager:
             return None
 
         try:
-            with open(self._task_file, "r") as f:
+            with open(self._task_file, "r", encoding="utf-8") as f:
                 data = json.load(f)
 
             # v2.0: Deserialize via parse_task_state factory function
@@ -93,7 +93,7 @@ class TaskManager:
         """Persist current state to JSON file."""
         self._ensure_dir()
         if self._state:
-            with open(self._task_file, "w") as f:
+            with open(self._task_file, "w", encoding="utf-8") as f:
                 json.dump(self._state.model_dump(), f, ensure_ascii=False, indent=2)
 
     def update_step(self, step_name: str, status: StepStatus):
@@ -148,7 +148,7 @@ class TaskManager:
             task_file = os.path.join(working_dir, name, "task_state.json")
             if os.path.exists(task_file):
                 try:
-                    with open(task_file, "r") as f:
+                    with open(task_file, "r", encoding="utf-8") as f:
                         data = json.load(f)
                     tasks.append({
                         "task_id": data.get("task_id", name),

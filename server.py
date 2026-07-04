@@ -49,11 +49,11 @@ async def lifespan(app: FastAPI):
             task_file = os.path.join(working_dir, name, "task_state.json")
             if os.path.exists(task_file):
                 try:
-                    with open(task_file, "r") as f:
+                    with open(task_file, "r", encoding="utf-8") as f:
                         data = json.load(f)
                     if data.get("status") == "running":
                         data["status"] = "pending"
-                        with open(task_file, "w") as f:
+                        with open(task_file, "w", encoding="utf-8") as f:
                             json.dump(data, f, ensure_ascii=False, indent=2)
                         logger.info(f"[Startup] Reset stale running task {name} -> pending")
                 except Exception:
@@ -64,6 +64,19 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Agnes Video Generator", lifespan=lifespan)
 
+from fastapi.middleware.cors import CORSMiddleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:4321",
+        "http://127.0.0.1:4321",
+        "http://localhost:8765",
+        "http://127.0.0.1:8765"
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 from core.middleware import register_standardized_responses
 register_standardized_responses(app)
 

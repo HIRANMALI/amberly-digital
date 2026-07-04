@@ -15,12 +15,12 @@ async def get_my_profile(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
-    from modules.tasks.crud import count_tasks_this_week  # Avoid circular import
-    tasks_count = await count_tasks_this_week(db, current_user.id)
+    from modules.tasks.crud import count_tasks_today  # Avoid circular import
+    tasks_count = await count_tasks_today(db, current_user.id)
     
-    # We create the profile response manually since tasks_this_week is computed
+    # We create the profile response manually since tasks_today is computed
     profile_data = current_user.__dict__
-    profile_data["tasks_this_week"] = tasks_count
+    profile_data["tasks_today"] = tasks_count
     return profile_data
 
 @router.patch("/me", response_model=schemas.UserRead)

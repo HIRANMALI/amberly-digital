@@ -2,6 +2,7 @@ import uuid
 from datetime import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+from sqlalchemy.orm import selectinload
 from .models import RefreshToken
 
 async def create_refresh_token(db: AsyncSession, user_id: uuid.UUID, token_hash: str, expires_at: datetime) -> RefreshToken:
@@ -16,7 +17,11 @@ async def create_refresh_token(db: AsyncSession, user_id: uuid.UUID, token_hash:
     return token_entry
 
 async def get_refresh_token(db: AsyncSession, token_hash: str) -> RefreshToken | None:
-    result = await db.execute(select(RefreshToken).where(RefreshToken.token_hash == token_hash))
+    result = await db.execute(
+        select(RefreshToken)
+        .options(selectinload(RefreshToken.user))
+        .where(RefreshToken.token_hash == token_hash)
+    )
     return result.scalars().first()
 
 async def revoke_refresh_token(db: AsyncSession, token_hash: str) -> None:

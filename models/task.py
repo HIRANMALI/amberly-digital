@@ -33,6 +33,7 @@ class TaskType(str, Enum):
     SIMPLE = "simple"
     CREATIVE = "creative"
     MANUSCRIPT = "manuscript"
+    IMAGE = "image"
 
 
 class VideoMode(str, Enum):

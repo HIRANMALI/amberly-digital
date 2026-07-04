@@ -53,6 +53,16 @@ video_router = APIRouter(prefix="/api/v1/video")
 ws_router = APIRouter(prefix="/api/v1/ws")
 
 # Helper functions
+async def check_daily_limit(db: AsyncSession, user: User):
+    from modules.tasks.crud import count_tasks_today
+    tasks_count = await count_tasks_today(db, user.id)
+    if tasks_count >= user.daily_task_limit:
+        raise HTTPException(
+            status_code=429,
+            detail="Today's generation limit hit."
+        )
+
+
 def _parse_bg_color(raw: str) -> tuple | None:
     """Parse bg_color string to moviepy 2.x compatible RGBA tuple."""
     if isinstance(raw, tuple):
@@ -406,34 +416,111 @@ async def list_tasks(
             elif dt.task_type == "simple":
                 t["prompt"] = dt.prompt[:100] if dt.prompt else ""
                 t["mode"] = "t2v"
+            elif dt.task_type == "image":
+                t["prompt"] = dt.prompt[:100] if dt.prompt else ""
+                t["mode"] = "t2i"
         tasks.append(t)
-    return {"tasks": tasks}
+    return {"ok": True, "tasks": tasks}
 
-
-@router.get("/{task_id}")
-async def get_task(
-    task_id: str,
-    current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
-):
-    from modules.tasks.crud import get_task_by_internal_id
-    db_task = await get_task_by_internal_id(db, task_id)
-    if not db_task or db_task.user_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Not authorized to view this task")
-
-    dir_name = _find_dir_name(task_id)
-    tm = TaskManager(task_id, dir_name=dir_name)
-    state = tm.load()
-    if not state:
-        raise HTTPException(status_code=404, detail="Task not found")
-    data = state.model_dump()
-    data["dir_name"] = dir_name
-    return data
 
 
 # ═══════════════════════════════════════════════════
 # Task Creation Endpoints
 # ═══════════════════════════════════════════════════
+
+@router.post("/image")
+async def create_image_task(
+    prompt: str = Form(...),
+    size: str = Form("1024x1024"),
+    resolution: Optional[str] = Form(None),
+    reference_image: UploadFile = File(None),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """Synchronously generate an image (t2i or i2i)."""
+    await check_daily_limit(db, current_user)
+    if resolution:
+        size = resolution
+    api_key = get_api_key()
+    if not api_key:
+        raise HTTPException(status_code=400, detail="Please configure API Key first")
+
+    ref_paths = []
+    if reference_image and reference_image.filename:
+        upload_path = os.path.join(UPLOAD_DIR, f"tmp_img_{uuid.uuid4().hex[:8]}_{reference_image.filename}")
+        with open(upload_path, "wb") as f:
+            f.write(await reference_image.read())
+        ref_paths.append(upload_path)
+
+    from modules.tasks.crud import create_task, update_task
+    from modules.tasks.schemas import TaskUpdate
+    
+    task_id = uuid.uuid4().hex[:12]
+    
+    ref_url = ""
+    if ref_paths:
+        import cloudinary
+        import cloudinary.uploader
+        if cloudinary.config().cloud_name:
+            try:
+                response = await asyncio.to_thread(
+                    cloudinary.uploader.upload, 
+                    ref_paths[0],
+                    folder=f"agnes_video_tool/{task_id}",
+                    public_id="reference_image",
+                    overwrite=True,
+                    invalidate=True
+                )
+                ref_url = response.get("secure_url", "")
+            except Exception as e:
+                logger.error(f"[Cloudinary] Failed to upload image gen reference: {e}")
+
+    # Save to database immediately
+    db_task = await create_task(
+        db=db,
+        task_id=task_id,
+        task_type="image",
+        prompt=prompt,
+        duration_seconds=0,
+        user_id=current_user.id,
+        first_img_url=ref_url or None
+    )
+
+    from core.api.agnes_image import AgnesImageAPI
+    image_api = AgnesImageAPI(api_key=api_key)
+    
+    try:
+        output = await image_api.generate_single_image(
+            prompt=prompt,
+            reference_image_paths=ref_paths,
+            size=size
+        )
+        
+        # Update database on success
+        url_or_base64 = output.data if output.fmt == "url" else ""
+        await update_task(db, db_task, TaskUpdate(
+            status="completed",
+            video_url=url_or_base64
+        ))
+        
+    except Exception as e:
+        logger.error(f"[ImageGen] Failed: {e}")
+        await update_task(db, db_task, TaskUpdate(status="failed"))
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        if ref_paths and os.path.exists(ref_paths[0]):
+            try:
+                os.remove(ref_paths[0])
+            except Exception:
+                pass
+                
+    return {
+        "ok": True,
+        "format": output.fmt,
+        "ext": output.ext,
+        "url": output.data if output.fmt == "url" else None,
+        "base64": output.data if output.fmt == "b64" else None
+    }
 
 @router.post("/simple")
 async def create_simple_task(
@@ -442,6 +529,7 @@ async def create_simple_task(
     duration: int = Form(5),
     video_width: int = Form(768),
     video_height: int = Form(1152),
+    resolution: Optional[str] = Form(None),
     seed: Optional[int] = Form(None),
     negative_prompt: Optional[str] = Form(None),
     reference_image: UploadFile = File(None),
@@ -450,6 +538,14 @@ async def create_simple_task(
     db: AsyncSession = Depends(get_db)
 ):
     """Create simple video task (Type 1)."""
+    await check_daily_limit(db, current_user)
+    if resolution and "x" in resolution:
+        try:
+            w_str, h_str = resolution.split("x", 1)
+            video_width = int(w_str.strip())
+            video_height = int(h_str.strip())
+        except ValueError:
+            pass
     api_key = get_api_key()
     if not api_key:
         raise HTTPException(status_code=400, detail="Please configure API Key first")
@@ -543,6 +639,7 @@ async def create_creative_task(
     db: AsyncSession = Depends(get_db)
 ):
     """Create creative long video task (Type 2)."""
+    await check_daily_limit(db, current_user)
     api_key = get_api_key()
     if not api_key:
         raise HTTPException(status_code=400, detail="Please configure API Key first")
@@ -639,6 +736,7 @@ async def create_manuscript_task(
     db: AsyncSession = Depends(get_db)
 ):
     """Create manuscript long video task (Type 3)."""
+    await check_daily_limit(db, current_user)
     api_key = get_api_key()
     if not api_key:
         raise HTTPException(status_code=400, detail="Please configure API Key first")
@@ -844,6 +942,38 @@ async def serve_video(
         raise HTTPException(status_code=404, detail="Video not found")
     return FileResponse(video_path, media_type="video/mp4")
 
+
+@router.get("/{task_id}")
+async def get_task(
+    task_id: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    from modules.tasks.crud import get_task_by_internal_id
+    db_task = await get_task_by_internal_id(db, task_id)
+    if not db_task or db_task.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized to view this task")
+
+    if db_task.task_type == "image":
+        return {
+            "task_id": db_task.task_id,
+            "task_type": "image",
+            "status": db_task.status,
+            "prompt": db_task.prompt,
+            "final_video_file": db_task.video_url,
+            "dir_name": db_task.task_id,
+            "ok": True
+        }
+
+    dir_name = _find_dir_name(task_id)
+    tm = TaskManager(task_id, dir_name=dir_name)
+    state = tm.load()
+    if not state:
+        raise HTTPException(status_code=404, detail="Task not found")
+    data = state.model_dump()
+    data["dir_name"] = dir_name
+    data["ok"] = True
+    return data
 
 # ═══════════════════════════════════════════════════
 # Admin Endpoints

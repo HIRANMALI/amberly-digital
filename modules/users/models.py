@@ -35,7 +35,7 @@ class User(Base):
     
     is_active: Mapped[bool] = mapped_column(default=True)
     role: Mapped[UserRole] = mapped_column(SQLEnum(UserRole, native_enum=True), default=UserRole.USER)
-    weekly_task_limit: Mapped[int] = mapped_column(default=5)
+    daily_task_limit: Mapped[int] = mapped_column(default=5)
     
     created_at: Mapped[datetime] = mapped_column(default=get_utc_now, server_default=func.now())
     last_login_at: Mapped[datetime] = mapped_column(default=get_utc_now, server_default=func.now())

@@ -55,13 +55,13 @@ async def update_task(db: AsyncSession, task: Task, updates: TaskUpdate) -> Task
     await db.refresh(task)
     return task
 
-async def count_tasks_this_week(db: AsyncSession, user_id: uuid.UUID) -> int:
-    """Returns the number of tasks created by the user in the last 7 days."""
-    seven_days_ago = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(days=7)
+async def count_tasks_today(db: AsyncSession, user_id: uuid.UUID) -> int:
+    """Returns the number of tasks created by the user today (last 24 hours)."""
+    one_day_ago = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(days=1)
     result = await db.execute(
         select(func.count(Task.id))
         .where(Task.user_id == user_id)
-        .where(Task.created_at >= seven_days_ago)
+        .where(Task.created_at >= one_day_ago)
     )
     return result.scalar_one() or 0
 
