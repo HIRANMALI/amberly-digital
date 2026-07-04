@@ -80,41 +80,66 @@ async def auth_google_callback(
         redirect_target = state
         
     response = RedirectResponse(url=redirect_target)
+    
+    # In development (localhost), we can use lax/False. In production (HTTPS), we need none/True.
+    # Determine if we are running in production based on the request state/host or configuration
+    is_prod = not (redirect_target.startswith("http://localhost") or redirect_target.startswith("http://127.0.0.1"))
+    samesite_val = "none" if is_prod else "lax"
+    secure_val = True if is_prod else False
+
     response.set_cookie(
         key="access_token",
         value=access_token,
         httponly=True,
         max_age=int(service.ACCESS_TOKEN_EXPIRE.total_seconds()),
-        samesite="lax",
-        secure=False, # Set to True in production HTTPS environment
+        samesite=samesite_val,
+        secure=secure_val,
     )
     
     # Expose non-sensitive user info to frontend JS via cookies
     safe_name = urllib.parse.quote(user.name or user.email.split('@')[0])
-    response.set_cookie(key="user_name", value=safe_name, httponly=False, max_age=int(service.ACCESS_TOKEN_EXPIRE.total_seconds()))
+    response.set_cookie(
+        key="user_name", 
+        value=safe_name, 
+        httponly=False, 
+        max_age=int(service.ACCESS_TOKEN_EXPIRE.total_seconds()),
+        samesite=samesite_val,
+        secure=secure_val,
+    )
     if user.avatar_url:
-        response.set_cookie(key="user_avatar", value=urllib.parse.quote(user.avatar_url), httponly=False, max_age=int(service.ACCESS_TOKEN_EXPIRE.total_seconds()))
+        response.set_cookie(
+            key="user_avatar", 
+            value=urllib.parse.quote(user.avatar_url), 
+            httponly=False, 
+            max_age=int(service.ACCESS_TOKEN_EXPIRE.total_seconds()),
+            samesite=samesite_val,
+            secure=secure_val,
+        )
 
-    # Expose refresh token to frontend JS so it can silently renew expired access tokens.
-    # The refresh token is a signed JWT — exposure to JS has similar risk to localStorage.
+    # Expose refresh token to frontend via a secure HttpOnly cookie.
     response.set_cookie(
         key="refresh_token",
         value=raw_refresh_token,
-        httponly=False,
+        httponly=True,
         max_age=int(service.REFRESH_TOKEN_EXPIRE.total_seconds()),
-        samesite="lax",
-        secure=False,  # Set to True in production HTTPS environment
+        samesite=samesite_val,
+        secure=secure_val,
     )
 
     return response
 
 @router.post("/refresh", response_model=schemas.TokenResponse)
-async def refresh_access_token(req: schemas.RefreshRequest, db: AsyncSession = Depends(get_db)):
+async def refresh_access_token(request: Request, body: schemas.RefreshRequest | None = None, db: AsyncSession = Depends(get_db)):
     """Swaps a valid refresh token for a new access token."""
+    # 1. Try body first, then fallback to HttpOnly cookie
+    token = body.refresh_token if body and body.refresh_token else request.cookies.get("refresh_token")
+    if not token:
+        raise HTTPException(status_code=401, detail="Refresh token missing")
+
     # Verify the JWT signature and basic expiry first
-    service.verify_refresh_token(req.refresh_token)
+    service.verify_refresh_token(token)
     
-    token_hash = service.hash_token(req.refresh_token)
+    token_hash = service.hash_token(token)
     token_entry = await crud.get_refresh_token(db, token_hash)
     
     if not token_entry or token_entry.revoked or token_entry.expires_at < datetime.now(timezone.utc).replace(tzinfo=None):
@@ -129,18 +154,24 @@ async def refresh_access_token(req: schemas.RefreshRequest, db: AsyncSession = D
     
     content = schemas.TokenResponse(
         access_token=access_token,
-        refresh_token=req.refresh_token, # keep the same refresh token
+        refresh_token=token, # keep the same refresh token
         expires_in=int(service.ACCESS_TOKEN_EXPIRE.total_seconds())
     ).model_dump()
     
+    # Determine secure / samesite dynamically based on request origin
+    origin = request.headers.get("origin") or ""
+    is_prod = not ("localhost" in origin or "127.0.0.1" in origin or not origin)
+    samesite_val = "none" if is_prod else "lax"
+    secure_val = True if is_prod else False
+
     response = JSONResponse(content=content)
     response.set_cookie(
         key="access_token",
         value=access_token,
         httponly=True,
         max_age=int(service.ACCESS_TOKEN_EXPIRE.total_seconds()),
-        samesite="lax",
-        secure=False,
+        samesite=samesite_val,
+        secure=secure_val,
     )
     return response
 
@@ -153,9 +184,17 @@ async def logout(request: Request, body: schemas.RefreshRequest | None = None, d
         token_hash = service.hash_token(token)
         await crud.revoke_refresh_token(db, token_hash)
     
+    # Determine secure / samesite dynamically based on request origin
+    origin = request.headers.get("origin") or ""
+    is_prod = not ("localhost" in origin or "127.0.0.1" in origin or not origin)
+    samesite_val = "none" if is_prod else "lax"
+    secure_val = True if is_prod else False
+
     response = JSONResponse(content={"message": "Successfully logged out"})
-    response.delete_cookie("access_token")
-    response.delete_cookie("refresh_token")
-    response.delete_cookie("user_name")
-    response.delete_cookie("user_avatar")
+    
+    # Explicitly clear cookies with matching attributes
+    response.delete_cookie("access_token", samesite=samesite_val, secure=secure_val)
+    response.delete_cookie("refresh_token", samesite=samesite_val, secure=secure_val)
+    response.delete_cookie("user_name", samesite=samesite_val, secure=secure_val)
+    response.delete_cookie("user_avatar", samesite=samesite_val, secure=secure_val)
     return response
