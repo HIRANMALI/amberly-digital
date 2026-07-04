@@ -58,8 +58,11 @@ class StandardizeResponseASGIMiddleware:
                     except Exception:
                         data = response_body.decode("utf-8")
                     
-                    # Avoid double wrapping: if it is already wrapped in the standard format
-                    if isinstance(data, dict) and "code" in data and "message" in data and "data" in data:
+                    # Avoid double wrapping: if it is already wrapped in the standard format, or if it's a specific format with "ok"
+                    if isinstance(data, dict) and (
+                        ("code" in data and "message" in data and "data" in data) or 
+                        ("ok" in data and len(data) > 1)
+                    ):
                         wrapped_data = data
                     else:
                         message_str = "Success"

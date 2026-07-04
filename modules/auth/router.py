@@ -9,11 +9,14 @@ from . import schemas, crud, service
 router = APIRouter()
 
 @router.get("/google")
-async def login_google():
+async def login_google(req: Request, redirect_to: str | None = None):
     """Redirects user to Google OAuth consent screen."""
     if not service.GOOGLE_CLIENT_ID:
         raise HTTPException(status_code=500, detail="Google OAuth not configured")
         
+    import urllib.parse
+    state = redirect_to if redirect_to else req.headers.get("referer", "/")
+
     url = (
         f"https://accounts.google.com/o/oauth2/v2/auth?"
         f"response_type=code&"
@@ -21,7 +24,8 @@ async def login_google():
         f"redirect_uri={service.GOOGLE_REDIRECT_URI}&"
         f"scope=openid%20email%20profile&"
         f"access_type=offline&"
-        f"prompt=consent"
+        f"prompt=consent&"
+        f"state={urllib.parse.quote(state)}"
     )
     return RedirectResponse(url)
 
@@ -30,6 +34,7 @@ async def auth_google_callback(
     code: str | None = None,
     error: str | None = None,
     error_description: str | None = None,
+    state: str | None = None,
     db: AsyncSession = Depends(get_db)
 ):
     """Handles Google OAuth callback, creates user, issues tokens."""
@@ -70,7 +75,11 @@ async def auth_google_callback(
     
     import urllib.parse
     
-    response = RedirectResponse(url="/")
+    redirect_target = "/"
+    if state and state.startswith("http"):
+        redirect_target = state
+        
+    response = RedirectResponse(url=redirect_target)
     response.set_cookie(
         key="access_token",
         value=access_token,
@@ -136,11 +145,17 @@ async def refresh_access_token(req: schemas.RefreshRequest, db: AsyncSession = D
     return response
 
 @router.post("/logout")
-async def logout(req: schemas.RefreshRequest, db: AsyncSession = Depends(get_db)):
+async def logout(request: Request, body: schemas.RefreshRequest | None = None, db: AsyncSession = Depends(get_db)):
     """Revokes the refresh token."""
-    token_hash = service.hash_token(req.refresh_token)
-    await crud.revoke_refresh_token(db, token_hash)
+    token = body.refresh_token if body and body.refresh_token else request.cookies.get("refresh_token")
+    
+    if token:
+        token_hash = service.hash_token(token)
+        await crud.revoke_refresh_token(db, token_hash)
     
     response = JSONResponse(content={"message": "Successfully logged out"})
     response.delete_cookie("access_token")
+    response.delete_cookie("refresh_token")
+    response.delete_cookie("user_name")
+    response.delete_cookie("user_avatar")
     return response

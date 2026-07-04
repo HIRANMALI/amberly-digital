@@ -34,23 +34,37 @@ class AgnesChatAPI:
     def chat(self, system_prompt: str, user_prompt: str, max_tokens: int = 4096) -> str:
         """Pure text Chat invocation."""
         logger.info(f"[AgnesChat] Calling chat ({self.model}), prompt: {len(user_prompt)} chars...")
-        resp = requests.post(
-            f"{BASE_URL}/chat/completions",
-            headers=self.headers,
-            json={
-                "model": self.model,
-                "messages": [
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt},
-                ],
-                "temperature": 0.7,
-                "max_tokens": max_tokens,
-            },
-            timeout=120,
-        )
-        resp.raise_for_status()
-        data = resp.json()
-        return data["choices"][0]["message"]["content"]
+        
+        max_retries = 3
+        for attempt in range(max_retries):
+            try:
+                resp = requests.post(
+                    f"{BASE_URL}/chat/completions",
+                    headers=self.headers,
+                    json={
+                        "model": self.model,
+                        "messages": [
+                            {"role": "system", "content": system_prompt},
+                            {"role": "user", "content": user_prompt},
+                        ],
+                        "temperature": 0.7,
+                        "max_tokens": max_tokens,
+                    },
+                    timeout=120,
+                )
+                resp.raise_for_status()
+                data = resp.json()
+                return data["choices"][0]["message"]["content"]
+            except (requests.exceptions.RequestException) as e:
+                import time
+                delay = 15 * (attempt + 1)
+                if attempt < max_retries - 1:
+                    logger.warning(f"[AgnesChat] Chat request failed ({e}), retrying in {delay}s ({attempt + 1}/{max_retries})...")
+                    time.sleep(delay)
+                else:
+                    logger.error(f"[AgnesChat] Chat request failed permanently after {max_retries} attempts: {e}")
+                    raise
+        raise RuntimeError("Failed to get response from Agnes Chat API")
 
     def chat_json(self, system_prompt: str, user_prompt: str, max_tokens: int = 4096) -> dict:
         """Chat invocation and parsing of JSON response."""
@@ -91,17 +105,32 @@ class AgnesChatAPI:
             f"[AgnesChat] Calling multimodal ({self.model}), "
             f"{len(image_paths)} image(s), prompt: {len(text_prompt)} chars..."
         )
-        resp = requests.post(
-            f"{BASE_URL}/chat/completions",
-            headers=self.headers,
-            json={
-                "model": self.model,
-                "messages": messages,
-                "temperature": 0.7,
-                "max_tokens": max_tokens,
-            },
-            timeout=300,
-        )
-        resp.raise_for_status()
-        data = resp.json()
-        return data["choices"][0]["message"]["content"]
+        
+        max_retries = 3
+        for attempt in range(max_retries):
+            try:
+                resp = requests.post(
+                    f"{BASE_URL}/chat/completions",
+                    headers=self.headers,
+                    json={
+                        "model": self.model,
+                        "messages": messages,
+                        "temperature": 0.7,
+                        "max_tokens": max_tokens,
+                    },
+                    timeout=300,
+                )
+                resp.raise_for_status()
+                data = resp.json()
+                return data["choices"][0]["message"]["content"]
+            except (requests.exceptions.RequestException) as e:
+                import time
+                delay = 15 * (attempt + 1)
+                if attempt < max_retries - 1:
+                    logger.warning(f"[AgnesChat] Multimodal chat request failed ({e}), retrying in {delay}s ({attempt + 1}/{max_retries})...")
+                    time.sleep(delay)
+                else:
+                    logger.error(f"[AgnesChat] Multimodal chat request failed permanently after {max_retries} attempts: {e}")
+                    raise
+        raise RuntimeError("Failed to get response from Agnes Chat API")
+
