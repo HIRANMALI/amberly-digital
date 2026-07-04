@@ -65,14 +65,22 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="Agnes Video Generator", lifespan=lifespan)
 
 from fastapi.middleware.cors import CORSMiddleware
+
+# Read custom origins from env var (comma-separated list), fallback to default list
+allowed_origins_env = os.getenv("ALLOWED_ORIGINS", "")
+origins = [
+    "http://localhost:4321",
+    "http://127.0.0.1:4321",
+    "http://localhost:8765",
+    "http://127.0.0.1:8765"
+]
+if allowed_origins_env:
+    extra_origins = [o.strip() for o in allowed_origins_env.split(",") if o.strip()]
+    origins.extend(extra_origins)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:4321",
-        "http://127.0.0.1:4321",
-        "http://localhost:8765",
-        "http://127.0.0.1:8765"
-    ],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
