@@ -25,6 +25,8 @@ const canonicalUrl = new URL(
   Astro.url.pathname,
   Astro.site || "https://amberlydigital.com",
 ).toString();
+
+const publicApiUrl = import.meta.env.PUBLIC_API_URL;
 ---
 
 <!doctype html>
@@ -110,12 +112,14 @@ const canonicalUrl = new URL(
     </script>
 
     <!-- Warm up hosted backend (Render spin-up) on load -->
-    <script is:inline>
-      document.addEventListener("DOMContentLoaded", () => {
-        // Asynchronously wake up the backend if sleeping
-        fetch("https://api.amberlydigital.com/api/v1/health").catch(() => {});
-      });
-    </script>
+    {publicApiUrl && (
+      <script define:vars={{ publicApiUrl }}>
+        document.addEventListener("DOMContentLoaded", () => {
+          // Asynchronously wake up the backend if sleeping
+          fetch(`${publicApiUrl}/health`).catch(() => {});
+        });
+      </script>
+    )}
   </head>
   <body
     class="antialiased geo-grid min-h-screen flex flex-col bg-slate-50 text-slate-900"

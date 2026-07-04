@@ -59,7 +59,13 @@ const durationOptions = [
 ];
 
 export const AITool = ({ apiUrl, localApiUrl }: { apiUrl: string; localApiUrl?: string }) => {
-  const [activeApiUrl, setActiveApiUrl] = useState<string>(apiUrl);
+  const [activeApiUrl, setActiveApiUrl] = useState<string>(() => {
+    const isLocal = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+    if (isLocal && localApiUrl && localApiUrl !== 'undefined') {
+      return localApiUrl;
+    }
+    return (apiUrl && apiUrl !== 'undefined') ? apiUrl : '';
+  });
   const [user, setUser] = useState<{ name: string | null; avatar: string | null } | null>(() => {
     if (typeof window !== 'undefined') {
       try {
@@ -173,63 +179,49 @@ export const AITool = ({ apiUrl, localApiUrl }: { apiUrl: string; localApiUrl?: 
       setMode(modeParam as any);
     }
 
-    // Determine the active API URL on mount by probing the hosted endpoint
-    (async () => {
-      let resolvedUrl = apiUrl;
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 2000); // 2-second timeout
-        
-        await fetch(`${apiUrl}/users/me`, {
-          signal: controller.signal,
-          credentials: 'include'
-        });
-        clearTimeout(timeoutId);
-        setActiveApiUrl(resolvedUrl);
-      } catch (err) {
-        console.warn("Hosted backend not responsive, falling back to local:", err);
-        resolvedUrl = localApiUrl || 'http://localhost:8765/api/v1';
-        setActiveApiUrl(resolvedUrl);
-      }
+    // Fetch fresh profile to check auth state using activeApiUrl
+    if (activeApiUrl) {
+      (async () => {
+        try {
+          const res = await fetch(`${activeApiUrl}/users/me`, { credentials: 'include' });
+          if (res.ok) {
+            const data = await res.json();
+            let nameCookie = getCookie('user_name');
+            let avatarCookie = getCookie('user_avatar');
 
-      // Fetch fresh profile to check auth state using resolved URL
-      try {
-        const res = await fetch(`${resolvedUrl}/users/me`, { credentials: 'include' });
-        if (res.ok) {
-          const data = await res.json();
-          let nameCookie = getCookie('user_name');
-          let avatarCookie = getCookie('user_avatar');
+            if (nameCookie) nameCookie = nameCookie.replace(/^"|"$/g, '');
+            if (avatarCookie) avatarCookie = avatarCookie.replace(/^"|"$/g, '');
 
-          if (nameCookie) nameCookie = nameCookie.replace(/^"|"$/g, '');
-          if (avatarCookie) avatarCookie = avatarCookie.replace(/^"|"$/g, '');
+            const userPayload = data.data || data;
+            const name = userPayload.name || userPayload.full_name || userPayload.user?.name || userPayload.user?.full_name || userPayload.email?.split('@')[0] || userPayload.user?.email?.split('@')[0] || nameCookie || 'User';
+            const avatar = userPayload.avatar_url || userPayload.picture || userPayload.user?.avatar_url || userPayload.user?.picture || avatarCookie || null;
 
-          const userPayload = data.data || data;
-          const name = userPayload.name || userPayload.full_name || userPayload.user?.name || userPayload.user?.full_name || userPayload.email?.split('@')[0] || userPayload.user?.email?.split('@')[0] || nameCookie || 'User';
-          const avatar = userPayload.avatar_url || userPayload.picture || userPayload.user?.avatar_url || userPayload.user?.picture || avatarCookie || null;
+            const updatedUser = { name, avatar };
+            setUser(updatedUser);
+            localStorage.setItem('user_profile', JSON.stringify(updatedUser));
 
-          const updatedUser = { name, avatar };
-          setUser(updatedUser);
-          localStorage.setItem('user_profile', JSON.stringify(updatedUser));
-
-          // Extract daily usage counters
-          setTasksToday(userPayload.tasks_today ?? 0);
-          setDailyLimit(userPayload.daily_task_limit ?? 5);
-        } else if (res.status === 401) {
-          setUser(null);
-          localStorage.removeItem('user_profile');
-          localStorage.removeItem('user_tasks');
+            // Extract daily usage counters
+            setTasksToday(userPayload.tasks_today ?? 0);
+            setDailyLimit(userPayload.daily_task_limit ?? 5);
+          } else if (res.status === 401) {
+            setUser(null);
+            localStorage.removeItem('user_profile');
+            localStorage.removeItem('user_tasks');
+          }
+        } catch (e) {
+          console.error("Failed to fetch user profile", e);
+        } finally {
+          setAuthChecked(true);
         }
-      } catch (e) {
-        console.error("Failed to fetch user profile", e);
-      } finally {
-        setAuthChecked(true);
-      }
-    })();
+      })();
+    } else {
+      setAuthChecked(true);
+    }
 
     return () => {
       if (wsRef.current) wsRef.current.close();
     };
-  }, []);
+  }, [activeApiUrl]);
 
   // Fetch tasks automatically when user is loaded
   useEffect(() => {
