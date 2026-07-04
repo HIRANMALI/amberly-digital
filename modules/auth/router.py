@@ -31,6 +31,7 @@ async def login_google(req: Request, redirect_to: str | None = None):
 
 @router.get("/google/callback")
 async def auth_google_callback(
+    request: Request,
     code: str | None = None,
     error: str | None = None,
     error_description: str | None = None,
@@ -81,9 +82,9 @@ async def auth_google_callback(
         
     response = RedirectResponse(url=redirect_target)
     
-    # In development (localhost), we can use lax/False. In production (HTTPS), we need none/True.
-    # Determine if we are running in production based on the request state/host or configuration
-    is_prod = not (redirect_target.startswith("http://localhost") or redirect_target.startswith("http://127.0.0.1"))
+    # Check if backend host is not running on localhost/127.0.0.1
+    host = request.url.hostname or ""
+    is_prod = not (host == "localhost" or host == "127.0.0.1")
     samesite_val = "none" if is_prod else "lax"
     secure_val = True if is_prod else False
 
