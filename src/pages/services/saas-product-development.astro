@@ -1,0 +1,262 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Navbar from "@/components/Navbar.astro";
+import { Footer } from "@/components/Footer";
+import { SERVICES, generateFAQSchema } from "@/lib/seo-data";
+import { Cloud, Server, Lock, Layers } from "lucide-react";
+
+const service = SERVICES["saas-product-development"];
+
+const faqItems = [
+  {
+    q: "Do you build the front-end and the back-end?",
+    a: "Yes, we handle full-stack development. We architect secure back-end databases, build robust APIs, and design highly responsive front-end user interfaces using frameworks like React and Next.js.",
+  },
+  {
+    q: "How do you handle user authentication and payments?",
+    a: "We integrate enterprise-grade identity providers (like Auth0 or Supabase Auth) and payment gateways (like Stripe or LemonSqueezy) to ensure secure, compliant subscription billing.",
+  },
+  {
+    q: "Will the application be able to scale?",
+    a: "Absolutely. We deploy our SaaS platforms on serverless edge infrastructure or containerized AWS environments, ensuring your application can effortlessly scale from 100 to 100,000 concurrent users without downtime.",
+  },
+  {
+    q: "Who owns the codebase?",
+    a: "You do. Upon completion and final payment, you receive 100% intellectual property ownership of the source code, databases, and architectural designs.",
+  },
+];
+
+const faqSchemaJson = generateFAQSchema(faqItems);
+---
+
+<BaseLayout
+  title="SaaS Development & Multi-Tenant Web Apps | Amberly Digital"
+  description={service.shortDesc}
+>
+  <script type="application/ld+json" set:html={JSON.stringify(faqSchemaJson)} />
+
+  <Navbar />
+
+  <!-- TOP STRIP -->
+  <div
+    class="bg-amber-500 border-b-2 border-slate-950 py-2.5 px-4 text-center text-slate-950 text-xs font-mono font-black uppercase tracking-widest flex items-center justify-center gap-2"
+  >
+    <Cloud className="w-4 h-4 animate-bounce shrink-0 text-slate-950" />
+    <span>SCALABLE ARCHITECTURE & MULTI-TENANT SYSTEMS</span>
+  </div>
+
+  <main class="bg-white">
+    <!-- HERO SECTION: PROBLEM + OUTCOME -->
+    <section
+      class="border-b-2 border-slate-950 py-16 lg:py-24 bg-slate-50 relative overflow-hidden"
+    >
+      <div
+        class="absolute top-0 right-0 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"
+      >
+      </div>
+      <div class="max-w-5xl mx-auto px-6 lg:px-12 space-y-8 relative">
+        <span
+          class="text-xs font-mono font-black text-amber-600 border border-amber-300 bg-amber-100 px-3 py-1 w-fit block uppercase tracking-widest"
+        >
+          ☁️ SOFTWARE-AS-A-SERVICE
+        </span>
+        <h1
+          class="text-4xl sm:text-5xl lg:text-7xl font-black font-display text-slate-950 uppercase tracking-tight leading-none"
+        >
+          Build to Scale. <br />
+          <span class="text-amber-500">Capture the Market.</span>
+        </h1>
+
+        <!-- Problem & Outcome Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-6">
+          <div
+            class="border-2 border-slate-900 bg-white p-6 shadow-[4px_4px_0px_rgba(0,0,0,1)]"
+          >
+            <span
+              class="text-[10px] font-mono font-black text-red-500 uppercase tracking-widest block mb-2"
+              >✖ THE PROBLEM: BRITTLE ARCHITECTURE</span
+            >
+            <p class="text-sm text-slate-700 leading-relaxed font-semibold">
+              Many founders attempt to build complex software on top of rigid no-code tools or legacy frameworks. As user counts grow, databases lock up, features break, and technical debt crushes the ability to launch new updates.
+            </p>
+          </div>
+          <div
+            class="border-2 border-amber-500 bg-slate-900 p-6 shadow-[4px_4px_0px_rgba(245,158,11,1)] text-white"
+          >
+            <span
+              class="text-[10px] font-mono font-black text-amber-400 uppercase tracking-widest block mb-2"
+              >✔ THE OUTCOME: ENTERPRISE-GRADE INFRASTRUCTURE</span
+            >
+            <p class="text-sm text-slate-350 leading-relaxed">
+              We architect and develop robust SaaS platforms built specifically for scale. From complex data dashboards to subscription management and secure multi-tenant architectures, we build high-performance software that drives recurring revenue.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="py-16 lg:py-20 border-b-2 border-slate-950">
+      <div class="max-w-5xl mx-auto px-6 lg:px-12">
+        <div class="text-center max-w-2xl mx-auto mb-16">
+          <span
+            class="text-xs font-mono font-black text-amber-600 uppercase tracking-widest block mb-2"
+            >METHODOLOGY</span
+          >
+          <h2
+            class="text-3xl sm:text-4xl font-display font-black text-slate-950 uppercase tracking-tight"
+          >
+            SaaS Architecture Blueprint
+          </h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div
+            class="border-2 border-slate-950 p-6 bg-slate-50 relative shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+          >
+            <span
+              class="absolute -top-6 left-4 text-7xl font-black font-display text-slate-200/80 select-none pointer-events-none"
+              >01</span
+            >
+            <h3
+              class="text-lg font-bold font-display text-slate-950 uppercase tracking-tight mb-2 pt-4"
+            >
+              Data Layer
+            </h3>
+            <p class="text-xs text-slate-600 leading-relaxed font-semibold">
+              We design robust relational databases capable of handling complex multi-tenant relationships and large-scale analytical queries.
+            </p>
+          </div>
+          <div
+            class="border-2 border-slate-950 p-6 bg-slate-50 relative shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+          >
+            <span
+              class="absolute -top-6 left-4 text-7xl font-black font-display text-slate-200/80 select-none pointer-events-none"
+              >02</span
+            >
+            <h3
+              class="text-lg font-bold font-display text-slate-950 uppercase tracking-tight mb-2 pt-4"
+            >
+              API & Logic
+            </h3>
+            <p class="text-xs text-slate-600 leading-relaxed font-semibold">
+              We build highly secure, documented APIs to manage authentication, business logic, webhooks, and third-party SaaS integrations.
+            </p>
+          </div>
+          <div
+            class="border-2 border-slate-950 p-6 bg-slate-50 relative shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+          >
+            <span
+              class="absolute -top-6 left-4 text-7xl font-black font-display text-slate-200/80 select-none pointer-events-none"
+              >03</span
+            >
+            <h3
+              class="text-lg font-bold font-display text-slate-950 uppercase tracking-tight mb-2 pt-4"
+            >
+              Front-End UI
+            </h3>
+            <p class="text-xs text-slate-600 leading-relaxed font-semibold">
+              We connect the logic to lightning-fast, reactive user interfaces, ensuring your customers experience an application that feels premium and instant.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- WHY BUSINESSES USE IT: BENEFITS -->
+    <section class="py-16 lg:py-24 border-b-2 border-slate-950">
+      <div class="max-w-5xl mx-auto px-6 lg:px-12">
+        <div class="mb-14 text-center max-w-2xl mx-auto">
+          <span
+            class="text-xs font-mono font-bold text-amber-600 uppercase tracking-widest block mb-2"
+            >BENEFITS</span
+          >
+          <h2
+            class="text-3xl sm:text-4xl font-display font-black text-slate-950 uppercase tracking-tight"
+          >
+            Engineered For Growth
+          </h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {
+            service.benefits.map((benefit, idx) => (
+              <div class="bg-slate-50 border-2 border-slate-950 p-6 flex items-start gap-4 shadow-[4px_4px_0px_rgba(0,0,0,1)]">
+                <div class="w-10 h-10 bg-amber-500 border-2 border-slate-950 text-slate-950 flex items-center justify-center shrink-0 shadow-[2px_2px_0px_rgba(0,0,0,1)]">
+                  <span class="font-mono font-black text-xs">0{idx + 1}</span>
+                </div>
+                <div>
+                  <h4 class="text-base font-bold font-display uppercase tracking-tight text-slate-950 mb-2">
+                    {service.features[idx]}
+                  </h4>
+                  <p class="text-xs text-slate-600 leading-relaxed font-semibold">
+                    {benefit}
+                  </p>
+                </div>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="py-16 lg:py-20 bg-slate-50 border-b-2 border-slate-950">
+      <div class="max-w-3xl mx-auto px-6 lg:px-12">
+        <div class="mb-12 text-center">
+          <span
+            class="text-xs font-mono font-bold text-amber-600 uppercase tracking-widest block mb-2"
+            >FAQ</span
+          >
+          <h2
+            class="text-2xl sm:text-3xl font-black font-display text-slate-950 uppercase tracking-tight"
+          >
+            SaaS Development FAQ
+          </h2>
+        </div>
+
+        <div class="space-y-4">
+          {
+            faqItems.map((faq) => (
+              <div class="border-2 border-slate-200 p-5 bg-white shadow-sm">
+                <h3 class="text-sm font-black text-slate-950 uppercase tracking-tight mb-2">
+                  {faq.q}
+                </h3>
+                <p class="text-xs text-slate-650 leading-relaxed font-semibold">
+                  {faq.a}
+                </p>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA STRIP -->
+    <section class="bg-amber-50 py-16 border-b-2 border-slate-950">
+      <div
+        class="max-w-4xl mx-auto px-6 lg:px-12 flex flex-col sm:flex-row items-center justify-between gap-8 text-slate-950"
+      >
+        <div>
+          <h2
+            class="text-3xl sm:text-4xl font-black font-display uppercase tracking-tight leading-tight"
+          >
+            Ready to Build Your <br class="hidden sm:block" /> Software Product?
+          </h2>
+          <p class="text-slate-800 text-sm font-bold mt-2">
+            Let's discuss architecture, timelines, and scaling strategy.
+          </p>
+        </div>
+        <a
+          href="/#onboarding-form"
+          class="shrink-0 bg-white text-slate-950 font-black py-4 px-8 text-xs tracking-widest uppercase transition-all duration-200 border-2 border-slate-950 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none"
+        >
+          Book Strategy Call →
+        </a>
+      </div>
+    </section>
+
+  </main>
+
+  <Footer client:visible />
+</BaseLayout>

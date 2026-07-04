@@ -23,7 +23,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
     keyTakeaways: [
       "70% of clicks and calls for local trade searches go to the Google Maps Top 3 Map Pack.",
       "Proximity, category relevance, and business name alignment are Google's top ranking algorithms.",
-      "Review velocity (how often you get reviews) and matching citations on Australian directories are crucial trust indicators."
+      "Review velocity (how often you get reviews) and matching citations on major directories are crucial trust indicators."
     ],
     content: `
       <p>When a homeowner has water spraying from a burst pipe at 11 PM on a Sunday, they don't "research brands." They don't read blog posts. They don't compare websites.</p>
@@ -32,7 +32,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
       
       <p>That's the Google Local 3-Pack. And if your business isn't there, you're not losing visibility. You're losing jobs.</p>
       
-      <p>Here's what we've learned from auditing over 140 Australian tradie Google Business Profiles—including what works, what doesn't, and where the uncertainty lives.</p>
+      <p>Here's what we've learned from auditing over 140 Google Business Profiles—including what works, what doesn't, and where the uncertainty lives.</p>
       
       <h3>Why Most Tradies Get Google Maps Wrong</h3>
       <p>Google doesn't publish its local ranking algorithm. Nobody outside Google knows exactly how it works.</p>
@@ -59,7 +59,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
       
       <p>What's less certain: exactly how much a single mismatch hurts you.</p>
       
-      <p>What we've observed: In side-by-side comparisons of similar businesses, the one with fully consistent NAP across the top 10 Australian directories almost always outranks the one with mismatches. Sometimes by 1 position. Occasionally by 5 or more. We can't promise a specific number—every market is different.</p>
+      <p>What we've observed: In side-by-side comparisons of similar businesses, the one with fully consistent NAP across the top 10 major directories almost always outranks the one with mismatches. Sometimes by 1 position. Occasionally by 5 or more. We can't promise a specific number—every market is different.</p>
       
       <p>What we recommend: Audit your NAP across TrueLocal, Yellow Pages, White Pages, Hipages, and Local.com.au. They don't need to be perfect to rank. But every mismatch is a variable you can eliminate.</p>
       
@@ -139,7 +139,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
       <h3>Ready to See Exactly Where You Stand?</h3>
       <p>Most tradies guess their way through Google rankings. That's expensive—in missed calls and lost jobs.</p>
       
-      <p>We offer a free Google Maps Audit for Australian Tradies that takes 15 minutes and shows you:</p>
+      <p>We offer a free Google Maps Audit for Service Businesses that takes 15 minutes and shows you:</p>
       <ul>
         <li>Your current 3-Pack position for your top 5 suburbs</li>
         <li>Which NAP mismatches exist across directories</li>
@@ -176,7 +176,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
     readTime: "7 min read",
     keyTakeaways: [
       "Stressed emergency customers will hang up and call a competitor if their call goes to voicemail.",
-      "An average Australian plumbing business loses between $3,000 and $10,000 a month in missed bookings.",
+      "An average service business loses between $3,000 and $10,000 a month in missed bookings.",
       "An automated SMS responder sent within 5 seconds of a missed call saves up to 60% of lost leads."
     ],
     content: `
@@ -191,7 +191,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
       <h3>What a Missed Call Really Costs</h3>
       <p>Let's start with what we know for sure.</p>
       
-      <p>Google publishes zero data on how many emergency calls go unanswered. But we've audited call logs for 87 Australian trade businesses over the past 18 months.</p>
+      <p>Google publishes zero data on how many emergency calls go unanswered. But we've audited call logs for 87 service businesses over the past 18 months.</p>
       
       <p>What we found: Between 5 PM and 8 PM on weekdays, the average tradie misses 34% of incoming calls. On weekends, it's 52%.</p>
       
@@ -327,7 +327,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
       <h3>Ready to Skip the Test and See Your Actual Leak?</h3>
       <p>Most tradies don't have time to run experiments. They have jobs to finish.</p>
       
-      <p>We offer a free Missed Call Audit for Australian Tradies that takes 24 hours and shows you:</p>
+      <p>We offer a free Missed Call Audit for Service Businesses that takes 24 hours and shows you:</p>
       <ul>
         <li>Exactly how many emergency calls you missed last week</li>
         <li>Your estimated revenue leak (based on your average job value)</li>
@@ -358,7 +358,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
     slug: "how-tradies-win-more-emergency-jobs",
     title: "How Tradies Win More Emergency Jobs",
     excerpt: "Emergency jobs are high-margin and highly profitable. Learn the website layout tricks and local strategies to land urgent bookings fast.",
-    category: "Lead Gen",
+    category: "AI Tools",
     date: "2026-05-20",
     author: "Amberly Digital Team",
     readTime: "7 min read",
@@ -571,7 +571,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
       <h3>Ready to See How You Stack Up?</h3>
       <p>Most tradies have no idea why they're losing emergency calls. They assume it's ranking. Often, it's their website or their response time.</p>
       
-      <p>We offer a free Emergency Job Audit for Australian Tradies that takes 24 hours and shows you:</p>
+      <p>We offer a free Emergency Job Audit for Service Businesses that takes 24 hours and shows you:</p>
       <ul>
         <li>Your mobile speed score vs 3 local competitors</li>
         <li>Your Time to Response benchmark (how fast you answer vs average)</li>
@@ -601,7 +601,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
   "7-google-business-profile-mistakes-tradies-make": {
     slug: "7-google-business-profile-mistakes-tradies-make",
     title: "7 Google Business Profile Mistakes Tradies Make",
-    excerpt: "Avoid these common Google Business Profile mistakes that keep Australian trade businesses invisible in local search results.",
+    excerpt: "Avoid these common Google Business Profile mistakes that keep service businesses invisible in local search results.",
     category: "SEO",
     date: "2026-05-22",
     author: "Amberly Digital Team",
@@ -617,7 +617,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
       
       <p>It's a live document that Google is constantly checking, cross-referencing, and—if you break the rules—suspending.</p>
       
-      <p>We've audited over 200 Australian trade profiles in the last 18 months. The most common reaction we see? </p>
+      <p>We've audited over 200 trade profiles in the last 18 months. The most common reaction we see? </p>
       
       <p><em>"I didn't know that was a violation."</em></p>
       
@@ -763,7 +763,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
       <h3>Ready for a Full GBP Audit?</h3>
       <p>Most tradies make these mistakes without knowing. Then they wonder why calls are drying up.</p>
       
-      <p>We offer a free Google Business Profile Audit for Australian Tradies that takes 24 hours and shows you:</p>
+      <p>We offer a free Google Business Profile Audit for Service Businesses that takes 24 hours and shows you:</p>
       <ul>
         <li>Whether your listing is at risk of suspension</li>
         <li>Your primary category compared to top local competitors</li>
@@ -839,7 +839,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
       <p>As one analyst put it: "AI doesn't scroll. AI doesn't show alternatives. AI chooses".</p>
       
       <h3>What We're Seeing in Local Search Behaviour</h3>
-      <p>The shift happened fast. In our recent audits of Australian service inquiries, we've noticed a major behavioral transition. Homeowners starting searches with AI rather than traditional Google search do so for three reasons: speed, clarity, and relief from ad noise.</p>
+      <p>The shift happened fast. In our recent audits of local service inquiries, we've noticed a major behavioral transition. Homeowners starting searches with AI rather than traditional Google search do so for three reasons: speed, clarity, and relief from ad noise.</p>
       
       <p>What Google became, in the view of many consumers, was ten blue links surrounded by ads, followed by directories, followed by content optimized for keyword density rather than actual helpfulness. In a plumbing emergency, searchers are expected to open multiple websites, compare reviews, and call around—a stressful process taking 15 to 30 minutes.</p>
       
@@ -914,7 +914,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
       <h3>Ready for a Full AI Visibility Audit?</h3>
       <p>Most tradies have no idea whether AI platforms are recommending them. The data doesn't appear in any standard dashboard.</p>
       
-      <p>We offer a free AI Visibility Audit for Australian Tradies that takes 24 hours and shows you:</p>
+      <p>We offer a free AI Visibility Audit for Service Businesses that takes 24 hours and shows you:</p>
       <ul>
         <li>Whether ChatGPT, Perplexity, or Gemini currently recommend your business</li>
         <li>Your top 5 competitors being named in AI responses</li>
@@ -945,7 +945,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
     slug: "how-homeowners-find-tradies-in-2026",
     title: "How Homeowners Find Tradies in 2026",
     excerpt: "Most tradies think homeowners choose the best business. They don't. In 2026, they choose the easiest option. Discover how to adapt your trade business.",
-    category: "Lead Gen",
+    category: "AI Tools",
     date: "2026-05-25",
     author: "Amberly Digital Team",
     readTime: "6 min read",
@@ -1084,7 +1084,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
       <h3>Ready for a Full 2026 Visibility Audit?</h3>
       <p>Most tradies are still optimizing for how homeowners searched five years ago. The game has changed.</p>
       
-      <p>We offer a free 2026 Homeowner Journey Audit for Australian Tradies that takes 24 hours and shows you:</p>
+      <p>We offer a free 2026 Homeowner Journey Audit for Service Businesses that takes 24 hours and shows you:</p>
       <ul>
         <li>Whether AI search, response time, and Google Maps recommend your business</li>
         <li>Your friction score (how hard you are to book compared to 3 local competitors)</li>
@@ -1201,13 +1201,13 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
       
       <p>Each inconsistency is a crack in your credibility. Google sees mismatched data and downgrades your trust score.</p>
       
-      <p>What the data suggests: In side-by-side comparisons of similar businesses, the one with fully consistent NAP across the top 10 Australian directories almost always outranks the one with mismatches. Sometimes by 1 position. Occasionally by 5 or more.</p>
+      <p>What the data suggests: In side-by-side comparisons of similar businesses, the one with fully consistent NAP across the top 10 major directories almost always outranks the one with mismatches. Sometimes by 1 position. Occasionally by 5 or more.</p>
       
       <p><strong>Time:</strong> 20 minutes</p>
       <p><strong>Action step:</strong> List your business on these directories. Check every single one for exact NAP consistency:</p>
       <ul>
         <li>TrueLocal</li>
-        <li>Yellow Pages Australia</li>
+        <li>Yellow Pages</li>
         <li>White Pages</li>
         <li>Hipages</li>
         <li>Local.com.au</li>
@@ -1346,7 +1346,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
     slug: "why-some-tradies-get-calls-while-others-get-clicks",
     title: "Why Some Tradies Get Calls While Others Get Clicks",
     excerpt: "Traffic is useless if it doesn't ring your phone. Discover the critical difference between website clicks and booked trade jobs, and how to fix your Call-to-Click Ratio.",
-    category: "Lead Gen",
+    category: "AI Tools",
     date: "2026-05-28",
     author: "Amberly Digital Team",
     readTime: "6 min read",
@@ -1574,7 +1574,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
       <h3>Ready for a Call Readiness Audit?</h3>
       <p>Most tradies have no idea why their traffic isn't converting. They assume it's their ranking. Often, it's their keywords, their mobile layout, or their missing call button.</p>
       
-      <p>We offer a free Call Readiness Audit for Australian Tradies that takes 24 hours and shows you:</p>
+      <p>We offer a free Call Readiness Audit for Service Businesses that takes 24 hours and shows you:</p>
       <ul>
         <li>Your current Call-to-Click Ratio (calls ÷ visitors)</li>
         <li>Whether your keywords are low-intent or high-intent</li>
@@ -1634,7 +1634,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
       <!-- The Framework Table -->
       <div class="my-8 border-2 border-slate-950 p-6 bg-slate-50 shadow-[4px_4px_0px_rgba(0,0,0,1)]">
         <h4 class="font-display font-black text-slate-950 uppercase tracking-tight text-base mb-2">Review Integration Framework</h4>
-        <p class="text-xs text-slate-500 font-mono mb-4">Core concepts from our Aussie Tradie Blueprint series.</p>
+        <p class="text-xs text-slate-500 font-mono mb-4">Core concepts from our Service Business Blueprint series.</p>
         <div class="overflow-x-auto">
           <table class="w-full text-left font-mono text-xs border-collapse">
             <thead>
@@ -1839,7 +1839,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
       <h3>Ready for a Full Review Audit?</h3>
       <p>Most tradies have no idea why their review count is stuck. They assume customers don't care. The reality is almost always a broken ask system.</p>
       
-      <p>We offer a free Review Generation Audit for Australian Tradies that takes 24 hours and shows you:</p>
+      <p>We offer a free Review Generation Audit for Service Businesses that takes 24 hours and shows you:</p>
       <ul>
         <li>Your review velocity score (recency vs competitors)</li>
         <li>Which ask methods would have the highest ROI for your trade</li>
@@ -1905,7 +1905,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
       <!-- The Framework Table -->
       <div class="my-8 border-2 border-slate-950 p-6 bg-slate-50 shadow-[4px_4px_0px_rgba(0,0,0,1)]">
         <h4 class="font-display font-black text-slate-950 uppercase tracking-tight text-base mb-2">The Visibility Blueprint Series</h4>
-        <p class="text-xs text-slate-500 font-mono mb-4">Core concepts from our Aussie Tradie Blueprint series.</p>
+        <p class="text-xs text-slate-500 font-mono mb-4">Core concepts from our Service Business Blueprint series.</p>
         <div class="overflow-x-auto">
           <table class="w-full text-left font-mono text-xs border-collapse">
             <thead>
@@ -2078,7 +2078,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
       <h3>Ready for a Proximity Audit?</h3>
       <p>Many tradies don't know how far their proximity radius extends. They assume Google shows them across the whole city. The reality is often a 3–5km bubble.</p>
       
-      <p>We offer a free Proximity Audit for Australian Tradies that takes 24 hours and shows you:</p>
+      <p>We offer a free Proximity Audit for Service Businesses that takes 24 hours and shows you:</p>
       <ul>
         <li>Your current proximity radius (how far from your base you rank)</li>
         <li>Your Map Pack position for your top 10 target suburbs</li>

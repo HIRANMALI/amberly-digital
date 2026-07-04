@@ -1,0 +1,28 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Navbar from "@/components/Navbar.astro";
+import { AITool } from "@/components/AITool.tsx";
+
+const title = "AI Video Generation Tool | Amberly Digital";
+const description =
+  "Generate amazing videos with Text to Video, Image to Video, and Text + Image to Video using Amberly Digital's AI capabilities.";
+const publicApiUrl = import.meta.env.PUBLIC_API_URL;
+const localApiUrl =
+  import.meta.env.PUBLIC_LOCAL_API_URL || "http://localhost:8765/api/v1";
+---
+
+<BaseLayout title={title} description={description}>
+  <div class="bg-slate-50 h-screen flex flex-col overflow-hidden">
+    <Navbar />
+
+    <main
+      class="flex-grow pt-5 pb-4 px-4 sm:px-6 w-full max-w-[1600px] mx-auto flex flex-col justify-stretch overflow-hidden"
+    >
+      <AITool
+        client:only="react"
+        apiUrl={publicApiUrl}
+        localApiUrl={localApiUrl}
+      />
+    </main>
+  </div>
+</BaseLayout>

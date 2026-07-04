@@ -1,0 +1,142 @@
+---
+export const prerender = true;
+
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Navbar from "@/components/Navbar.astro";
+import { Footer } from "@/components/Footer";
+import { Image, Sparkles, UserPlus, ShieldCheck, Flame } from "lucide-react";
+---
+
+<BaseLayout
+  title="Free AI Image Generation Tool | Amberly Digital"
+  description="Generate stunning high-fidelity images using our free AI Image Generation tool. Create a free account to get 5 free generations daily."
+>
+  <Navbar />
+
+  <main class="flex-col bg-[#FAF9F5] min-h-screen">
+    {/* HERO SECTION */}
+    <section class="py-20 border-b-2 border-slate-950 bg-slate-900 text-white relative overflow-hidden">
+      <div class="absolute top-0 right-0 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="max-w-4xl mx-auto px-6 text-center space-y-6 relative">
+        <div class="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/30 p-2 text-amber-400 font-mono font-black text-[10px] uppercase tracking-wider">
+          <Sparkles className="w-4 h-4 text-amber-500 animate-pulse" />
+          <span>AI-Powered Design</span>
+        </div>
+        
+        <h1 class="text-4xl sm:text-6xl font-black font-display uppercase tracking-tight leading-none">
+          Free AI <span class="text-amber-500">Image Generation</span>
+        </h1>
+        
+        <p class="text-slate-300 text-sm sm:text-base leading-relaxed max-w-2xl mx-auto font-medium">
+          Create high-fidelity graphics, mockups, social media assets, and artistic concepts in seconds. Bring your imagination to life with cutting-edge AI.
+        </p>
+
+        {/* Call to Action with Sign up condition */}
+        <div class="pt-4 max-w-md mx-auto space-y-3">
+          <a
+            href="/ai-studio"
+            class="w-full bg-amber-500 hover:bg-[#f7ab1a] text-slate-950 font-black py-4 px-8 rounded-none text-xs tracking-widest uppercase transition-all shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:translate-x-[2px] hover:translate-y-[2px] flex items-center justify-center gap-2 cursor-pointer border-2 border-slate-950"
+          >
+            <UserPlus className="w-4 h-4" />
+            <span>Start Image Generation</span>
+          </a>
+          <span class="text-[10px] font-mono text-slate-400 block font-bold uppercase tracking-wider">
+            ⚠️ Sign up required (Includes 5 free daily generation credits)
+          </span>
+        </div>
+      </div>
+    </section>
+
+    {/* VALUE PROPOSITIONS SECTION */}
+    <section class="py-16 max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8">
+      {/* Prop 1 */}
+      <div class="bg-white border-2 border-slate-950 p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex flex-col justify-between">
+        <div class="space-y-4">
+          <div class="w-12 h-12 bg-amber-500/10 border border-slate-950/20 flex items-center justify-center text-amber-600">
+            <Flame className="w-6 h-6" />
+          </div>
+          <h3 class="text-lg font-black font-display uppercase text-slate-950">5 Free Credits Daily</h3>
+          <p class="text-slate-600 text-xs leading-relaxed font-semibold">
+            Every registered user receives 5 free image generation credits every single day. Start creating premium visuals immediately.
+          </p>
+        </div>
+      </div>
+
+      {/* Prop 2 */}
+      <div class="bg-white border-2 border-slate-950 p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex flex-col justify-between">
+        <div class="space-y-4">
+          <div class="w-12 h-12 bg-amber-500/10 border border-slate-950/20 flex items-center justify-center text-amber-600">
+            <Image className="w-6 h-6" />
+          </div>
+          <h3 class="text-lg font-black font-display uppercase text-slate-950">Premium Styles</h3>
+          <p class="text-slate-600 text-xs leading-relaxed font-semibold">
+            Whether you need photorealistic renders, modern digital art, flat design illustrations, or marketing vectors, our models support a wide array of formats.
+          </p>
+        </div>
+      </div>
+
+      {/* Prop 3 */}
+      <div class="bg-white border-2 border-slate-950 p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex flex-col justify-between">
+        <div class="space-y-4">
+          <div class="w-12 h-12 bg-amber-500/10 border border-slate-950/20 flex items-center justify-center text-amber-600">
+            <ShieldCheck className="w-6 h-6" />
+          </div>
+          <h3 class="text-lg font-black font-display uppercase text-slate-950">Full Usage Rights</h3>
+          <p class="text-slate-600 text-xs leading-relaxed font-semibold">
+            The images you generate are entirely yours to use for commercial, personal, or corporate marketing campaigns. No licensing headaches.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    {/* CONTENT SECTION BELOW HERO */}
+    <section class="py-12 border-t-2 border-slate-950 bg-white">
+      <div class="max-w-4xl mx-auto px-6 space-y-8">
+        <div class="space-y-4">
+          <h2 class="text-2xl sm:text-3xl font-black font-display uppercase text-slate-950">
+            Why Use Amberly Digital's AI Image Generator?
+          </h2>
+          <p class="text-slate-650 text-sm leading-relaxed font-semibold">
+            Amberly Digital provides state-of-the-art AI generation tools configured specifically for businesses, local providers, and creative creators. Traditional design resources can be slow and expensive. With AI image models, you can test layout styles, generate social media graphics, and mock up product ideas instantly.
+          </p>
+        </div>
+
+        <div class="space-y-4 border-t border-slate-200 pt-6">
+          <h3 class="text-lg font-black font-display uppercase text-slate-950">
+            How It Works in 3 Simple Steps:
+          </h3>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 font-mono text-xs text-slate-800">
+            <div class="p-4 border border-slate-200 bg-[#FAF9F5]">
+              <span class="text-amber-600 font-bold block mb-1">01 / Sign Up</span>
+              Create a free account to activate your daily credits.
+            </div>
+            <div class="p-4 border border-slate-200 bg-[#FAF9F5]">
+              <span class="text-amber-600 font-bold block mb-1">02 / Enter Prompt</span>
+              Describe the image you want to create (e.g. "flat vector art of a designer working at a desk").
+            </div>
+            <div class="p-4 border border-slate-200 bg-[#FAF9F5]">
+              <span class="text-amber-600 font-bold block mb-1">03 / Download</span>
+              Render in high definition and download instantly.
+            </div>
+          </div>
+        </div>
+
+        {/* CTA Banner */}
+        <div class="border-4 border-slate-950 bg-slate-900 text-white p-8 shadow-[6px_6px_0px_0px_rgba(245,158,11,1)] text-center space-y-4">
+          <h4 class="text-xl font-black font-display uppercase">Ready to Start Designing?</h4>
+          <p class="text-slate-300 text-xs leading-relaxed max-w-md mx-auto">
+            Get your 5 free daily image credits right now. Registration takes less than 30 seconds.
+          </p>
+          <a
+            href="/ai-studio"
+            class="inline-block bg-amber-500 hover:bg-[#f7ab1a] text-slate-950 font-black py-3 px-6 text-xs uppercase tracking-wider border-2 border-slate-950 transition-all cursor-pointer font-mono"
+          >
+            Sign Up & Generate Images
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer client:visible />
+</BaseLayout>

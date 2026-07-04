@@ -8,7 +8,6 @@ import { Image } from "astro:assets";
 import aiReceptionistImg from "../../public/images/AI-Receptionist-3.png";
 import { Footer } from "@/components/Footer";
 import { AreaPartnerBooking } from "@/components/AreaPartnerBooking";
-import { SuburbChecker } from "@/components/SuburbChecker";
 import { generateFAQSchema } from "@/lib/seo-data";
 
 const jsonLd = {
@@ -25,7 +24,7 @@ const jsonLd = {
     addressLocality: "Sydney",
     addressRegion: "NSW",
     postalCode: "2000",
-    addressCountry: "AU",
+    addressCountry: "US",
   },
   geo: {
     "@type": "GeoCoordinates",
@@ -59,7 +58,7 @@ const faqItems = [
   },
   {
     q: "What can an AI Receptionist actually do?",
-    a: "An AI Receptionist can answer calls, qualify leads, collect job details, schedule appointments, and respond to enquiries 24/7—even when you're on-site or after business hours.",
+    a: "An AI Receptionist can answer calls, qualify leads, collect job details, schedule appointments, and respond to enquiries 24/7â€”even when you're on-site or after business hours.",
   },
   {
     q: "Can AI help me respond to leads faster?",
@@ -71,7 +70,7 @@ const faqItems = [
   },
   {
     q: "How much time can AI save my business?",
-    a: "Many tradies spend hours each week answering calls, chasing leads, and handling admin tasks. AI automates much of this work, helping you focus on completing jobs and growing your business.",
+    a: "Many businesses spend hours each week answering calls, chasing leads, and handling admin tasks. AI automates much of this work, helping you focus on core operations and growing your business.",
   },
 ];
 
@@ -98,467 +97,750 @@ const faqSchemaJson = generateFAQSchema(faqItems);
       ></path></svg
     >
     <span
-      >Live Tools Available Now — No Sign-Up Required. Test Your Website
-      Visibility in 10 Seconds.</span
+      >Live Tools Available Now â€” No Sign-Up Required. Test Your AI &
+      Automation Readiness in 10 Seconds.</span
     >
     <!-- <a
-      href="/tools"
+      href="/ai-studio"
       class="ml-2 underline underline-offset-2 hover:text-slate-800 transition-colors"
-      >Try Free →</a
+      >Try Free â†’</a
     > -->
   </div>
 
   <!-- CORE HERO SECTION - THE GEOMETRIC BALANCE HERO MATRIX -->
-  <header class="border-b-2 border-slate-950 bg-white" id="agency-hero">
+  <header
+    class="border-b-2 border-slate-950 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-50 via-slate-300 to-slate-500"
+    id="agency-hero"
+  >
     <div class="max-w-8xl mx-auto px-6 lg:px-12">
       <div
-        class="grid grid-cols-1 lg:grid-cols-12 min-h-[580px] items-stretch pt-4 lg:pt-6 pb-12 lg:pb-16 gap-8"
+        class="flex flex-col items-center justify-center text-center min-h-[580px] pt-4 lg:pt-6 pb-12 lg:pb-16 gap-8 max-w-5xl mx-auto"
       >
-        <!-- Left Hero Core Message (7 columns) -->
-        <div
-          class="lg:col-span-7 flex flex-col justify-center relative py-6 pr-0 lg:pr-8"
-        >
+        <!-- Hero Core Message (Centered) -->
+        <div class="flex flex-col justify-center relative py-6 w-full">
           <h1
             class="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-black font-display leading-none mb-6 text-slate-950 uppercase tracking-tight"
           >
-            More than a <span class="text-amber-500">Website.</span>
+            Experience Our <br class="hidden sm:block" /><span
+              class="text-amber-500">AI Capabilities.</span
+            >
           </h1>
           <p
-            class="text-lg lg:text-2xl text-slate-600 leading-relaxed mb-8 font-medium"
+            class="text-base lg:text-xl text-slate-600 leading-relaxed mb-10 font-medium max-w-3xl mx-auto"
           >
-            Websites and AI tools designed to help businesses attract customers
-            and automate workflows.
+            Explore real AI tools and integrations, from image generation to
+            video creation with keyframes and many more.
           </p>
 
-          <!-- Interactive Callout Buttons -->
-          <div class="flex flex-col sm:flex-row items-center gap-4">
+          <!-- Models Grid in Hero -->
+          <div
+            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-left w-full mt-4"
+          >
             <a
-              href="#onboarding-form"
-              class="w-full sm:w-auto bg-slate-900 hover:bg-slate-800 text-white font-black py-4 px-8 rounded-none text-xs tracking-widest uppercase transition-all flex items-center justify-center gap-2 border-2 border-slate-950 shadow-[4px_4px_0px_0px_rgba(245,158,11,1)]"
+              href="/ai-studio?mode=i2i"
+              class="bg-[#5D3F33] p-5 rounded-[2rem] flex flex-col transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:shadow-amber-900/30 group text-left relative"
             >
-              <span>Get Started</span>
-              <svg
-                class="w-4 h-4 shrink-0"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                ><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg
-              >
+              <div class="px-1 mt-2 flex items-center justify-between gap-4">
+                <div>
+                  <div
+                    class="w-10 h-10 rounded-lg bg-gradient-to-tr from-pink-500 to-amber-300 flex items-center justify-center mb-4 shadow-lg shadow-pink-500/20 text-white"
+                  >
+                    <svg
+                      class="w-5 h-5"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      ><rect width="18" height="18" x="3" y="3" rx="2" ry="2"
+                      ></rect><circle cx="9" cy="9" r="2"></circle><path
+                        d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"
+                      ></path></svg
+                    >
+                  </div>
+                  <h3 class="text-xl font-bold text-white tracking-tight mb-1">
+                    AI Image Generation
+                  </h3>
+                  <p class="text-[13px] text-white/70 font-medium">
+                    Create stunning AI images instantly.
+                  </p>
+                </div>
+                <div
+                  class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white/50 group-hover:bg-white group-hover:text-slate-950 transition-colors shrink-0"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="w-5 h-5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    ><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"
+                    ></path></svg
+                  >
+                </div>
+              </div>
             </a>
+
+
             <a
-              href="/tools#sms-responder"
-              class="w-full sm:w-auto bg-slate-100 hover:bg-slate-200 text-slate-900 font-extrabold py-4 px-8 rounded-none text-xs tracking-widest uppercase transition-all text-center border-2 border-slate-900"
+              href="/ai-studio?mode=t2v"
+              class="bg-[#284252] p-5 rounded-[2rem] flex flex-col transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:shadow-cyan-900/30 group text-left relative"
             >
-              Try SMS Reply Bot
+              <div class="px-1 mt-2 flex items-center justify-between gap-4">
+                <div>
+                  <div
+                    class="w-10 h-10 rounded-lg bg-gradient-to-tr from-cyan-400 to-blue-500 flex items-center justify-center mb-4 shadow-lg shadow-blue-500/20 text-white"
+                  >
+                    <svg
+                      class="w-5 h-5"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      ><polygon points="5 3 19 12 5 21 5 3"></polygon></svg
+                    >
+                  </div>
+                  <h3 class="text-xl font-bold text-white tracking-tight mb-1">
+                    Text-to-Video
+                  </h3>
+                  <p class="text-[13px] text-white/70 font-medium">
+                    Turn text into cinematic video.
+                  </p>
+                </div>
+                <div
+                  class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white/50 group-hover:bg-white group-hover:text-slate-950 transition-colors shrink-0"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="w-5 h-5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    ><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"
+                    ></path></svg
+                  >
+                </div>
+              </div>
+            </a>
+
+            <a
+              href="/ai-studio?mode=i2v"
+              class="bg-[#3E2C4A] p-5 rounded-[2rem] flex flex-col transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:shadow-purple-900/30 group text-left relative"
+            >
+              <div class="px-1 mt-2 flex items-center justify-between gap-4">
+                <div>
+                  <div
+                    class="w-10 h-10 rounded-lg bg-gradient-to-tr from-purple-500 to-indigo-400 flex items-center justify-center mb-4 shadow-lg shadow-purple-500/20 text-white"
+                  >
+                    <svg
+                      class="w-5 h-5"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      ><path d="M2 12h4l2-9 4 18 2-9h8"></path></svg
+                    >
+                  </div>
+                  <h3 class="text-xl font-bold text-white tracking-tight mb-1">
+                    Image-to-Video
+                  </h3>
+                  <p class="text-[13px] text-white/70 font-medium">
+                    Animate still images with keyframes.
+                  </p>
+                </div>
+                <div
+                  class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white/50 group-hover:bg-white group-hover:text-slate-950 transition-colors shrink-0"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="w-5 h-5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    ><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"
+                    ></path></svg
+                  >
+                </div>
+              </div>
             </a>
           </div>
-        </div>
-
-        <!-- Compact Search Visibility Scanner Widget (Interactive client component) -->
-        <div
-          class="lg:col-span-5 flex items-center justify-center bg-slate-50 border-2 border-slate-950 p-6 sm:p-8"
-        >
-          <!-- PERF_OPT: Changed to client:visible to unblock mobile main-thread rendering -->
-          <SuburbChecker client:visible />
         </div>
       </div>
     </div>
   </header>
 
-  <!-- EMERGENCY DISASTER CAPTURE IN SUBURBS MAP MATRICES -->
-  <section class="py-16 bg-white border-b-2 border-slate-950">
-    <div class="max-w-8xl mx-auto px-6 lg:px-12">
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-8 items-center">
-        <!-- Left Content (7 columns) -->
-        <div class="lg:col-span-7 space-y-8">
-          <div class="space-y-4">
-            <h2
-              class="text-4xl sm:text-5xl lg:text-6xl font-display font-black text-slate-950 uppercase tracking-tight leading-tight"
+  <!-- SERVICES SHOWCASE SECTION -->
+  <section class="py-24 bg-white border-b-2 border-slate-950 relative">
+    <div class="max-w-7xl mx-auto px-6 lg:px-12">
+      <div
+        class="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6"
+      >
+        <div>
+          <h2
+            class="text-4xl lg:text-5xl font-black text-slate-950 uppercase tracking-tight font-display mb-4 leading-tight"
+          >
+            Our Capabilites
+          </h2>
+          <p class="text-slate-600 text-lg">
+            Swipe or use arrows to explore how we can accelerate your business.
+          </p>
+        </div>
+      </div>
+
+      <!-- Slider Wrapper with absolute buttons -->
+      <div class="relative group">
+        <!-- Slider Navigation Buttons (Absolute) -->
+        <button
+          id="slider-prev"
+          class="absolute -left-12 lg:-left-16 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-slate-950 flex items-center justify-center text-white hover:bg-slate-800 transition-all shadow-lg hidden md:flex"
+          aria-label="Previous slide"
+        >
+          <svg
+            class="w-5 h-5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg
+          >
+        </button>
+
+        <button
+          id="slider-next"
+          class="absolute -right-12 lg:-right-16 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-slate-950 flex items-center justify-center text-white hover:bg-slate-800 transition-all shadow-lg hidden md:flex"
+          aria-label="Next slide"
+        >
+          <svg
+            class="w-5 h-5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg
+          >
+        </button>
+
+        <!-- Slider Container -->
+        <div
+          id="services-slider-container"
+          class="services-slider flex overflow-x-auto snap-x snap-mandatory gap-12 w-full"
+          style="scrollbar-width: none; -ms-overflow-style: none;"
+        >
+          <style>
+            .services-slider::-webkit-scrollbar {
+              display: none;
+            }
+          </style>
+
+          <!-- Slide 1: AI Development -->
+          <div class="w-full shrink-0 snap-start">
+            <div
+              class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center"
             >
-              Never miss
-              <br />another job
-            </h2>
-            <div class="text-slate-600 font-medium space-y-3 max-w-2xl">
-              <p class="text-xl">
-                When you can't get to the phone, our AI Receptionist can. It
-                answers enquiries instantly, collects the job details, and makes
-                sure no lead is missed.
-              </p>
+              <div class="order-2 lg:order-1">
+                <h3
+                  class="text-5xl lg:text-6xl font-black text-slate-950 uppercase tracking-tight mb-4 font-display leading-tight"
+                >
+                  AI Development
+                </h3>
+                <p class="text-teal-600 font-medium text-lg lg:text-xl mb-8">
+                  Custom AI Agents, RAG systems, and tailored LLM integrations
+                  for your business workflows.
+                </p>
+                <ul class="space-y-4 mb-10">
+                  <li class="flex items-center gap-3">
+                    <div
+                      class="w-5 h-5 rounded-full bg-[#A4E8D7] flex items-center justify-center shrink-0"
+                    >
+                      <svg
+                        class="w-3 h-3 text-black"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="3"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        ><path d="M5 13l4 4L19 7"></path></svg
+                      >
+                    </div>
+                    <span class="text-slate-700 font-medium text-base"
+                      >Custom LLM fine-tuning & prompt engineering</span
+                    >
+                  </li>
+                  <li class="flex items-center gap-3">
+                    <div
+                      class="w-5 h-5 rounded-full bg-[#A4E8D7] flex items-center justify-center shrink-0"
+                    >
+                      <svg
+                        class="w-3 h-3 text-black"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="3"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        ><path d="M5 13l4 4L19 7"></path></svg
+                      >
+                    </div>
+                    <span class="text-slate-700 font-medium text-base"
+                      >RAG architecture with vector databases</span
+                    >
+                  </li>
+                  <li class="flex items-center gap-3">
+                    <div
+                      class="w-5 h-5 rounded-full bg-[#A4E8D7] flex items-center justify-center shrink-0"
+                    >
+                      <svg
+                        class="w-3 h-3 text-black"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="3"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        ><path d="M5 13l4 4L19 7"></path></svg
+                      >
+                    </div>
+                    <span class="text-slate-700 font-medium text-base"
+                      >Secure API development & deployment</span
+                    >
+                  </li>
+                </ul>
+                <a
+                  href="#ai-development"
+                  class="inline-flex items-center gap-2.5 bg-[#A4E8D7] hover:bg-[#8CD8C5] text-black font-bold px-8 py-3.5 rounded-full transition-all hover:scale-105 origin-left"
+                >
+                  Explore More
+                  <svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"
+                    ><path d="M8 5v14l11-7z"></path></svg
+                  >
+                </a>
+              </div>
+              <div class="order-1 lg:order-2">
+                <div
+                  class="rounded-xl overflow-hidden shadow-2xl ring-1 ring-slate-950/10 bg-slate-100"
+                >
+                  <img
+                    src="/images/ai-dev.png"
+                    alt="AI Development Workflow UI"
+                    class="w-full h-auto aspect-[16/10] object-cover"
+                  />
+                </div>
+              </div>
             </div>
           </div>
 
-          <!-- Stats Numbers below Heading & description - horizontal list with symbols -->
-          <div
-            class="flex flex-col md:flex-row items-start md:items-center gap-8 lg:gap-16 pt-8 border-t border-slate-200"
-          >
-            <!-- Stat 1 -->
+          <!-- Slide 2: MVP Development -->
+          <div class="w-full shrink-0 snap-start">
             <div
-              class="flex flex-col md:flex-row items-start md:items-center gap-3 text-left"
+              class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center"
             >
-              <div
-                class="w-12 h-12 bg-amber-500 border-2 border-slate-950 flex items-center justify-center shrink-0 shadow-[2px_2px_0px_rgba(0,0,0,1)]"
-              >
-                <svg
-                  class="w-6 h-6 text-slate-950"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  ><circle cx="12" cy="12" r="10"></circle><polyline
-                    points="12 6 12 12 16 14"></polyline></svg
+              <div class="order-2 lg:order-1">
+                <h3
+                  class="text-5xl lg:text-6xl font-black text-slate-950 uppercase tracking-tight mb-4 font-display leading-tight"
                 >
-              </div>
-              <div>
-                <div
-                  class="text-2xl sm:text-3xl font-mono font-black text-slate-900 leading-tight"
-                >
-                  24/7
-                </div>
-                <p
-                  class="text-xs font-mono font-black uppercase text-slate-500 tracking-wider"
-                >
-                  Lead Response
+                  Startup MVP Development
+                </h3>
+                <p class="text-cyan-600 font-medium text-lg lg:text-xl mb-8">
+                  Prototyping and core-feature development to validate your
+                  startup idea.
                 </p>
+                <ul class="space-y-4 mb-10">
+                  <li class="flex items-center gap-3">
+                    <div
+                      class="w-5 h-5 rounded-full bg-[#87E6F9] flex items-center justify-center shrink-0"
+                    >
+                      <svg
+                        class="w-3 h-3 text-black"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="3"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        ><path d="M5 13l4 4L19 7"></path></svg
+                      >
+                    </div>
+                    <span class="text-slate-700 font-medium text-base"
+                      >Rapid agile development sprints</span
+                    >
+                  </li>
+                  <li class="flex items-center gap-3">
+                    <div
+                      class="w-5 h-5 rounded-full bg-[#87E6F9] flex items-center justify-center shrink-0"
+                    >
+                      <svg
+                        class="w-3 h-3 text-black"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="3"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        ><path d="M5 13l4 4L19 7"></path></svg
+                      >
+                    </div>
+                    <span class="text-slate-700 font-medium text-base"
+                      >Core feature architecture & prioritization</span
+                    >
+                  </li>
+                  <li class="flex items-center gap-3">
+                    <div
+                      class="w-5 h-5 rounded-full bg-[#87E6F9] flex items-center justify-center shrink-0"
+                    >
+                      <svg
+                        class="w-3 h-3 text-black"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="3"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        ><path d="M5 13l4 4L19 7"></path></svg
+                      >
+                    </div>
+                    <span class="text-slate-700 font-medium text-base"
+                      >Responsive, conversion-focused UI</span
+                    >
+                  </li>
+                </ul>
+                <a
+                  href="#mvp-development"
+                  class="inline-flex items-center gap-2.5 bg-[#87E6F9] hover:bg-[#6AD2E6] text-black font-bold px-8 py-3.5 rounded-full transition-all hover:scale-105 origin-left"
+                >
+                  Explore More
+                  <svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"
+                    ><path d="M8 5v14l11-7z"></path></svg
+                  >
+                </a>
+              </div>
+              <div class="order-1 lg:order-2">
+                <div
+                  class="rounded-xl overflow-hidden shadow-2xl ring-1 ring-slate-950/10 bg-slate-100"
+                >
+                  <img
+                    src="/images/mvp-dev.png"
+                    alt="MVP Development Kanban UI"
+                    class="w-full h-auto aspect-[16/10] object-cover"
+                  />
+                </div>
               </div>
             </div>
+          </div>
 
-            <!-- Stat 2 -->
+          <!-- Slide 3: SaaS Development -->
+          <div class="w-full shrink-0 snap-start">
             <div
-              class="flex flex-col md:flex-row items-start md:items-center gap-3 text-left"
+              class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center"
             >
-              <div
-                class="w-12 h-12 bg-amber-500 border-2 border-slate-950 flex items-center justify-center shrink-0 shadow-[2px_2px_0px_rgba(0,0,0,1)]"
-              >
-                <svg
-                  class="w-6 h-6 text-slate-950"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  ><path
-                    d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
-                  ></path></svg
+              <div class="order-2 lg:order-1">
+                <h3
+                  class="text-5xl lg:text-6xl font-black text-slate-950 uppercase tracking-tight mb-4 font-display leading-tight"
                 >
-              </div>
-              <div>
-                <div
-                  class="text-2xl sm:text-3xl font-mono font-black text-slate-900 leading-tight"
-                >
-                  &lt; 10 sec
-                </div>
-                <p
-                  class="text-xs font-mono font-black uppercase text-slate-500 tracking-wider"
-                >
-                  SMS Follow-Up
+                  SaaS Development
+                </h3>
+                <p class="text-pink-600 font-medium text-lg lg:text-xl mb-8">
+                  Scalable, multi-tenant web applications and complex software
+                  platforms.
                 </p>
+                <ul class="space-y-4 mb-10">
+                  <li class="flex items-center gap-3">
+                    <div
+                      class="w-5 h-5 rounded-full bg-[#F9A8D4] flex items-center justify-center shrink-0"
+                    >
+                      <svg
+                        class="w-3 h-3 text-black"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="3"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        ><path d="M5 13l4 4L19 7"></path></svg
+                      >
+                    </div>
+                    <span class="text-slate-700 font-medium text-base"
+                      >React / Next.js / Node.js full-stack</span
+                    >
+                  </li>
+                  <li class="flex items-center gap-3">
+                    <div
+                      class="w-5 h-5 rounded-full bg-[#F9A8D4] flex items-center justify-center shrink-0"
+                    >
+                      <svg
+                        class="w-3 h-3 text-black"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="3"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        ><path d="M5 13l4 4L19 7"></path></svg
+                      >
+                    </div>
+                    <span class="text-slate-700 font-medium text-base"
+                      >Stripe integration & access control</span
+                    >
+                  </li>
+                  <li class="flex items-center gap-3">
+                    <div
+                      class="w-5 h-5 rounded-full bg-[#F9A8D4] flex items-center justify-center shrink-0"
+                    >
+                      <svg
+                        class="w-3 h-3 text-black"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="3"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        ><path d="M5 13l4 4L19 7"></path></svg
+                      >
+                    </div>
+                    <span class="text-slate-700 font-medium text-base"
+                      >AWS / Cloudflare enterprise deployment</span
+                    >
+                  </li>
+                </ul>
+                <a
+                  href="#saas-development"
+                  class="inline-flex items-center gap-2.5 bg-[#F9A8D4] hover:bg-[#F472B6] text-black font-bold px-8 py-3.5 rounded-full transition-all hover:scale-105 origin-left"
+                >
+                  Explore More
+                  <svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"
+                    ><path d="M8 5v14l11-7z"></path></svg
+                  >
+                </a>
+              </div>
+              <div class="order-1 lg:order-2">
+                <div
+                  class="rounded-xl overflow-hidden shadow-2xl ring-1 ring-slate-950/10 bg-slate-100"
+                >
+                  <img
+                    src="/images/saas-dev.png"
+                    alt="SaaS Development Dashboard UI"
+                    class="w-full h-auto aspect-[16/10] object-cover"
+                  />
+                </div>
               </div>
             </div>
+          </div>
 
-            <!-- Stat 3 -->
+          <!-- Slide 4: AI Automation & Integration -->
+          <div class="w-full shrink-0 snap-start">
             <div
-              class="flex flex-col md:flex-row items-start md:items-center gap-3 text-left"
+              class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center"
             >
-              <div
-                class="w-12 h-12 bg-amber-500 border-2 border-slate-950 flex items-center justify-center shrink-0 shadow-[2px_2px_0px_rgba(0,0,0,1)]"
-              >
-                <svg
-                  class="w-6 h-6 text-slate-950"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  ><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"
-                  ></path></svg
+              <div class="order-2 lg:order-1">
+                <h3
+                  class="text-5xl lg:text-6xl font-black text-slate-950 uppercase tracking-tight mb-4 font-display leading-tight"
                 >
-              </div>
-              <div>
-                <div
-                  class="text-2xl sm:text-3xl font-mono font-black text-slate-900 leading-tight"
-                >
-                  0
-                </div>
-                <p
-                  class="text-xs font-mono font-black uppercase text-slate-500 tracking-wider"
-                >
-                  Missed Enquiries
+                  AI Automation & Integration
+                </h3>
+                <p class="text-amber-600 font-medium text-lg lg:text-xl mb-8">
+                  Connect your tools, sync calendars, and automate workflows to
+                  run your business on autopilot.
                 </p>
+                <ul class="space-y-4 mb-10">
+                  <li class="flex items-center gap-3">
+                    <div
+                      class="w-5 h-5 rounded-full bg-amber-400 flex items-center justify-center shrink-0"
+                    >
+                      <svg
+                        class="w-3 h-3 text-black"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="3"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        ><path d="M5 13l4 4L19 7"></path></svg
+                      >
+                    </div>
+                    <span class="text-slate-700 font-medium text-base"
+                      >Custom API and Zapier integration layers</span
+                    >
+                  </li>
+                  <li class="flex items-center gap-3">
+                    <div
+                      class="w-5 h-5 rounded-full bg-amber-400 flex items-center justify-center shrink-0"
+                    >
+                      <svg
+                        class="w-3 h-3 text-black"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="3"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        ><path d="M5 13l4 4L19 7"></path></svg
+                      >
+                    </div>
+                    <span class="text-slate-700 font-medium text-base"
+                      >Xero, ServiceM8, CRM & calendar sync</span
+                    >
+                  </li>
+                  <li class="flex items-center gap-3">
+                    <div
+                      class="w-5 h-5 rounded-full bg-amber-400 flex items-center justify-center shrink-0"
+                    >
+                      <svg
+                        class="w-3 h-3 text-black"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="3"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        ><path d="M5 13l4 4L19 7"></path></svg
+                      >
+                    </div>
+                    <span class="text-slate-700 font-medium text-base"
+                      >Automated client onboarding workflows</span
+                    >
+                  </li>
+                </ul>
+                <a
+                  href="#ai-automation"
+                  class="inline-flex items-center gap-2.5 bg-amber-400 hover:bg-amber-300 text-black font-bold px-8 py-3.5 rounded-full transition-all hover:scale-105 origin-left"
+                >
+                  Explore More
+                  <svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"
+                    ><path d="M8 5v14l11-7z"></path></svg
+                  >
+                </a>
+              </div>
+              <div class="order-1 lg:order-2">
+                <div
+                  class="rounded-xl overflow-hidden shadow-2xl ring-1 ring-slate-950/10 bg-slate-100"
+                >
+                  <img
+                    src="/images/ai-automation.png"
+                    alt="AI Automation Flowchart UI"
+                    class="w-full h-auto aspect-[16/10] object-cover"
+                  />
+                </div>
               </div>
             </div>
           </div>
         </div>
+      </div>
 
-        <!-- Right Content - AI Receptionist Image (5 columns) -->
-        <div class="lg:col-span-5 flex items-center justify-center lg:pl-4">
-          <div
-            class="relative w-full max-w-[420px] group transition-transform duration-500 hover:scale-[1.03]"
-          >
-            <!-- PERF_OPT: Using Astro Image component for automatic WebP/AVIF compression. Revert to <img src="/images/AI-Receptionist-3.png" ... /> if needed. -->
-            <Image
-              src={aiReceptionistImg}
-              alt="AI Receptionist Calling"
-              loading="lazy"
-              decoding="async"
-              class="w-full h-auto object-contain drop-shadow-[14px_14px_0px_rgba(0,0,0,0.12)]"
-            />
-            <div
-              class="absolute bottom-6 right-6 bg-slate-950 border border-slate-800 text-white font-mono text-[10px] font-black uppercase tracking-widest px-3 py-1.5 flex items-center gap-2 shadow-[2px_2px_0px_rgba(0,0,0,1)]"
-            >
-              <span
-                class="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse"
-              ></span>
-              <span>AI Receptionist Active</span>
-            </div>
-          </div>
-        </div>
+      <!-- Pagination Progress Bar -->
+      <div class="mt-4 flex justify-center gap-2" id="slider-pagination">
+        <!-- These dots will be synced via JS -->
+        <button
+          class="w-10 h-2 rounded-full bg-slate-900 transition-colors"
+          aria-label="Go to slide 1"></button>
+        <button
+          class="w-10 h-2 rounded-full bg-slate-200 hover:bg-slate-300 transition-colors"
+          aria-label="Go to slide 2"></button>
+        <button
+          class="w-10 h-2 rounded-full bg-slate-200 hover:bg-slate-300 transition-colors"
+          aria-label="Go to slide 3"></button>
+        <button
+          class="w-10 h-2 rounded-full bg-slate-200 hover:bg-slate-300 transition-colors"
+          aria-label="Go to slide 4"></button>
       </div>
     </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const slider = document.getElementById("services-slider-container");
+        const nextBtn = document.getElementById("slider-next");
+        const prevBtn = document.getElementById("slider-prev");
+        const paginationDots = document.querySelectorAll(
+          "#slider-pagination button",
+        );
+
+        if (slider && nextBtn && prevBtn) {
+          const slides = Array.from(slider.children).filter(
+            (child) => child.tagName !== "STYLE",
+          );
+          let currentIndex = 0;
+
+          // Next/Prev buttons
+          nextBtn.addEventListener("click", () => {
+            slider.scrollBy({ left: slider.clientWidth, behavior: "smooth" });
+          });
+          prevBtn.addEventListener("click", () => {
+            slider.scrollBy({ left: -slider.clientWidth, behavior: "smooth" });
+          });
+
+          // Pagination Dots Click
+          paginationDots.forEach((dot, index) => {
+            dot.addEventListener("click", () => {
+              if (slides[index]) {
+                slides[index].scrollIntoView({
+                  behavior: "smooth",
+                  block: "nearest",
+                  inline: "start",
+                });
+              }
+            });
+          });
+
+          // Sync dots with scroll using IntersectionObserver
+          const observer = new IntersectionObserver(
+            (entries) => {
+              entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                  const index = slides.indexOf(entry.target);
+                  if (index !== -1) {
+                    currentIndex = index;
+                    paginationDots.forEach((dot, i) => {
+                      if (i === currentIndex) {
+                        dot.classList.remove(
+                          "bg-slate-200",
+                          "hover:bg-slate-300",
+                        );
+                        dot.classList.add("bg-slate-900");
+                      } else {
+                        dot.classList.add("bg-slate-200", "hover:bg-slate-300");
+                        dot.classList.remove("bg-slate-900");
+                      }
+                    });
+                  }
+                }
+              });
+            },
+            {
+              root: slider,
+              threshold: 0.5, // Trigger when a slide is at least 50% visible
+            },
+          );
+
+          slides.forEach((slide) => observer.observe(slide));
+        }
+      });
+    </script>
   </section>
 
-  <!-- TOOLS SHOWCASE — PROOF THROUGH ACTION -->
-  <section
-    class="py-20 bg-[#FAF9F5] border-b-2 border-slate-950"
-    id="tools-showcase"
-  >
-    <div class="max-w-8xl mx-auto px-6 lg:px-12">
-      <!-- Section Header -->
-      <div class="max-w-4xl mx-auto text-center mb-14">
-        <h2
-          class="text-4xl sm:text-5xl lg:text-6xl font-display font-black text-slate-950 uppercase tracking-tight leading-none mb-4"
-        >
-          MORE AI TOOLS TO
-          <br /><span class="text-amber-500">SUPPORT YOUR BUSINESS</span>
-        </h2>
-        <p
-          class="text-slate-700 text-lg sm:text-xl font-semibold leading-relaxed max-w-3xl mx-auto"
-        >
-          Discover where opportunities are being missed and test the systems
-          designed to capture them automatically.
-        </p>
-      </div>
-
-      <!-- Step-Based Process Grid -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mt-12">
-        <a
-          href="/services/ai-receptionist"
-          class="bg-white border-2 border-slate-950 p-6 flex flex-col justify-between transition-colors duration-200 group min-h-[185px] rounded-none"
-        >
-          <div>
-            <h3
-              class="text-xl font-bold text-slate-950 tracking-tight leading-tight flex items-center gap-2"
-            >
-              <svg
-                class="w-5 h-5 text-amber-500 shrink-0"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                ><path
-                  d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.56 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"
-                ></path></svg
-              >
-              AI Receptionist
-            </h3>
-            <p class="text-sm text-slate-500 mt-2 font-medium">
-              Answers every call instantly and captures job details 24/7.
-            </p>
-          </div>
-          <div
-            class="mt-4 flex items-center justify-between pt-4 border-t border-slate-200"
-          >
-            <span
-              class="text-[10px] font-mono font-bold text-slate-500 group-hover:text-slate-800 transition-colors uppercase tracking-widest"
-              >Book Demo</span
-            >
-            <svg
-              class="w-5 h-5 text-slate-400 group-hover:text-slate-800 transition-all group-hover:translate-x-1.5"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              ><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg
-            >
-          </div>
-        </a>
-
-        <a
-          href="/services/ai-sms-follow-up"
-          class="bg-white border-2 border-slate-950 p-6 flex flex-col justify-between transition-colors duration-200 group min-h-[185px] rounded-none"
-        >
-          <div>
-            <h3
-              class="text-xl font-bold text-slate-950 tracking-tight leading-tight flex items-center gap-2"
-            >
-              <svg
-                class="w-5 h-5 text-amber-500 shrink-0"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                ><path
-                  d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
-                ></path></svg
-              >
-              AI SMS Follow-Up
-            </h3>
-            <p class="text-sm text-slate-500 mt-2 font-medium">
-              Responds to missed calls within seconds and books jobs
-              automatically.
-            </p>
-          </div>
-          <div
-            class="mt-4 flex items-center justify-between pt-4 border-t border-slate-200"
-          >
-            <span
-              class="text-[10px] font-mono font-bold text-slate-500 group-hover:text-slate-800 transition-colors uppercase tracking-widest"
-              >Book Demo</span
-            >
-            <svg
-              class="w-5 h-5 text-slate-400 group-hover:text-slate-800 transition-all group-hover:translate-x-1.5"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              ><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg
-            >
-          </div>
-        </a>
-
-        <a
-          href="/services/ai-email-automation"
-          class="bg-white border-2 border-slate-950 p-6 flex flex-col justify-between transition-colors duration-200 group min-h-[185px] rounded-none"
-        >
-          <div>
-            <h3
-              class="text-xl font-bold text-slate-950 tracking-tight leading-tight flex items-center gap-2"
-            >
-              <svg
-                class="w-5 h-5 text-amber-500 shrink-0"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                ><circle cx="12" cy="12" r="10"></circle><line
-                  x1="2"
-                  y1="12"
-                  x2="22"
-                  y2="12"></line><path
-                  d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"
-                ></path></svg
-              >
-              AI Email Automation
-            </h3>
-            <p class="text-sm text-slate-500 mt-2 font-medium">
-              Follows up leads, nurtures prospects, and sends targeted quotes
-              automatically.
-            </p>
-          </div>
-          <div
-            class="mt-4 flex items-center justify-between pt-4 border-t border-slate-200"
-          >
-            <span
-              class="text-[10px] font-mono font-bold text-slate-500 group-hover:text-slate-800 transition-colors uppercase tracking-widest"
-              >Book Demo</span
-            >
-            <svg
-              class="w-5 h-5 text-slate-400 group-hover:text-slate-800 transition-all group-hover:translate-x-1.5"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              ><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg
-            >
-          </div>
-        </a>
-
-        <a
-          href="/services/workflow-automation"
-          class="bg-white border-2 border-slate-950 p-6 flex flex-col justify-between transition-colors duration-200 group min-h-[185px] rounded-none"
-        >
-          <div>
-            <h3
-              class="text-xl font-bold text-slate-950 tracking-tight leading-tight flex items-center gap-2"
-            >
-              <svg
-                class="w-5 h-5 text-amber-500 shrink-0"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                ><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline
-                  points="2 17 12 22 22 17"></polyline><polyline
-                  points="2 12 12 17 22 12"></polyline></svg
-              >
-              Workflow Automation
-            </h3>
-            <p class="text-sm text-slate-500 mt-2 font-medium">
-              Connects tools, syncs calendar bookings, and automates invoices on
-              autopilot.
-            </p>
-          </div>
-          <div
-            class="mt-4 flex items-center justify-between pt-4 border-t border-slate-200"
-          >
-            <span
-              class="text-[10px] font-mono font-bold text-slate-500 group-hover:text-slate-800 transition-colors uppercase tracking-widest"
-              >Book Demo</span
-            >
-            <svg
-              class="w-5 h-5 text-slate-400 group-hover:text-slate-800 transition-all group-hover:translate-x-1.5"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              ><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg
-            >
-          </div>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- OUR PROCESS SECTION -->
+  <!-- A PRACTICAL APPROACH SECTION -->
   <section
     class="py-20 bg-white border-b-2 border-slate-950"
     id="agency-process"
   >
-    <div class="max-w-8xl mx-auto px-6 lg:px-12">
+    <div class="max-w-7xl mx-auto px-6 lg:px-12">
       <div class="max-w-3xl mb-16">
         <span
           class="text-xs font-mono font-bold text-amber-600 uppercase tracking-widest block mb-3"
@@ -572,8 +854,9 @@ const faqSchemaJson = generateFAQSchema(faqItems);
         <p
           class="text-slate-600 text-lg sm:text-xl font-semibold leading-relaxed"
         >
-          We identify what's holding your business back, implement the right
-          solution, and refine performance to maximize results.
+          We don't build AI for the sake of it. We map your real workflows,
+          identify where AI creates genuine leverage, and build systems that
+          actually get used.
         </p>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
@@ -585,11 +868,13 @@ const faqSchemaJson = generateFAQSchema(faqItems);
           <h3
             class="text-xl sm:text-2xl font-bold font-display text-slate-950 uppercase tracking-tight"
           >
-            Diagnose the Issue
+            Map Your Workflows
           </h3>
           <p class="text-sm sm:text-base text-slate-600 leading-relaxed">
-            Before recommending anything, we identify exactly why potential
-            customers aren't choosing your business.
+            We start by understanding how your team actually works — what's
+            manual, what's repetitive, and where an AI agent, RAG system, or LLM
+            integration would save the most time. We scope precisely before
+            writing a single line of code.
           </p>
         </div>
         <div class="space-y-4">
@@ -600,11 +885,13 @@ const faqSchemaJson = generateFAQSchema(faqItems);
           <h3
             class="text-xl sm:text-2xl font-bold font-display text-slate-950 uppercase tracking-tight"
           >
-            Build the Solution
+            Build the AI System
           </h3>
           <p class="text-sm sm:text-base text-slate-600 leading-relaxed">
-            We implement the tools, systems, and assets needed to remove those
-            barriers and make it easier for customers to contact you.
+            We build your custom AI solution — whether that's a fine-tuned LLM,
+            a multi-step agent, a retrieval-augmented knowledge base, or a
+            workflow automation layer. You're in the loop at every checkpoint,
+            not just at launch.
           </p>
         </div>
         <div class="space-y-4">
@@ -615,125 +902,239 @@ const faqSchemaJson = generateFAQSchema(faqItems);
           <h3
             class="text-xl sm:text-2xl font-bold font-display text-slate-950 uppercase tracking-tight"
           >
-            Optimize for Growth
+            Deploy, Test & Hand Over
           </h3>
           <p class="text-sm sm:text-base text-slate-600 leading-relaxed">
-            Once everything is live, we measure results and make ongoing
-            improvements to help maximize the return on your investment.
+            We don't just ship and disappear. We test edge cases, monitor
+            outputs, and iterate until the system performs reliably. Then we
+            hand it over with clear documentation — you own the code, the
+            models, and the infrastructure.
           </p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- PERF_OPT: Changed client:load to client:visible to defer loading. Change back to client:load if needed. -->
-  <AreaPartnerBooking client:visible />
-
-  <!-- IS THIS CALL FOR YOU? SECTION -->
-  <section
-    class="py-20 bg-[#FAF9F5] border-b-2 border-slate-950 animate-fade-in"
-    id="call-eligibility"
-  >
-    <div class="max-w-8xl mx-auto px-6 lg:px-12">
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-        <!-- Left Column: Big Bold Statement -->
-        <div class="lg:col-span-5 space-y-6">
+  <!-- WHAT TO EXPECT SECTION (Honest early-stage promises) -->
+  <section class="py-24 bg-white border-b-2 border-slate-950">
+    <div class="max-w-7xl mx-auto px-6 lg:px-12">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <!-- Left: Heading -->
+        <div>
           <span
-            class="text-xs font-mono font-bold text-slate-950 bg-amber-500 border-2 border-slate-950 px-3 py-1.5 uppercase tracking-widest inline-block shadow-[2px_2px_0px_rgba(0,0,0,1)]"
+            class="text-xs font-mono font-bold text-amber-600 uppercase tracking-widest block mb-4"
+            >âš¡ Be Upfront</span
           >
-            ⚡ QUICK CHECK
-          </span>
           <h2
-            class="text-4xl sm:text-5xl lg:text-6xl font-display font-black text-slate-950 uppercase tracking-tight leading-none"
+            class="text-4xl lg:text-5xl font-black font-display text-slate-950 uppercase tracking-tight leading-tight mb-6"
           >
-            Is This Call <br class="hidden lg:block" /><span
-              class="text-amber-500">For You?</span
-            >
+            We're Early Stage.<br />And That's a Good Thing.
           </h2>
-          <p class="text-slate-700 text-lg font-semibold leading-relaxed">
-            Just a quick conversation about your business and how websites, AI
-            tools, or automation could help.
+          <p class="text-slate-600 text-lg leading-relaxed mb-8">
+            We're not a big agency with layers of account managers. You work
+            directly with the founders who are building your solution. We take
+            on a small number of clients at a time so every project gets our
+            full attention.
           </p>
-          <div class="pt-4">
-            <a
-              href="#onboarding-form"
-              class="inline-flex items-center gap-2 bg-slate-950 hover:bg-slate-800 text-white font-black py-4 px-8 rounded-none text-xs tracking-widest uppercase transition-all border-2 border-slate-950 shadow-[4px_4px_0px_0px_rgba(245,158,11,1)]"
+          <a
+            href="#book-a-call"
+            class="inline-flex items-center gap-2.5 bg-slate-950 text-white font-bold px-8 py-4 rounded-full hover:bg-slate-800 transition-all"
+          >
+            Book a Free Call
+            <svg
+              class="w-4 h-4"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              ><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg
             >
-              <span>Book Your Call Now</span>
+          </a>
+        </div>
+
+        <!-- Right: Promise cards -->
+        <div class="space-y-4">
+          <div
+            class="flex items-start gap-5 p-6 rounded-2xl border border-slate-200 bg-slate-50 hover:border-amber-400 transition-colors group"
+          >
+            <div
+              class="w-12 h-12 rounded-xl bg-amber-400 flex items-center justify-center shrink-0"
+            >
               <svg
-                class="w-4 h-4"
-                xmlns="http://www.w3.org/2000/svg"
+                class="w-6 h-6 text-black"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                stroke-width="2"
+                stroke-width="2.5"
                 stroke-linecap="round"
                 stroke-linejoin="round"
-                ><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg
               >
-            </a>
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"
+                ></path><circle cx="12" cy="7" r="4"></circle>
+              </svg>
+            </div>
+            <div>
+              <h3
+                class="font-black text-slate-950 uppercase tracking-tight text-base mb-1"
+              >
+                Direct Founder Access
+              </h3>
+              <p class="text-slate-500 text-sm leading-relaxed">
+                You'll always be talking to the people actually building your
+                solution. No middlemen, no ticket systems.
+              </p>
+            </div>
           </div>
-        </div>
 
-        <!-- Right Column: Premium Checklist Grid/List -->
-        <div class="lg:col-span-7 space-y-4">
-          {
-            [
-              "YOU WANT A STRONGER ONLINE PRESENCE",
-              "You're curious about AI Receptionists",
-              "You want to automate workflow",
-              "Want to see how SMS & email automation works",
-              "You want advanced SEO for your business",
-            ].map((text) => (
-              <div class="bg-white border-2 border-slate-950 p-5 shadow-[4px_4px_0px_rgba(15,23,42,1)] hover:shadow-[6px_6px_0px_rgba(245,158,11,1)] hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all duration-200 flex items-center gap-5 rounded-none group">
-                <div class="w-10 h-10 bg-amber-500 border-2 border-slate-950 flex items-center justify-center shrink-0 shadow-[2px_2px_0px_rgba(0,0,0,1)] group-hover:scale-110 transition-transform">
-                  <svg
-                    class="w-6 h-6 text-slate-950 stroke-[3]"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
-                </div>
-                <p class="text-base sm:text-lg text-slate-900 font-bold uppercase tracking-tight leading-snug">
-                  {text}
-                </p>
-              </div>
-            ))
-          }
+          <div
+            class="flex items-start gap-5 p-6 rounded-2xl border border-slate-200 bg-slate-50 hover:border-amber-400 transition-colors group"
+          >
+            <div
+              class="w-12 h-12 rounded-xl bg-[#A4E8D7] flex items-center justify-center shrink-0"
+            >
+              <svg
+                class="w-6 h-6 text-black"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <line x1="12" y1="1" x2="12" y2="23"></line><path
+                  d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+              </svg>
+            </div>
+            <div>
+              <h3
+                class="font-black text-slate-950 uppercase tracking-tight text-base mb-1"
+              >
+                Transparent, Fixed Pricing
+              </h3>
+              <p class="text-slate-500 text-sm leading-relaxed">
+                We scope everything upfront and agree on a fixed price. No
+                surprise invoices, no scope creep charges.
+              </p>
+            </div>
+          </div>
+
+          <div
+            class="flex items-start gap-5 p-6 rounded-2xl border border-slate-200 bg-slate-50 hover:border-amber-400 transition-colors group"
+          >
+            <div
+              class="w-12 h-12 rounded-xl bg-[#87E6F9] flex items-center justify-center shrink-0"
+            >
+              <svg
+                class="w-6 h-6 text-black"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
+            <div>
+              <h3
+                class="font-black text-slate-950 uppercase tracking-tight text-base mb-1"
+              >
+                You Own Everything
+              </h3>
+              <p class="text-slate-500 text-sm leading-relaxed">
+                We deliver with full documentation. You're not locked into us.
+                Everything we build belongs to your business.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- FAQ Section -->
-  <section class="py-20 bg-white" id="seo-rich-metrics">
+  <!-- BOOKING SECTION -->
+  <section
+    class="py-24 bg-[#FAF9F5] border-b-2 border-slate-950"
+    id="book-a-call"
+  >
+    <div class="max-w-7xl mx-auto px-6 lg:px-12">
+      <div class="text-center mb-12">
+        <span
+          class="text-xs font-mono font-bold text-amber-600 uppercase tracking-widest block mb-4"
+          >âš¡ Let's Talk</span
+        >
+        <h2
+          class="text-4xl lg:text-6xl font-black font-display text-slate-950 uppercase tracking-tight leading-none mb-5"
+        >
+          Book a Free <span class="text-amber-500">Discovery Call</span>
+        </h2>
+        <p
+          class="text-slate-600 text-lg font-medium max-w-xl mx-auto leading-relaxed"
+        >
+          20 minutes. No commitment. We'll listen to your situation and tell you
+          honestly whether we can help.
+        </p>
+      </div>
+
+      <!-- What to expect from the call -->
+      <div class="flex flex-wrap justify-center gap-6 mb-14">
+        {
+          [
+            { icon: "ðŸŽ¯", label: "We understand your workflow" },
+            { icon: "ðŸ’¡", label: "We suggest specific solutions" },
+            { icon: "ðŸ“‹", label: "You get a clear next step" },
+          ].map((item) => (
+            <div class="flex items-center gap-3 bg-white border border-slate-200 rounded-full px-5 py-3 text-slate-700 font-medium text-sm shadow-sm">
+              <span>{item.icon}</span>
+              <span>{item.label}</span>
+            </div>
+          ))
+        }
+      </div>
+
+      <!-- Booking embed -->
+      <AreaPartnerBooking client:visible />
+    </div>
+  </section>
+
+  <!-- FAQ SECTION -->
+  <section class="py-24 bg-white border-b-2 border-slate-950" id="faq">
     <div class="max-w-4xl mx-auto px-6 lg:px-12">
       <div class="text-center mb-16">
         <span
-          class="text-xs font-mono font-bold text-amber-600 uppercase tracking-widest block mb-3"
-          >⚡ FAQ</span
+          class="text-xs font-mono font-bold text-amber-600 uppercase tracking-widest block mb-4"
+          >âš¡ FAQ</span
         >
-        <h3
-          class="text-2xl sm:text-3xl font-display font-black text-slate-950 uppercase"
+        <h2
+          class="text-3xl lg:text-4xl font-black font-display text-slate-950 uppercase tracking-tight leading-tight"
         >
           Common Questions
-        </h3>
+        </h2>
       </div>
       <div class="divide-y divide-slate-200">
         {
           faqItems.map((item) => (
-            <div class="py-6">
-              <h4 class="font-bold text-slate-950 text-base uppercase">
+            <div class="py-6 group">
+              <h4 class="font-bold text-slate-950 text-base uppercase tracking-tight mb-3 flex items-start gap-3">
+                <span class="w-5 h-5 rounded-full bg-amber-400 flex items-center justify-center shrink-0 mt-0.5">
+                  <svg
+                    class="w-3 h-3 text-black"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="3"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M5 13l4 4L19 7" />
+                  </svg>
+                </span>
                 {item.q}
               </h4>
-              <p class="text-sm text-slate-600 mt-3 leading-relaxed">
-                {item.a}
-              </p>
+              <p class="text-slate-500 leading-relaxed pl-8">{item.a}</p>
             </div>
           ))
         }

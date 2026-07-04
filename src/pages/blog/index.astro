@@ -9,9 +9,9 @@ const posts = Object.values(BLOG_POSTS);
 const blogListSchema = {
   "@context": "https://schema.org",
   "@type": "Blog",
-  name: "The Tradie Blueprint",
+  name: "The Service Blueprint",
   description:
-    "Actionable local SEO, Answer Engine Optimization (AEO), and automation advice for Australian trade businesses.",
+    "Actionable artificial intelligence, workflow automation, and custom software advice for service businesses.",
   publisher: {
     "@type": "LocalBusiness",
     name: "Amberly Digital",
@@ -29,11 +29,11 @@ const blogListSchema = {
 ---
 
 <BaseLayout
-  title="The Tradie Blueprint | Amberly Digital Blog"
-  description="Actionable local SEO, Answer Engine Optimization (AEO), and automation advice for Australian trade businesses. Zero fluff. Just bookings."
+  title="The Service Blueprint | Amberly Digital Blog"
+  description="Actionable artificial intelligence, workflow automation, and systems advice for local service businesses. Zero fluff. Just bookings."
 
-  ogTitle="The Tradie Blueprint | Amberly Digital Blog"
-  ogDescription="Actionable local SEO, Answer Engine Optimization (AEO), and automation advice for Australian trade businesses."
+  ogTitle="The Service Blueprint | Amberly Digital Blog"
+  ogDescription="Actionable artificial intelligence, workflow automation, and systems advice for local service businesses."
   ogUrl="https://amberlydigital.com/blog"
 >
   <script
@@ -62,13 +62,13 @@ const blogListSchema = {
             ><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path
               d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg
           >
-          <span>THE TRADIE BLUEPRINT</span>
+          <span>THE SERVICE BLUEPRINT</span>
         </span>
         <h1
           class="text-4xl sm:text-5xl lg:text-6xl font-black font-display leading-none mb-6 text-slate-950 uppercase tracking-tight"
         >
           Growth Blueprints for <span class="text-amber-500"
-            >Aussie Tradies</span
+            >Service Businesses</span
           >.
         </h1>
         <p class="text-lg text-slate-600 leading-relaxed font-medium">
@@ -94,7 +94,7 @@ const blogListSchema = {
             else if (post.category === "Automation")
               categoryColor =
                 "bg-emerald-100 text-emerald-900 border-emerald-500";
-            else if (post.category === "Lead Gen")
+            else if (post.category === "AI Tools")
               categoryColor = "bg-blue-100 text-blue-900 border-blue-500";
             else if (post.category === "Reviews")
               categoryColor = "bg-rose-100 text-rose-900 border-rose-500";
@@ -211,7 +211,7 @@ const blogListSchema = {
           Book Free Visibility Audit
         </a>
         <a
-          href="/tools#visibility-scan"
+          href="/ai-studio#visibility-scan"
           class="w-full sm:w-auto bg-slate-900 hover:bg-slate-800 text-white font-extrabold py-4 px-8 text-xs tracking-widest uppercase transition-all border-2 border-slate-700 text-center"
         >
           Check Suburb Visibility

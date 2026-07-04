@@ -110,80 +110,64 @@ export const CITIES: Record<string, CityInfo> = {
 };
 
 export const SERVICES: Record<string, ServiceInfo> = {
-  "custom-websites": {
-    title: "Custom Websites",
-    shortDesc: "Custom-built, ultra-fast, and mobile-optimized websites designed specifically for local businesses.",
-    longDesc: "We build custom, high-speed, and mobile-responsive websites designed to maximize lead capture and customer conversion. Our sites load in under a second and are built with direct neobrutalist action funnels, so your company stands out instantly.",
+  "ai-development": {
+    title: "AI Development",
+    shortDesc: "Custom AI Agents, RAG systems, and tailored LLM integrations for your business workflows.",
+    longDesc: "We build tailored AI agents and RAG (Retrieval-Augmented Generation) systems that understand your unique business data. Stop relying on generic chat wrappers and deploy intelligent, context-aware AI tools that act as a secure extension of your workforce.",
     benefits: [
-      "Optimized for maximum conversion of customer inquiries",
-      "Ultra-fast loading times on 4G/5G mobile networks",
-      "Neobrutalist, clean, and premium high-converting layouts",
-      "Built-in local suburb routing configurations"
+      "Proprietary AI agents trained on your business data",
+      "Seamless integration with your existing CRM and software",
+      "Secure, private LLM deployments with complete data ownership",
+      "Automate complex data analysis and customer service tasks"
     ],
     features: [
-      "Custom React / Next.js / Astro architecture",
-      "Mobile-first responsive design integrations",
-      "High-contrast CTA booking frameworks",
-      "Full analytics and lead-tracking support"
+      "Custom LLM fine-tuning and prompt engineering",
+      "RAG architecture with vector database integration",
+      "Secure API development and deployment",
+      "Ongoing maintenance and model optimization"
     ],
-    icon: "Code",
+    icon: "Cpu",
   },
-  "ai-receptionist": {
-    title: "AI Receptionist",
-    shortDesc: "Answers every call instantly and captures job details 24/7.",
-    longDesc: "Never miss another customer inquiry. Our AI Receptionist answers calls 24/7, qualifies customer needs, collects job details, and coordinates scheduling so your business keeps booking jobs even after hours.",
+  "mvp-development": {
+    title: "Startup MVP Development",
+    shortDesc: "Prototyping and core-feature development to validate your startup idea.",
+    longDesc: "Launch your product in weeks, not months. We specialize in building Minimum Viable Products (MVPs) that focus strictly on your core value proposition, allowing you to get to market, test with real users, and secure funding faster.",
     benefits: [
-      "Answers calls instantly 24/7 without extra admin staff",
-      "Qualifies leads and collects booking details automatically",
-      "Integrates with your booking calendar seamlessly",
-      "Maintains a premium, professional response for every caller"
+      "Drastically reduced time-to-market for new product launches",
+      "Cost-effective development focused entirely on core features",
+      "Scalable codebase that won't need to be rewritten later",
+      "Real-world user validation and feedback collection"
     ],
     features: [
-      "Natural voice conversational AI",
-      "Instant SMS confirmation details",
-      "Auto-scheduling calendar sync",
-      "Real-time email and dispatch notifications"
+      "Rapid agile development sprints",
+      "Core feature architecture and prioritization",
+      "Responsive, conversion-focused user interfaces",
+      "Essential third-party API integrations"
     ],
-    icon: "Phone",
+    icon: "Rocket",
   },
-  "ai-sms-follow-up": {
-    title: "AI SMS Follow-Up",
-    shortDesc: "Responds to missed calls within seconds and books jobs automatically.",
-    longDesc: "If you miss a call because you're busy, customers won't wait. They hang up and call the next business. Our AI SMS Follow-Up system texts back missed callers instantly, qualifies their problem, and locks in the job.",
+
+  "saas-product-development": {
+    title: "SaaS Product Development",
+    shortDesc: "Scalable, multi-tenant web applications and complex software platforms.",
+    longDesc: "We architect and develop robust Software-as-a-Service (SaaS) platforms built for scale. From complex data dashboards to subscription management and secure multi-tenant architectures, we build software that drives recurring revenue.",
     benefits: [
-      "Save up to 60% of jobs you would otherwise lose to voicemail",
-      "Keeps interested customers from moving on to your competitors",
-      "Works 24/7 without you having to pick up the phone",
-      "Connects directly with your business phone links"
+      "High-performance architecture built for thousands of concurrent users",
+      "Seamless payment gateway and subscription billing integration",
+      "Secure, scalable databases with automated backup protocols",
+      "Custom analytics and administrative control dashboards"
     ],
     features: [
-      "Text sent within 5 seconds of a missed call",
-      "Smart system that asks what the problem is",
-      "Automatically checks and saves the customer's details",
-      "Saves the booking details straight to your calendar"
+      "React / Next.js / Node.js full-stack development",
+      "Stripe integration and tier-based access control",
+      "AWS / Cloudflare enterprise infrastructure deployment",
+      "Automated testing and CI/CD deployment pipelines"
     ],
-    icon: "MessageSquare",
+    icon: "Cloud",
   },
-  "ai-email-automation": {
-    title: "AI Email Automation",
-    shortDesc: "Follows up leads, nurtures prospects, and sends targeted quotes automatically via email.",
-    longDesc: "Never let a warm lead go cold. Our AI Email Automation system handles follow-ups, nurtures prospects with timely information, and ensures your quotes get approved faster by keeping your business top-of-mind.",
-    benefits: [
-      "Increase quote approval rates with automatic friendly follow-ups",
-      "Nurture warm prospects without spending hours typing emails",
-      "Keep clients informed with automated scheduling and job updates",
-      "Saves you hours of administration work every week"
-    ],
-    features: [
-      "Smart automated email sequence design",
-      "Direct sync with CRM and booking systems",
-      "Dynamic template personalization",
-      "Open rate and click tracking dashboards"
-    ],
-    icon: "Globe",
-  },
-  "workflow-automation": {
-    title: "Workflow Automation",
+
+  "ai-automation-integration": {
+    title: "AI Automation & Integration",
     shortDesc: "Connects your tools, syncs calendar bookings, and automates invoices to run your business on autopilot.",
     longDesc: "Stop wasting hours copying details between spreadsheets, invoicing apps, and scheduling calendars. We build customized integrations to connect all your business tools, automating manual data entry so you can focus entirely on completing jobs.",
     benefits: [
@@ -200,24 +184,6 @@ export const SERVICES: Record<string, ServiceInfo> = {
     ],
     icon: "Layers",
   },
-  "advanced-seo": {
-    title: "Advanced SEO",
-    shortDesc: "Get found first on Google Maps and search results where local customers look for services.",
-    longDesc: "When local customers are searching for urgent services, they call the top businesses they see on Google. We optimize your business profile, clean up directories, and build localized content models to rank you in the Top 3 Map Pack.",
-    benefits: [
-      "Pushes your business into the Google Maps Top 3 where 70% of clicks go",
-      "Establishes local search authority in all your target suburbs",
-      "Synchronizes your location coordinates to align with AI search voice engines",
-      "Targets high-intent search terms that lead directly to bookings"
-    ],
-    features: [
-      "Google Business Profile setup and audit optimization",
-      "Local citation synchronization across Australian registries",
-      "High-authority local search signal generation",
-      "Detailed maps rank tracking and visibility reports"
-    ],
-    icon: "MapPin",
-  },
 };
 
 export const TOOLS: Record<string, ToolInfo> = {
@@ -228,119 +194,9 @@ export const TOOLS: Record<string, ToolInfo> = {
     componentName: "ValuationCalculator",
     icon: "Calculator",
   },
-  "google-chatgpt-scanner": {
-    title: "Visibility Scanner",
-    shortDesc: "See if your business is showing up in search and recommended by AI Search engines.",
-    longDesc: "Check if Siri, ChatGPT, or Google would recommend your business. Find search gaps and see how visible your business is today.",
-    componentName: "SuburbChecker",
-    icon: "Search",
-  },
-  "sms-bot-simulator": {
-    title: "SMS Bot Simulator",
-    shortDesc: "Test how our automated system texts back emergency leads in under 2 seconds to win the job.",
-    longDesc: "Try our interactive text simulator. Type typical customer emergency messages (like 'help, my kitchen is flooding!') to see how our automated text response system asks for the address, details the job, and locks in the booking before they dial your competitors.",
-    componentName: "LeadCommandCenter",
-    icon: "Zap",
-  },
 };
 
 // JSON-LD Generation Helpers
-export function generateLocalBusinessSchema(city: CityInfo) {
-  return {
-    "@context": "https://schema.org",
-    "@type": "LocalBusiness",
-    "name": `Amberly Digital ${city.name}`,
-    "image": "https://amberlydigital.com/og-image.png",
-    "url": `https://amberlydigital.com/locations/${city.name.toLowerCase()}`,
-    "telephone": city.phone,
-    "address": {
-      "@type": "PostalAddress",
-      "streetAddress": city.address.split(",")[0],
-      "addressLocality": city.name,
-      "addressRegion": city.state,
-      "postalCode": city.postcode,
-      "addressCountry": "AU"
-    },
-    "geo": {
-      "@type": "GeoCoordinates",
-      "latitude": city.lat,
-      "longitude": city.lng
-    },
-    "openingHoursSpecification": {
-      "@type": "OpeningHoursSpecification",
-      "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
-      "opens": "00:00",
-      "closes": "23:59"
-    },
-    "areaServed": city.suburbs.map(s => ({
-      "@type": "AdministrativeArea",
-      "name": `${s}, ${city.state}`
-    }))
-  };
-}
-
-export function generateServiceSchema(service: ServiceInfo, city: CityInfo) {
-  return {
-    "@context": "https://schema.org",
-    "@type": "Service",
-    "name": `${service.title} in ${city.name}`,
-    "serviceType": service.title,
-    "provider": {
-      "@type": "LocalBusiness",
-      "name": `Amberly Digital ${city.name}`,
-      "telephone": city.phone,
-      "address": {
-        "@type": "PostalAddress",
-        "addressLocality": city.name,
-        "addressRegion": city.state,
-        "addressCountry": "AU"
-      }
-    },
-    "areaServed": {
-      "@type": "AdministrativeArea",
-      "name": `${city.name}, ${city.state}`
-    },
-    "description": service.longDesc,
-    "offers": {
-      "@type": "Offer",
-      "priceCurrency": "AUD",
-      "price": "0.00",
-      "priceSpecification": {
-        "@type": "UnitPriceSpecification",
-        "priceType": "StartingPrice",
-        "price": "0.00",
-        "priceCurrency": "AUD"
-      }
-    }
-  };
-}
-
-export function generateToolSchema(tool: ToolInfo, city: CityInfo) {
-  return {
-    "@context": "https://schema.org",
-    "@type": "WebApplication",
-    "name": `${tool.title} - ${city.name} Plumbers`,
-    "url": `https://amberlydigital.com/tools/${tool.title.toLowerCase().replace(/ /g, "-")}/${city.name.toLowerCase()}`,
-    "applicationCategory": "BusinessApplication",
-    "operatingSystem": "All",
-    "browserRequirements": "Requires JavaScript. Requires HTML5.",
-    "about": {
-      "@type": "Thing",
-      "name": tool.title,
-      "description": tool.longDesc
-    },
-    "offers": {
-      "@type": "Offer",
-      "price": "0.00",
-      "priceCurrency": "AUD"
-    },
-    "publisher": {
-      "@type": "LocalBusiness",
-      "name": `Amberly Digital ${city.name}`,
-      "telephone": city.phone
-    }
-  };
-}
 
 export function generateFAQSchema(faqItems: { q: string; a: string }[]) {
   return {

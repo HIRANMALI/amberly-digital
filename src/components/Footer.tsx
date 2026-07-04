@@ -62,7 +62,7 @@ export function Footer() {
           <span className="text-[10px] text-amber-500 font-black uppercase tracking-widest font-mono">Services</span>
           <div className="grid grid-cols-2 gap-x-8 gap-y-0 items-start w-fit">
             <ul className="space-y-4.5">
-              {Object.entries(SERVICES).slice(0, 3).map(([slug, s]) => (
+              {Object.entries(SERVICES).slice(0, Math.ceil(Object.keys(SERVICES).length / 2)).map(([slug, s]) => (
                 <li key={slug}>
                   <a
                     href={`/services/${slug}`}
@@ -74,7 +74,7 @@ export function Footer() {
               ))}
             </ul>
             <ul className="space-y-4.5">
-              {Object.entries(SERVICES).slice(3).map(([slug, s]) => (
+              {Object.entries(SERVICES).slice(Math.ceil(Object.keys(SERVICES).length / 2)).map(([slug, s]) => (
                 <li key={slug}>
                   <a
                     href={`/services/${slug}`}

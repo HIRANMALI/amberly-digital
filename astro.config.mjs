@@ -14,6 +14,12 @@ export default defineConfig({
     prefetchAll: true,
     defaultStrategy: 'viewport',
   },
+  redirects: {
+    '/services/custom-websites': '/services/saas-product-development',
+    '/services/web-development': '/services/saas-product-development',
+    '/services/ai-email-automation': '/services/ai-automation-integration',
+    '/tools': '/ai-studio',
+  },
   output: 'server',
   adapter: cloudflare({
     imageService: 'compile'
