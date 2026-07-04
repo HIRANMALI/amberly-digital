@@ -72,7 +72,9 @@ origins = [
     "http://localhost:4321",
     "http://127.0.0.1:4321",
     "http://localhost:8765",
-    "http://127.0.0.1:8765"
+    "http://127.0.0.1:8765",
+    "https://amberlydigital.com",
+    "https://www.amberlydigital.com"
 ]
 if allowed_origins_env:
     extra_origins = [o.strip() for o in allowed_origins_env.split(",") if o.strip()]
