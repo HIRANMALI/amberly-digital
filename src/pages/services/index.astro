@@ -37,8 +37,8 @@ const iconMap: Record<string, any> = {
 ---
 
 <BaseLayout
-  title="Aussie Trade Growth Services | Amberly Digital SEO & AEO Specialists"
-  description="Explore our elite search positioning and Answer Engine Optimization (AEO) solutions for plumbers. Secure Google Maps Top 3 and ChatGPT grounding today."
+  title="Custom AI & Automation Solutions | Amberly Digital"
+  description="Explore our custom AI receptionist, SMS follow-up, email, and workflow automation solutions for local service businesses. Run your business on autopilot today."
 >
   <Navbar />
 
@@ -54,19 +54,19 @@ const iconMap: Record<string, any> = {
       <span
         class="text-[10px] font-mono font-black text-amber-400 border border-amber-400/30 bg-amber-500/10 px-3 py-1 tracking-wider uppercase inline-block"
       >
-        ⚡ SEARCH & ANSWER ENGINE DOMINANCE SYSTEM
+        ⚡ CUSTOM AI & WORKFLOW AUTOMATION AGENCY
       </span>
       <h1
         class="text-4xl sm:text-5xl lg:text-6xl font-black font-display uppercase tracking-tight"
       >
-        Our Trade Growth <span class="text-amber-500">Services.</span>
+        Our Custom AI & Automation <span class="text-amber-500">Services.</span>
       </h1>
       <p
         class="text-slate-300 text-base sm:text-lg leading-relaxed max-w-2xl mx-auto font-semibold"
       >
-        We don't do generic marketing. We deploy high-converting search assets,
-        citation synchronization layers, and automated SMS responses to turn
-        local emergency searches into jobs.
+        We deploy intelligent AI voice receptionists, instant SMS responders,
+        automated nurture funnels, and custom software integrations to
+        streamline your business and win more jobs.
       </p>
     </div>
   </header>
@@ -113,56 +113,6 @@ const iconMap: Record<string, any> = {
               </a>
             );
           })
-        }
-      </div>
-    </div>
-  </section>
-
-  <!-- LOCALIZED SEO COVERAGE INDEX -->
-  <section class="py-16 bg-slate-50 border-b-2 border-slate-950">
-    <div class="max-w-8xl mx-auto px-6 lg:px-12">
-      <div class="max-w-2xl mb-12">
-        <span
-          class="text-xs font-mono font-bold text-amber-600 uppercase tracking-widest block mb-2"
-          >LOCALIZED DEPLOYMENT Radials</span
-        >
-        <h2
-          class="text-3xl font-display font-black text-slate-900 uppercase tracking-tight"
-        >
-          Select Your Metro Area For Targeted Schemas
-        </h2>
-        <p class="text-slate-600 mt-2 text-sm font-medium">
-          We configure precise location coordinates and postal coverage areas to
-          ground AI crawlers and rank your plumbing business in your local
-          capital city.
-        </p>
-      </div>
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        {
-          Object.entries(CITIES).map(([cityKey, city]) => (
-            <div class="bg-white border-2 border-slate-950 p-4 shadow-[2px_2px_0px_rgba(0,0,0,1)]">
-              <span class="text-xs font-mono font-black uppercase text-slate-400 block mb-1">
-                {city.state} Region
-              </span>
-              <span class="text-base font-black font-display text-slate-900 block mb-3 uppercase">
-                {city.name}
-              </span>
-              <div class="flex flex-col gap-1 border-t border-slate-100 pt-2 text-[10px] font-mono">
-                <a
-                  href={`/services/local-suburb-micro-funnels/${cityKey}`}
-                  class="hover:underline text-slate-600 hover:text-amber-600"
-                >
-                  → Suburb Funnels
-                </a>
-                <a
-                  href={`/services/advanced-json-ld-markups/${cityKey}`}
-                  class="hover:underline text-slate-600 hover:text-amber-600"
-                >
-                  → JSON-LD Markups
-                </a>
-              </div>
-            </div>
-          ))
         }
       </div>
     </div>

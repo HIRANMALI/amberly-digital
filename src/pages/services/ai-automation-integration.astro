@@ -14,12 +14,12 @@ import {
   ArrowRight,
 } from "lucide-react";
 
-const service = SERVICES["workflow-automation"];
+const service = SERVICES["ai-automation-integration"];
 
 const faqItems = [
   {
-    q: "Which plumbing and trade software integrations do you support?",
-    a: "We support integrations across popular Australian trade tools including ServiceM8, ServiceTitan, Fergus, Simpro, Xero, MYOB, Stripe, ServiceM8 phone lines, Slack, and Google Workspace.",
+    q: "Which business and CRM software integrations do you support?",
+    a: "We support integrations across popular business, CRM, and service tools including HubSpot, Salesforce, ServiceM8, ServiceTitan, Xero, MYOB, Stripe, Slack, and Google Workspace.",
   },
   {
     q: "Do I need to pay for external integration accounts like Zapier?",
@@ -39,8 +39,8 @@ const faqSchemaJson = generateFAQSchema(faqItems);
 ---
 
 <BaseLayout
-  title="Job & Invoicing Workflow Automation for Plumbers | Amberly Digital"
-  description="Run your plumbing business on autopilot. We connect ServiceM8, Xero, and calendars to eliminate manual double data entry and admin errors."
+  title="Job & Invoicing Workflow Automation | Amberly Digital"
+  description="Run your service business on autopilot. We connect CRM, accounting, and calendars to eliminate manual double data entry and admin errors."
 >
   <script type="application/ld+json" set:html={JSON.stringify(faqSchemaJson)} />
 
@@ -217,7 +217,7 @@ const faqSchemaJson = generateFAQSchema(faqItems);
             <CheckCircle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
             <p class="text-xs text-slate-600">
               <strong>12+ hours saved weekly</strong> in back-office administration
-              work for typical Australian service companies.
+              work for typical service companies.
             </p>
           </div>
         </div>
@@ -295,7 +295,7 @@ const faqSchemaJson = generateFAQSchema(faqItems);
       </div>
     </section>
 
-    <!-- WHY TRADIES USE IT: BENEFITS -->
+    <!-- WHY BUSINESSES USE IT: BENEFITS -->
     <section class="py-16 lg:py-24 border-b-2 border-slate-950">
       <div class="max-w-5xl mx-auto px-6 lg:px-12">
         <div class="mb-14 text-center max-w-2xl mx-auto">
@@ -389,56 +389,6 @@ const faqSchemaJson = generateFAQSchema(faqItems);
       </div>
     </section>
 
-    <!-- REGIONAL CITIES SELECTOR -->
-    <section class="py-16">
-      <div class="max-w-8xl mx-auto px-6 lg:px-12">
-        <div class="max-w-2xl mb-12">
-          <span
-            class="text-xs font-mono font-bold text-amber-600 uppercase tracking-widest block mb-2"
-            >DYNAMIC REGIONAL DEPLOYMENTS</span
-          >
-          <h2
-            class="text-3xl font-display font-black text-slate-950 uppercase tracking-tight"
-          >
-            Deploy In Your Capital City
-          </h2>
-          <p class="text-slate-600 mt-2 text-sm font-medium">
-            Select your capital city region to see how we adjust geo-coordinates
-            and schema files for your local suburbs.
-          </p>
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-          {
-            Object.entries(CITIES).map(([cityKey, city]) => (
-              <div class="bg-white border-2 border-slate-950 p-6 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] flex flex-col justify-between">
-                <div>
-                  <div class="flex items-center justify-between border-b border-slate-100 pb-2 mb-3">
-                    <span class="text-lg font-black font-display text-slate-900 uppercase">
-                      {city.name}
-                    </span>
-                    <span class="text-[10px] font-mono font-bold bg-amber-100 text-amber-900 border border-amber-300 px-2 py-0.5 uppercase">
-                      {city.state}
-                    </span>
-                  </div>
-                  <p class="text-[10px] text-slate-500 font-mono mb-4 leading-normal">
-                    Includes suburbs: {city.suburbs.slice(0, 3).join(", ")}...
-                  </p>
-                </div>
-                <a
-                  href={`/services/workflow-automation/${cityKey}`}
-                  class="inline-flex items-center justify-between text-xs font-mono font-black uppercase text-slate-950 hover:text-amber-600 border-t border-slate-100 pt-3"
-                >
-                  <>
-                    <span>Target {city.name}</span>
-                    <span>→</span>
-                  </>
-                </a>
-              </div>
-            ))
-          }
-        </div>
-      </div>
-    </section>
   </main>
 
   <Footer client:visible />

@@ -1,0 +1,265 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Navbar from "@/components/Navbar.astro";
+import { Footer } from "@/components/Footer";
+import { SERVICES, generateFAQSchema } from "@/lib/seo-data";
+import { Cpu, CheckCircle, Database, ShieldCheck, Zap } from "lucide-react";
+
+const service = SERVICES["ai-development"];
+
+const faqItems = [
+  {
+    q: "What is an AI Agent and how is it different from a chatbot?",
+    a: "Generic chatbots use pre-programmed responses and often frustrate customers. An AI Agent uses large language models integrated with your specific business data (RAG) to reason, answer complex questions accurately, and even trigger actions like scheduling or CRM updates.",
+  },
+  {
+    q: "Is our business data secure when using LLMs?",
+    a: "Yes. We deploy secure, private API endpoints. Your proprietary data is used only for Retrieval-Augmented Generation (RAG) during the session and is never used to train public models like OpenAI's base ChatGPT.",
+  },
+  {
+    q: "How long does it take to deploy a custom AI agent?",
+    a: "Depending on the complexity of your data integrations, a customized agent can be deployed to your website or internal systems within 3 to 6 weeks.",
+  },
+  {
+    q: "Can the AI Agent connect to our existing software?",
+    a: "Absolutely. We build robust API integrations so your agent can pull data from or push updates to your CRM, scheduling tools, or inventory systems in real-time.",
+  },
+];
+
+const faqSchemaJson = generateFAQSchema(faqItems);
+---
+
+<BaseLayout
+  title="Custom AI Development & Agent Systems | Amberly Digital"
+  description={service.shortDesc}
+>
+  <script type="application/ld+json" set:html={JSON.stringify(faqSchemaJson)} />
+
+  <Navbar />
+
+  <!-- TOP STRIP -->
+  <div
+    class="bg-amber-500 border-b-2 border-slate-950 py-2.5 px-4 text-center text-slate-950 text-xs font-mono font-black uppercase tracking-widest flex items-center justify-center gap-2"
+  >
+    <Cpu className="w-4 h-4 animate-pulse shrink-0 text-slate-950" />
+    <span>PROPRIETARY LLM INTEGRATIONS & SECURE RAG DEPLOYMENTS</span>
+  </div>
+
+  <main class="bg-white">
+    <!-- HERO SECTION: PROBLEM + OUTCOME -->
+    <section
+      class="border-b-2 border-slate-950 py-16 lg:py-24 bg-slate-50 relative overflow-hidden"
+    >
+      <div
+        class="absolute top-0 right-0 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"
+      >
+      </div>
+      <div class="max-w-5xl mx-auto px-6 lg:px-12 space-y-8 relative">
+        <span
+          class="text-xs font-mono font-black text-amber-600 border border-amber-300 bg-amber-100 px-3 py-1 w-fit block uppercase tracking-widest"
+        >
+          🧠 INTELLIGENT SYSTEMS
+        </span>
+        <h1
+          class="text-4xl sm:text-5xl lg:text-7xl font-black font-display text-slate-950 uppercase tracking-tight leading-none"
+        >
+          Beyond Chatbots. <br />
+          <span class="text-amber-500">True AI Agents.</span>
+        </h1>
+
+        <!-- Problem & Outcome Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-6">
+          <div
+            class="border-2 border-slate-900 bg-white p-6 shadow-[4px_4px_0px_rgba(0,0,0,1)]"
+          >
+            <span
+              class="text-[10px] font-mono font-black text-red-500 uppercase tracking-widest block mb-2"
+              >✖ THE PROBLEM: GENERIC TOOLS & HALLUCINATIONS</span
+            >
+            <p class="text-sm text-slate-700 leading-relaxed font-semibold">
+              Most businesses try to use out-of-the-box AI wrappers that don't understand their specific operations. They hallucinate answers, frustrate customers, and fail to actually integrate with existing workflows. This creates a terrible user experience and wastes time.
+            </p>
+          </div>
+          <div
+            class="border-2 border-amber-500 bg-slate-900 p-6 shadow-[4px_4px_0px_rgba(245,158,11,1)] text-white"
+          >
+            <span
+              class="text-[10px] font-mono font-black text-amber-400 uppercase tracking-widest block mb-2"
+              >✔ THE OUTCOME: SECURE, CONTEXT-AWARE INTELLIGENCE</span
+            >
+            <p class="text-sm text-slate-350 leading-relaxed">
+              We engineer custom RAG architectures that connect directly to your private data. Your AI agents will possess deep operational knowledge, reason logically through complex workflows, and securely execute tasks like a dedicated employee.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="py-16 lg:py-20 border-b-2 border-slate-950">
+      <div class="max-w-5xl mx-auto px-6 lg:px-12">
+        <div class="text-center max-w-2xl mx-auto mb-16">
+          <span
+            class="text-xs font-mono font-black text-amber-600 uppercase tracking-widest block mb-2"
+            >METHODOLOGY</span
+          >
+          <h2
+            class="text-3xl sm:text-4xl font-display font-black text-slate-950 uppercase tracking-tight"
+          >
+            Engineering Secure Intelligence
+          </h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <!-- Step 1 -->
+          <div
+            class="border-2 border-slate-950 p-6 bg-slate-50 relative shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+          >
+            <span
+              class="absolute -top-6 left-4 text-7xl font-black font-display text-slate-200/80 select-none pointer-events-none"
+              >01</span
+            >
+            <h3
+              class="text-lg font-bold font-display text-slate-950 uppercase tracking-tight mb-2 pt-4"
+            >
+              Data Vectorization
+            </h3>
+            <p class="text-xs text-slate-600 leading-relaxed font-semibold">
+              We process your manuals, CRM logs, and business guidelines into a secure vector database so the AI has instant access to your knowledge base.
+            </p>
+          </div>
+          <!-- Step 2 -->
+          <div
+            class="border-2 border-slate-950 p-6 bg-slate-50 relative shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+          >
+            <span
+              class="absolute -top-6 left-4 text-7xl font-black font-display text-slate-200/80 select-none pointer-events-none"
+              >02</span
+            >
+            <h3
+              class="text-lg font-bold font-display text-slate-950 uppercase tracking-tight mb-2 pt-4"
+            >
+              RAG Architecture
+            </h3>
+            <p class="text-xs text-slate-600 leading-relaxed font-semibold">
+              We implement Retrieval-Augmented Generation to ensure the LLM answers strictly using your verified business data, eliminating hallucinations.
+            </p>
+          </div>
+          <!-- Step 3 -->
+          <div
+            class="border-2 border-slate-950 p-6 bg-slate-50 relative shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+          >
+            <span
+              class="absolute -top-6 left-4 text-7xl font-black font-display text-slate-200/80 select-none pointer-events-none"
+              >03</span
+            >
+            <h3
+              class="text-lg font-bold font-display text-slate-950 uppercase tracking-tight mb-2 pt-4"
+            >
+              Workflow Integration
+            </h3>
+            <p class="text-xs text-slate-600 leading-relaxed font-semibold">
+              The intelligent agent is deployed seamlessly into your Slack, website, or CRM via secure API layers to begin automating tasks.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- WHY BUSINESSES USE IT: BENEFITS -->
+    <section class="py-16 lg:py-24 border-b-2 border-slate-950">
+      <div class="max-w-5xl mx-auto px-6 lg:px-12">
+        <div class="mb-14 text-center max-w-2xl mx-auto">
+          <span
+            class="text-xs font-mono font-bold text-amber-600 uppercase tracking-widest block mb-2"
+            >BENEFITS</span
+          >
+          <h2
+            class="text-3xl sm:text-4xl font-display font-black text-slate-950 uppercase tracking-tight"
+          >
+            Capabilities That Scale
+          </h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {
+            service.benefits.map((benefit, idx) => (
+              <div class="bg-slate-50 border-2 border-slate-950 p-6 flex items-start gap-4 shadow-[4px_4px_0px_rgba(0,0,0,1)]">
+                <div class="w-10 h-10 bg-amber-500 border-2 border-slate-950 text-slate-950 flex items-center justify-center shrink-0 shadow-[2px_2px_0px_rgba(0,0,0,1)]">
+                  <span class="font-mono font-black text-xs">0{idx + 1}</span>
+                </div>
+                <div>
+                  <h4 class="text-base font-bold font-display uppercase tracking-tight text-slate-950 mb-2">
+                    {service.features[idx]}
+                  </h4>
+                  <p class="text-xs text-slate-600 leading-relaxed font-semibold">
+                    {benefit}
+                  </p>
+                </div>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ: SERVICE-SPECIFIC -->
+    <section class="py-16 lg:py-20 bg-slate-50 border-b-2 border-slate-950">
+      <div class="max-w-3xl mx-auto px-6 lg:px-12">
+        <div class="mb-12 text-center">
+          <span
+            class="text-xs font-mono font-bold text-amber-600 uppercase tracking-widest block mb-2"
+            >FAQ</span
+          >
+          <h2
+            class="text-2xl sm:text-3xl font-black font-display text-slate-950 uppercase tracking-tight"
+          >
+            AI Development FAQ
+          </h2>
+        </div>
+
+        <div class="space-y-4">
+          {
+            faqItems.map((faq) => (
+              <div class="border-2 border-slate-200 p-5 bg-white shadow-sm">
+                <h3 class="text-sm font-black text-slate-950 uppercase tracking-tight mb-2">
+                  {faq.q}
+                </h3>
+                <p class="text-xs text-slate-650 leading-relaxed font-semibold">
+                  {faq.a}
+                </p>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA STRIP -->
+    <section class="bg-amber-50 py-16 border-b-2 border-slate-950">
+      <div
+        class="max-w-4xl mx-auto px-6 lg:px-12 flex flex-col sm:flex-row items-center justify-between gap-8 text-slate-950"
+      >
+        <div>
+          <h2
+            class="text-3xl sm:text-4xl font-black font-display uppercase tracking-tight leading-tight"
+          >
+            Build a Digital Extension<br class="hidden sm:block" /> Of Your Workforce.
+          </h2>
+          <p class="text-slate-800 text-sm font-bold mt-2">
+            Automate the complex tasks that generic tools can't touch.
+          </p>
+        </div>
+        <a
+          href="/#onboarding-form"
+          class="shrink-0 bg-white text-slate-950 font-black py-4 px-8 text-xs tracking-widest uppercase transition-all duration-200 border-2 border-slate-950 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none"
+        >
+          Book Strategy Call →
+        </a>
+      </div>
+    </section>
+
+  </main>
+
+  <Footer client:visible />
+</BaseLayout>

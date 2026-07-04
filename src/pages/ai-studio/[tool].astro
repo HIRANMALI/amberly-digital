@@ -1,0 +1,401 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Navbar from "@/components/Navbar.astro";
+import { Footer } from "@/components/Footer";
+import { ValuationCalculator } from "@/components/ValuationCalculator";
+import { TOOLS, generateFAQSchema } from "@/lib/seo-data";
+
+const { tool: toolKey } = Astro.params;
+const tool = TOOLS[toolKey as string];
+
+const TOOL_CONTENT: Record<
+  string,
+  {
+    h1: string;
+    hook: string;
+    badge: string;
+    steps: { num: string; title: string; desc: string }[];
+    problem: string;
+    solution: string;
+    faqs: { q: string; a: string }[];
+    ctaLabel: string;
+  }
+> = {
+  "missed-call-calculator": {
+    h1: "Free Missed Call Revenue Calculator for Service Businesses",
+    hook: "Find out in 60 seconds how much money walks out the door every time you can't answer the phone.",
+    badge: "01 / Revenue Leak Detector",
+    steps: [
+      {
+        num: "01",
+        title: "Enter your average job value",
+        desc: "Use your real average job rate — the median for high-ticket local services is $750.",
+      },
+      {
+        num: "02",
+        title: "Enter your weekly missed calls",
+        desc: "Be honest — even 2 or 3 missed calls a week adds up fast when each one is worth hundreds.",
+      },
+      {
+        num: "03",
+        title: "See your monthly revenue leak",
+        desc: "The calculator shows the exact dollar figure draining from your business to competitors every month.",
+      },
+    ],
+    problem:
+      "Most service businesses miss 3–5 calls a week without realising it. At $750 per emergency or urgent job, that's $2,250–$3,750 walking straight to the next listing on Google. Every. Single. Month.",
+    solution:
+      "This calculator shows you the number. Once you see it, you can't ignore it. The fix — an automated SMS textback system — costs less per month than a single missed call is worth.",
+    faqs: [
+      {
+        q: "How accurate is this calculator?",
+        a: "It uses median local service job rates ($750) based on industry averages. Your actual figure may be higher depending on your service area and job type.",
+      },
+      {
+        q: "What counts as a missed call?",
+        a: "Any inbound call that goes to voicemail, rings out, or isn't answered within 3 rings. Studies show 62% of callers who reach voicemail do not call back — they dial the next business on Google.",
+      },
+      {
+        q: "How do I stop missing calls?",
+        a: "An automated SMS textback system sends a message to the caller within 5 seconds of a missed call, qualifies the job, and locks in the booking before they ring a competitor.",
+      },
+    ],
+    ctaLabel: "Stop the revenue leak — book a free audit",
+  },
+  "website-visibility-scanner": {
+    h1: "Free Website & AI Visibility Scanner",
+    hook: "Check in 60 seconds if your website shows up when a customer asks Google Maps or ChatGPT for your services.",
+    badge: "02 / Search Visibility Audit",
+    steps: [
+      {
+        num: "01",
+        title: "Enter your business details",
+        desc: "Type your business name and website URL.",
+      },
+      {
+        num: "02",
+        title: "Run the scan",
+        desc: "The tool checks your website's performance and AI search grounding signals.",
+      },
+      {
+        num: "03",
+        title: "Get your visibility score",
+        desc: "See exactly where you're winning and where competitors are stealing high-paying customers from you.",
+      },
+    ],
+    problem:
+      "When a customer is looking for a service, they don't scroll. They ask Google Maps or Siri 'who's the nearest?' — and the first business that appears gets the job. If that's not you, it's your competitor.",
+    solution:
+      "This scanner shows your current search visibility across Google Maps and AI-powered search engines. It's the same check we run for every client before starting work — and it's completely free.",
+    faqs: [
+      {
+        q: "What is AEO — Answer Engine Optimisation?",
+        a: "AEO is optimising your business so AI assistants like ChatGPT, Siri, and Google's AI Overview recommend you directly — not just rank you in a list. As more customers use voice and AI search, AEO is becoming as important as traditional SEO.",
+      },
+      {
+        q: "How does the scanner work?",
+        a: "It checks your website's schema markup, performance signals, and structured data grounding to estimate how visible your business is in modern AI searches.",
+      },
+      {
+        q: "What does a low visibility score mean?",
+        a: "It means competitors are likely appearing before you when customers search for your services. We can improve your search positioning in as little as 14 days.",
+      },
+    ],
+    ctaLabel: "Improve your visibility — book a free audit",
+  },
+  "sms-bot-simulator": {
+    h1: "Test Our AI SMS Responder — Live Bot Demo for Service Businesses",
+    hook: "See exactly how our bot answers missed calls, qualifies the job, and books the dispatch — in under 2 seconds.",
+    badge: "03 / Lead Intercept Bot",
+    steps: [
+      {
+        num: "01",
+        title: "Type a customer message",
+        desc: "Pretend you're an urgent customer looking for a service — type whatever they'd actually send.",
+      },
+      {
+        num: "02",
+        title: "Watch the bot respond",
+        desc: "It replies in under 2 seconds, asks the right questions, gathers the job details, and keeps the customer engaged.",
+      },
+      {
+        num: "03",
+        title: "See the booking confirmed",
+        desc: "The same sequence runs live on your real phone number while you're with a client or driving between jobs.",
+      },
+    ],
+    problem:
+      "When you are busy on a job, with a client, or driving between sites, calls go to voicemail. 62% of those callers won't ring back — they've already called the next business on Google Maps.",
+    solution:
+      "Our AI SMS bot intercepts every missed call and texts the customer back within 5 seconds. It handles the conversation, collects the address, and locks the booking. You get a notification with the job details. Nothing missed.",
+    faqs: [
+      {
+        q: "Does the real bot work exactly like this simulator?",
+        a: "Yes. The simulator uses the same response logic as the live system. The only difference is the live version connects to your real phone number and calendar.",
+      },
+      {
+        q: "What happens after the bot qualifies the job?",
+        a: "You receive a notification with the customer's name, address, and job type. You can then call or text to confirm your ETA directly — or let the bot handle the confirmation for you.",
+      },
+      {
+        q: "Does it work overnight and on weekends?",
+        a: "Yes. The bot runs 24/7 — including after-hours inquiries, weekend emergencies, and public holidays. Every missed call gets a response within 5 seconds.",
+      },
+    ],
+    ctaLabel: "Get the bot live on your number — book a free audit",
+  },
+};
+
+const content = TOOL_CONTENT[toolKey as string];
+
+if (!tool || !content) {
+  return Astro.redirect("/ai-studio");
+}
+
+const componentMap: Record<string, any> = {
+  ValuationCalculator,
+};
+
+const ToolComponent = componentMap[tool.componentName];
+const faqSchema = generateFAQSchema(content.faqs);
+
+const webAppSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  name: content.h1,
+  url: `https://amberlydigital.com/ai-studio/${toolKey}`,
+  applicationCategory: "BusinessApplication",
+  operatingSystem: "All",
+  offers: { "@type": "Offer", price: "0.00", priceCurrency: "USD" },
+  description: tool.longDesc,
+  publisher: {
+    "@type": "Organization",
+    name: "Amberly Digital",
+    url: "https://amberlydigital.com",
+  },
+};
+---
+
+<BaseLayout
+  title={`${content.h1} | Amberly Digital`}
+  description={`${tool.shortDesc} Free, no sign-up required. Used by service businesses to identify profit leaks and search ranking gaps.`}
+  ogTitle={content.h1}
+  ogDescription={tool.shortDesc}
+>
+  <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+  <script type="application/ld+json" set:html={JSON.stringify(webAppSchema)} />
+
+  <Navbar />
+
+  <!-- THIN BADGE BANNER -->
+  <div
+    class="bg-amber-500 border-b-2 border-slate-950 py-2.5 px-4 text-center text-slate-950 text-xs font-mono font-black uppercase tracking-widest flex items-center justify-center gap-2 flex-wrap"
+  >
+    <svg
+      class="w-3.5 h-3.5 fill-current animate-pulse"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      ><path
+        d="M17.66 11.2C17.43 10.9 17.15 10.64 16.89 10.38C16.22 9.78 15.46 9.35 14.82 8.72C13.33 7.26 13 4.85 13.95 3C13 3.23 12.17 3.75 11.46 4.32C8.87 6.4 7.85 10.07 9.07 13.22C9.11 13.32 9.15 13.42 9.15 13.55C9.15 13.77 9 13.97 8.8 14.05C8.57 14.15 8.33 14.09 8.14 13.93C8.08 13.88 8.04 13.83 8 13.76C6.87 12.33 6.69 10.28 7.45 8.64C5.78 10 4.87 12.3 5 14.47C5.06 14.97 5.12 15.47 5.29 15.97C5.43 16.57 5.7 17.17 6 17.7C7.08 19.43 8.95 20.67 10.96 20.92C13.1 21.19 15.39 20.8 17.03 19.32C18.86 17.66 19.5 15 18.56 12.72L18.43 12.46C18.22 12 17.66 11.2 17.66 11.2Z"
+      ></path></svg
+    >
+    <span>{content.badge} — Free Tool · No Sign-Up · Takes 60 Seconds</span>
+  </div>
+
+  <main>
+    <!-- HERO -->
+    <section class="bg-white border-b-2 border-slate-950 py-14 lg:py-20">
+      <div class="max-w-5xl mx-auto px-6 lg:px-12">
+        <a
+          href="/"
+          class="inline-flex items-center gap-1.5 text-xs font-mono font-black uppercase text-slate-400 hover:text-slate-950 transition-colors mb-8"
+        >
+          ← Home
+        </a>
+        <h1
+          class="text-4xl sm:text-5xl lg:text-6xl font-black font-display text-slate-950 uppercase tracking-tight leading-none mb-5"
+        >
+          {
+            content.h1
+              .split("for Service Businesses")
+              .map((part: string, i: number, arr: string[]) =>
+                i < arr.length - 1 ? (
+                  <span>
+                    {part}
+                    <span class="text-amber-500">for Service Businesses</span>
+                  </span>
+                ) : (
+                  <span>{part}</span>
+                ),
+              )
+          }
+        </h1>
+        <p
+          class="text-lg lg:text-xl text-slate-600 font-medium leading-relaxed max-w-3xl mb-8"
+        >
+          {content.hook}
+        </p>
+        <div class="flex flex-wrap gap-3">
+          {
+            ["100% Free", "No Sign-Up Required", "Results in 60 Seconds"].map(
+              (badge) => (
+                <span class="inline-flex items-center gap-1.5 text-xs font-mono font-black bg-slate-50 border border-slate-200 text-slate-700 px-3 py-1.5 uppercase tracking-wider">
+                  <svg
+                    class="w-3.5 h-3.5 text-amber-500"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <>
+                      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                      <polyline points="22 4 12 14.01 9 11.01" />
+                    </>
+                  </svg>
+                  {badge}
+                </span>
+              ),
+            )
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- THE TOOL — FRONT AND CENTER -->
+    <section class="bg-slate-50 border-b-2 border-slate-950 py-16" id="tool">
+      <div class="max-w-8xl mx-auto px-6 lg:px-12">
+        {
+          ToolComponent ? (
+            <ToolComponent client:load />
+          ) : (
+            <p class="text-center font-mono text-slate-500">
+              Tool failed to load.
+            </p>
+          )
+        }
+      </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="bg-white border-b-2 border-slate-950 py-16">
+      <div class="max-w-5xl mx-auto px-6 lg:px-12">
+        <div class="mb-10">
+          <span
+            class="text-xs font-mono font-bold text-amber-600 uppercase tracking-widest block mb-2"
+            >How It Works</span
+          >
+          <h2
+            class="text-2xl sm:text-3xl font-black font-display text-slate-950 uppercase tracking-tight"
+          >
+            Three steps. No tech knowledge needed.
+          </h2>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {
+            content.steps.map((step) => (
+              <div class="border-2 border-slate-950 p-6 bg-slate-50 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] relative">
+                <span class="absolute -top-4 -left-1 text-5xl font-black font-display text-slate-100 select-none leading-none">
+                  {step.num}
+                </span>
+                <h3 class="text-sm font-black font-display text-slate-950 uppercase tracking-tight mb-2 mt-2">
+                  {step.title}
+                </h3>
+                <p class="text-sm text-slate-600 leading-relaxed">
+                  {step.desc}
+                </p>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- WHY IT MATTERS -->
+    <section class="bg-slate-950 border-b-2 border-slate-950 py-16">
+      <div
+        class="max-w-5xl mx-auto px-6 lg:px-12 grid grid-cols-1 md:grid-cols-2 gap-8"
+      >
+        <div class="border-2 border-slate-700 p-7 bg-slate-900">
+          <span
+            class="text-[10px] font-mono font-black text-red-400 uppercase tracking-widest block mb-3"
+            >✖ The Problem</span
+          >
+          <p class="text-white text-base font-semibold leading-relaxed">
+            {content.problem}
+          </p>
+        </div>
+        <div
+          class="border-2 border-amber-500 p-7 bg-slate-900 shadow-[4px_4px_0px_0px_rgba(245,158,11,1)]"
+        >
+          <span
+            class="text-[10px] font-mono font-black text-amber-400 uppercase tracking-widest block mb-3"
+            >✔ The Fix</span
+          >
+          <p class="text-white text-base font-semibold leading-relaxed">
+            {content.solution}
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="bg-white border-b-2 border-slate-950 py-16">
+      <div class="max-w-3xl mx-auto px-6 lg:px-12">
+        <div class="mb-10">
+          <span
+            class="text-xs font-mono font-bold text-amber-600 uppercase tracking-widest block mb-2"
+            >Common Questions</span
+          >
+          <h2
+            class="text-2xl sm:text-3xl font-black font-display text-slate-950 uppercase tracking-tight"
+          >
+            Straight answers.
+          </h2>
+        </div>
+        <div class="space-y-4">
+          {
+            content.faqs.map((faq, i) => (
+              <div class="border-2 border-slate-200 p-5 bg-slate-50">
+                <h3 class="text-sm font-black text-slate-950 uppercase tracking-tight mb-2">
+                  {faq.q}
+                </h3>
+                <p class="text-sm text-slate-600 leading-relaxed">{faq.a}</p>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA STRIP -->
+    <section class="bg-amber-500 border-b-2 border-slate-950 py-14">
+      <div
+        class="max-w-4xl mx-auto px-6 lg:px-12 flex flex-col sm:flex-row items-center justify-between gap-8"
+      >
+        <div>
+          <h2
+            class="text-2xl sm:text-3xl font-black font-display text-slate-950 uppercase tracking-tight leading-tight"
+          >
+            Want this working on<br class="hidden sm:block" /> your business?
+          </h2>
+          <p class="text-slate-800 text-sm font-medium mt-2">
+            We set it up for you. No tech skills needed. First results in 14
+            days.
+          </p>
+        </div>
+        <a
+          href="/#onboarding-form"
+          class="shrink-0 bg-slate-950 hover:bg-white hover:text-slate-950 text-white font-black py-4 px-8 text-xs tracking-widest uppercase transition-all border-2 border-slate-950 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] whitespace-nowrap flex items-center gap-2"
+        >
+          {content.ctaLabel} →
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <Footer client:visible />
+</BaseLayout>

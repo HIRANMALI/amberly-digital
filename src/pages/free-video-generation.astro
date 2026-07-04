@@ -1,0 +1,142 @@
+---
+export const prerender = true;
+
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Navbar from "@/components/Navbar.astro";
+import { Footer } from "@/components/Footer";
+import { Video, Sparkles, UserPlus, Play, Film } from "lucide-react";
+---
+
+<BaseLayout
+  title="Free AI Video Generation Tool | Amberly Digital"
+  description="Create cinematic AI videos using our free AI Video Generation tool. Create a free account to get 5 free generations daily."
+>
+  <Navbar />
+
+  <main class="flex-col bg-[#FAF9F5] min-h-screen">
+    {/* HERO SECTION */}
+    <section class="py-20 border-b-2 border-slate-950 bg-slate-900 text-white relative overflow-hidden">
+      <div class="absolute top-0 right-0 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="max-w-4xl mx-auto px-6 text-center space-y-6 relative">
+        <div class="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/30 p-2 text-amber-400 font-mono font-black text-[10px] uppercase tracking-wider">
+          <Sparkles className="w-4 h-4 text-amber-500 animate-pulse" />
+          <span>AI Cinema</span>
+        </div>
+        
+        <h1 class="text-4xl sm:text-6xl font-black font-display uppercase tracking-tight leading-none">
+          Free AI <span class="text-amber-500">Video Generation</span>
+        </h1>
+        
+        <p class="text-slate-300 text-sm sm:text-base leading-relaxed max-w-2xl mx-auto font-medium">
+          Produce cinematic B-roll, commercial video promos, animated clips, and dynamic social content directly from text prompts or reference images.
+        </p>
+
+        {/* Call to Action with Sign up condition */}
+        <div class="pt-4 max-w-md mx-auto space-y-3">
+          <a
+            href="/ai-studio"
+            class="w-full bg-amber-500 hover:bg-[#f7ab1a] text-slate-950 font-black py-4 px-8 rounded-none text-xs tracking-widest uppercase transition-all shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:translate-x-[2px] hover:translate-y-[2px] flex items-center justify-center gap-2 cursor-pointer border-2 border-slate-950"
+          >
+            <UserPlus className="w-4 h-4" />
+            <span>Start Video Generation</span>
+          </a>
+          <span class="text-[10px] font-mono text-slate-400 block font-bold uppercase tracking-wider">
+            ⚠️ Sign up required (Includes 5 free daily generation credits)
+          </span>
+        </div>
+      </div>
+    </section>
+
+    {/* VALUE PROPOSITIONS SECTION */}
+    <section class="py-16 max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8">
+      {/* Prop 1 */}
+      <div class="bg-white border-2 border-slate-950 p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex flex-col justify-between">
+        <div class="space-y-4">
+          <div class="w-12 h-12 bg-amber-500/10 border border-slate-950/20 flex items-center justify-center text-amber-600">
+            <Film className="w-6 h-6" />
+          </div>
+          <h3 class="text-lg font-black font-display uppercase text-slate-950">5 Free Daily Renderings</h3>
+          <p class="text-slate-600 text-xs leading-relaxed font-semibold">
+            Registered accounts receive 5 free AI video generation credits each day to synthesize creative concepts.
+          </p>
+        </div>
+      </div>
+
+      {/* Prop 2 */}
+      <div class="bg-white border-2 border-slate-950 p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex flex-col justify-between">
+        <div class="space-y-4">
+          <div class="w-12 h-12 bg-amber-500/10 border border-slate-950/20 flex items-center justify-center text-amber-600">
+            <Play className="w-6 h-6" />
+          </div>
+          <h3 class="text-lg font-black font-display uppercase text-slate-950">Text & Image to Video</h3>
+          <p class="text-slate-600 text-xs leading-relaxed font-semibold">
+            Convert a static design or photo into a movie-like moving sequence, or construct a dynamic scene purely from a descriptive prompt.
+          </p>
+        </div>
+      </div>
+
+      {/* Prop 3 */}
+      <div class="bg-white border-2 border-slate-950 p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex flex-col justify-between">
+        <div class="space-y-4">
+          <div class="w-12 h-12 bg-amber-500/10 border border-slate-950/20 flex items-center justify-center text-amber-600">
+            <Video className="w-6 h-6" />
+          </div>
+          <h3 class="text-lg font-black font-display uppercase text-slate-950">No Watermarks</h3>
+          <p class="text-slate-600 text-xs leading-relaxed font-semibold">
+            All synthesized videos are generated cleanly without generic watermarks, making them ready to export directly into your editing workflow.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    {/* CONTENT SECTION BELOW HERO */}
+    <section class="py-12 border-t-2 border-slate-950 bg-white">
+      <div class="max-w-4xl mx-auto px-6 space-y-8">
+        <div class="space-y-4">
+          <h2 class="text-2xl sm:text-3xl font-black font-display uppercase text-slate-950">
+            Cinematic AI Video Made Accessible
+          </h2>
+          <p class="text-slate-650 text-sm leading-relaxed font-semibold">
+            Traditionally, producing a video clip required expensive equipment, animation talent, or actors. With Amberly Digital's generative AI models, you can bootstrap your marketing campaigns, product reveals, or educational explainers in a fraction of the time. Create accounts to immediately test text-to-video capabilities.
+          </p>
+        </div>
+
+        <div class="space-y-4 border-t border-slate-200 pt-6">
+          <h3 class="text-lg font-black font-display uppercase text-slate-950">
+            Get Started in Seconds:
+          </h3>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 font-mono text-xs text-slate-800">
+            <div class="p-4 border border-slate-200 bg-[#FAF9F5]">
+              <span class="text-amber-600 font-bold block mb-1">01 / Sign Up</span>
+              Create a free account to load your 5 daily rendering credits.
+            </div>
+            <div class="p-4 border border-slate-200 bg-[#FAF9F5]">
+              <span class="text-amber-600 font-bold block mb-1">02 / Set Settings</span>
+              Provide your prompt, adjust settings (aspect ratio, duration), and press generate.
+            </div>
+            <div class="p-4 border border-slate-200 bg-[#FAF9F5]">
+              <span class="text-amber-600 font-bold block mb-1">03 / Use Video</span>
+              Preview the synthesized MP4 and export it instantly.
+            </div>
+          </div>
+        </div>
+
+        {/* CTA Banner */}
+        <div class="border-4 border-slate-950 bg-slate-900 text-white p-8 shadow-[6px_6px_0px_0px_rgba(245,158,11,1)] text-center space-y-4">
+          <h4 class="text-xl font-black font-display uppercase">Synthesize Your First Video</h4>
+          <p class="text-slate-300 text-xs leading-relaxed max-w-md mx-auto">
+            Get your 5 free daily video credits right now. Registration is free and instant.
+          </p>
+          <a
+            href="/ai-studio"
+            class="inline-block bg-amber-500 hover:bg-[#f7ab1a] text-slate-950 font-black py-3 px-6 text-xs uppercase tracking-wider border-2 border-slate-950 transition-all cursor-pointer font-mono"
+          >
+            Sign Up & Generate Video
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer client:visible />
+</BaseLayout>

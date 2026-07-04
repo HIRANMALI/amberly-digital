@@ -65,7 +65,7 @@ export function ValuationCalculatorMinimal() {
       </div>
 
       <p className="text-xs text-slate-400 mt-6 leading-relaxed">
-        Based on the Australian median emergency plumbing rate of <strong className="text-slate-600">$750 AUD</strong> per job. 62% of callers who reach voicemail don&apos;t call back.
+        Based on the median emergency service rate of <strong className="text-slate-600">$750</strong> per job. 62% of callers who reach voicemail don&apos;t call back.
       </p>
 
       <a

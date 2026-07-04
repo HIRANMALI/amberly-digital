@@ -108,6 +108,14 @@ const canonicalUrl = new URL(
 
       gtag("config", "G-9RVKRYLSBV");
     </script>
+
+    <!-- Warm up hosted backend (Render spin-up) on load -->
+    <script is:inline>
+      document.addEventListener("DOMContentLoaded", () => {
+        // Asynchronously wake up the backend if sleeping
+        fetch("https://api.amberlydigital.com/api/v1/health").catch(() => {});
+      });
+    </script>
   </head>
   <body
     class="antialiased geo-grid min-h-screen flex flex-col bg-slate-50 text-slate-900"
