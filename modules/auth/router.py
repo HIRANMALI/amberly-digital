@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+import urllib.parse
 from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
 from fastapi.responses import RedirectResponse, JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -14,7 +15,6 @@ async def login_google(req: Request, redirect_to: str | None = None):
     if not service.GOOGLE_CLIENT_ID:
         raise HTTPException(status_code=500, detail="Google OAuth not configured")
         
-    import urllib.parse
     state = redirect_to if redirect_to else req.headers.get("referer", "/")
 
     url = (
@@ -40,7 +40,6 @@ async def auth_google_callback(
 ):
     """Handles Google OAuth callback, creates user, issues tokens."""
     if error or not code:
-        import urllib.parse
         error_msg = error_description or error or "Authentication cancelled"
         if "access_denied" in error_msg.lower():
             error_msg = "Google login cancelled or access denied"
@@ -74,8 +73,6 @@ async def auth_google_callback(
     
     await crud.create_refresh_token(db, user.id, token_hash, expires_at)
     
-    import urllib.parse
-    
     redirect_target = "/"
     if state and state.startswith("http"):
         redirect_target = state
@@ -97,13 +94,13 @@ async def auth_google_callback(
         secure=secure_val,
     )
     
-    # Expose non-sensitive user info to frontend JS via cookies
+    # Expose non-sensitive user info to frontend JS via cookies (extend to refresh token life so state persists)
     safe_name = urllib.parse.quote(user.name or user.email.split('@')[0])
     response.set_cookie(
         key="user_name", 
         value=safe_name, 
         httponly=False, 
-        max_age=int(service.ACCESS_TOKEN_EXPIRE.total_seconds()),
+        max_age=int(service.REFRESH_TOKEN_EXPIRE.total_seconds()),
         samesite=samesite_val,
         secure=secure_val,
     )
@@ -112,7 +109,7 @@ async def auth_google_callback(
             key="user_avatar", 
             value=urllib.parse.quote(user.avatar_url), 
             httponly=False, 
-            max_age=int(service.ACCESS_TOKEN_EXPIRE.total_seconds()),
+            max_age=int(service.REFRESH_TOKEN_EXPIRE.total_seconds()),
             samesite=samesite_val,
             secure=secure_val,
         )
@@ -174,6 +171,26 @@ async def refresh_access_token(request: Request, body: schemas.RefreshRequest | 
         samesite=samesite_val,
         secure=secure_val,
     )
+    
+    # Re-issue non-sensitive user info cookies to extend their life
+    safe_name = urllib.parse.quote(token_entry.user.name or token_entry.user.email.split('@')[0])
+    response.set_cookie(
+        key="user_name",
+        value=safe_name,
+        httponly=False,
+        max_age=int(service.REFRESH_TOKEN_EXPIRE.total_seconds()),
+        samesite=samesite_val,
+        secure=secure_val,
+    )
+    if token_entry.user.avatar_url:
+        response.set_cookie(
+            key="user_avatar",
+            value=urllib.parse.quote(token_entry.user.avatar_url),
+            httponly=False,
+            max_age=int(service.REFRESH_TOKEN_EXPIRE.total_seconds()),
+            samesite=samesite_val,
+            secure=secure_val,
+        )
     return response
 
 @router.post("/logout")
