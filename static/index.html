@@ -1761,30 +1761,18 @@ function getCookie(name) {
   return match ? decodeURIComponent(match[1]) : null;
 }
 
-let _refreshToken = null;
 let _isRefreshing = false;
 let _refreshQueue = [];
 
-function initAuthTokens() {
-  _refreshToken = getCookie('refresh_token');
-}
-
 async function tryRefreshToken() {
-  if (!_refreshToken) return false;
   try {
     const r = await fetch('/api/v1/auth/refresh', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ refresh_token: _refreshToken }),
+      credentials: 'include',
+      body: JSON.stringify({}),
     });
-    if (r.ok) {
-      const data = await r.json();
-      // Server re-sets the access_token HttpOnly cookie automatically.
-      // Keep our in-memory refresh token up to date.
-      if (data.refresh_token) _refreshToken = data.refresh_token;
-      return true;
-    }
-    return false;
+    return r.ok;
   } catch { return false; }
 }
 
@@ -1794,6 +1782,9 @@ async function tryRefreshToken() {
  * If the refresh also fails it calls handleAuthExpired().
  */
 async function apiFetch(url, options = {}) {
+  if (!options.credentials) {
+    options.credentials = 'include';
+  }
   let res = await fetch(url, options);
   if (res.status !== 401) return res;
 
@@ -1817,7 +1808,6 @@ async function apiFetch(url, options = {}) {
 }
 
 function handleAuthExpired() {
-  _refreshToken = null;
   document.getElementById('user-profile')?.classList.add('hidden');
   document.getElementById('btn-login-google')?.classList.remove('hidden');
   showToast('Session expired — please log in again.', 5000);
@@ -1825,7 +1815,6 @@ function handleAuthExpired() {
 
 // Initialize auth state and update the top-bar UI
 function checkAuth() {
-  initAuthTokens();
   const name = getCookie('user_name');
   const avatar = getCookie('user_avatar');
   if (name) {
@@ -1846,15 +1835,13 @@ function checkAuth() {
 
 async function logout() {
   try {
-    if (_refreshToken) {
-      await fetch('/api/v1/auth/logout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ refresh_token: _refreshToken }),
-      });
-    }
+    await fetch('/api/v1/auth/logout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({}),
+    });
   } catch { /* ignore network errors on logout */ }
-  _refreshToken = null;
   // Redirect to root — the server clears the access_token cookie
   window.location.href = '/';
 }
