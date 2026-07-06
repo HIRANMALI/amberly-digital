@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Upload, 
@@ -167,6 +167,27 @@ export const AITool = ({ apiUrl, localApiUrl }: { apiUrl: string; localApiUrl?: 
     }
   }, [tasksToday]);
 
+  const apiFetch = useCallback(async (url: string, options: RequestInit = {}, preventRedirect: boolean = false) => {
+    let res = await fetch(`${activeApiUrl}${url}`, { ...options, credentials: 'include' });
+    if (res.status !== 401) return res;
+
+    // Try to refresh using HttpOnly cookie credentials (handled automatically via credentials: 'include')
+    const r = await fetch(`${activeApiUrl}/auth/refresh`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({}),
+      credentials: 'include'
+    });
+
+    if (r.ok) return fetch(`${activeApiUrl}${url}`, { ...options, credentials: 'include' });
+
+    // Refresh failed
+    if (!preventRedirect) {
+      document.location.href = `${activeApiUrl}/auth/google?redirect_to=${encodeURIComponent(window.location.origin + '/ai-studio')}`;
+    }
+    return res;
+  }, [activeApiUrl]);
+
   useEffect(() => {
     // Check URL for auth_error and mode
     const params = new URLSearchParams(window.location.search);
@@ -183,7 +204,7 @@ export const AITool = ({ apiUrl, localApiUrl }: { apiUrl: string; localApiUrl?: 
     if (activeApiUrl) {
       (async () => {
         try {
-          const res = await fetch(`${activeApiUrl}/users/me`, { credentials: 'include' });
+          const res = await apiFetch('/users/me', {}, true);
           if (res.ok) {
             const data = await res.json();
             let nameCookie = getCookie('user_name');
@@ -221,7 +242,7 @@ export const AITool = ({ apiUrl, localApiUrl }: { apiUrl: string; localApiUrl?: 
     return () => {
       if (wsRef.current) wsRef.current.close();
     };
-  }, [activeApiUrl]);
+  }, [activeApiUrl, apiFetch]);
 
   // Fetch tasks automatically when user is loaded
   useEffect(() => {
@@ -230,27 +251,6 @@ export const AITool = ({ apiUrl, localApiUrl }: { apiUrl: string; localApiUrl?: 
     }
   }, [user]);
 
-  const apiFetch = async (url: string, options: RequestInit = {}, preventRedirect: boolean = false) => {
-    let res = await fetch(`${activeApiUrl}${url}`, { ...options, credentials: 'include' });
-    if (res.status !== 401) return res;
-
-    // Try to refresh using HttpOnly cookie credentials
-    const tokenVal = getCookie('refresh_token');
-    const r = await fetch(`${activeApiUrl}/auth/refresh`, {
-      method: 'POST',
-      headers: tokenVal ? { 'Content-Type': 'application/json' } : {},
-      body: tokenVal ? JSON.stringify({ refresh_token: tokenVal }) : undefined,
-      credentials: 'include'
-    });
-
-    if (r.ok) return fetch(`${activeApiUrl}${url}`, { ...options, credentials: 'include' });
-
-    // Refresh failed
-    if (!preventRedirect) {
-      document.location.href = `${activeApiUrl}/auth/google?redirect_to=${encodeURIComponent(window.location.origin + '/ai-studio')}`;
-    }
-    return res;
-  };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -492,11 +492,10 @@ export const AITool = ({ apiUrl, localApiUrl }: { apiUrl: string; localApiUrl?: 
   };
   const handleLogout = async () => {
     try {
-      const tokenVal = getCookie('refresh_token');
       await fetch(`${activeApiUrl}/auth/logout`, {
         method: 'POST',
-        headers: tokenVal ? { 'Content-Type': 'application/json' } : {},
-        body: tokenVal ? JSON.stringify({ refresh_token: tokenVal }) : undefined,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),
         credentials: 'include'
       });
     } catch (e) {
