@@ -7,4 +7,5 @@ class TokenResponse(BaseModel):
     expires_in: int
 
 class RefreshRequest(BaseModel):
-    refresh_token: str
+    refresh_token: str | None = None
+
