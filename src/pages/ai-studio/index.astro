@@ -11,11 +11,11 @@ const localApiUrl = import.meta.env.PUBLIC_LOCAL_API_URL;
 ---
 
 <BaseLayout title={title} description={description}>
-  <div class="bg-slate-50 h-screen flex flex-col overflow-hidden">
+  <div class="bg-slate-50 min-h-screen lg:h-screen flex flex-col lg:overflow-hidden">
     <Navbar />
 
     <main
-      class="flex-grow pt-5 pb-4 px-4 sm:px-6 w-full max-w-[1600px] mx-auto flex flex-col justify-stretch overflow-hidden"
+      class="flex-grow pt-5 pb-4 px-4 sm:px-6 w-full max-w-[1600px] mx-auto flex flex-col justify-stretch lg:overflow-hidden"
     >
       <AITool
         client:only="react"

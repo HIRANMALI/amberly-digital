@@ -1,0 +1,265 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Navbar from "@/components/Navbar.astro";
+import { Footer } from "@/components/Footer";
+import { SERVICES, generateFAQSchema } from "@/lib/seo-data";
+import { Phone, CheckCircle, Calendar, MessageSquare, Mic, Zap } from "lucide-react";
+
+const service = SERVICES["ai-receptionist"];
+
+const faqItems = [
+  {
+    q: "How does the AI Receptionist answer phone calls?",
+    a: "We set up a dedicated number or forward your missed calls to a natural-sounding AI voice agent. The agent greets callers, answers questions using your business details, qualifies leads, and can send text-backs or log appointments directly to your CRM/calendar.",
+  },
+  {
+    q: "Can the voice agent book jobs directly into our CRM?",
+    a: "Yes. Through custom APIs and Zapier integrations, the AI Receptionist can schedule jobs, sync calendars, and register caller details in ServiceM8, CRM systems, Xero, or Google Calendar in real-time.",
+  },
+  {
+    q: "Will the AI sound robotic?",
+    a: "No. We utilize advanced conversational AI voices with natural intonation, pauses, and speech patterns. Callers will experience a friendly, conversational helper that listens, responds instantly, and resolves their queries without frustration.",
+  },
+  {
+    q: "How do I forward my missed calls to the AI?",
+    a: "It's simple. You configure conditional call forwarding on your mobile or office line to redirect calls to our system when you're busy, on a job, or after hours. We assist you with the setup process.",
+  },
+];
+
+const faqSchemaJson = generateFAQSchema(faqItems);
+---
+
+<BaseLayout
+  title="AI Receptionist & Voice Agents | Amberly Digital"
+  description={service.shortDesc}
+>
+  <script type="application/ld+json" set:html={JSON.stringify(faqSchemaJson)} />
+
+  <Navbar />
+
+  <!-- TOP STRIP -->
+  <div
+    class="bg-amber-500 border-b-2 border-slate-950 py-2.5 px-4 text-center text-slate-950 text-xs font-mono font-black uppercase tracking-widest flex items-center justify-center gap-2"
+  >
+    <Phone className="w-4 h-4 animate-pulse shrink-0 text-slate-950" />
+    <span>24/7 AUTOMATED CALLS, LEAD QUALIFICATION & BOOKINGS</span>
+  </div>
+
+  <main class="bg-white">
+    <!-- HERO SECTION: PROBLEM + OUTCOME -->
+    <section
+      class="border-b-2 border-slate-950 py-16 lg:py-24 bg-slate-50 relative overflow-hidden"
+    >
+      <div
+        class="absolute top-0 right-0 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"
+      >
+      </div>
+      <div class="max-w-5xl mx-auto px-6 lg:px-12 space-y-8 relative">
+        <span
+          class="text-xs font-mono font-black text-amber-600 border border-amber-300 bg-amber-100 px-3 py-1 w-fit block uppercase tracking-widest"
+        >
+          ⚡ VOICE AGENTS
+        </span>
+        <h1
+          class="text-4xl sm:text-5xl lg:text-7xl font-black font-display text-slate-950 uppercase tracking-tight leading-none"
+        >
+          Never Miss a Lead.<br />
+          <span class="text-amber-500">24/7 AI Receptionist.</span>
+        </h1>
+
+        <!-- Problem & Outcome Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-6">
+          <div
+            class="border-2 border-slate-900 bg-white p-6 shadow-[4px_4px_0px_rgba(0,0,0,1)]"
+          >
+            <span
+              class="text-[10px] font-mono font-black text-red-500 uppercase tracking-widest block mb-2"
+              >✖ THE PROBLEM: MISSED CALLS & REVENUE LEAKS</span
+            >
+            <p class="text-sm text-slate-700 leading-relaxed font-semibold">
+              When you're on a job, in a meeting, or it's after business hours, phone calls go to voicemail. Over 60% of callers hang up and call a competitor instead of leaving a message. This results in lost leads, smaller cash flows, and wasted marketing spend.
+            </p>
+          </div>
+          <div
+            class="border-2 border-amber-500 bg-slate-900 p-6 shadow-[4px_4px_0px_rgba(245,158,11,1)] text-white"
+          >
+            <span
+              class="text-[10px] font-mono font-black text-amber-400 uppercase tracking-widest block mb-2"
+              >✔ THE OUTCOME: INSTANT CAPTURE & CONVERSION</span
+            >
+            <p class="text-sm text-slate-350 leading-relaxed">
+              Our AI Voice Agent answers your missed calls immediately with natural speech. It qualifies potential clients, provides custom responses for common queries, and schedules bookings straight into your software. You wake up to a full schedule, not a voicemail box.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="py-16 lg:py-20 border-b-2 border-slate-950">
+      <div class="max-w-5xl mx-auto px-6 lg:px-12">
+        <div class="text-center max-w-2xl mx-auto mb-16">
+          <span
+            class="text-xs font-mono font-black text-amber-600 uppercase tracking-widest block mb-2"
+            >METHODOLOGY</span
+          >
+          <h2
+            class="text-3xl sm:text-4xl font-display font-black text-slate-950 uppercase tracking-tight"
+          >
+            How Your AI Receptionist Works
+          </h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <!-- Step 1 -->
+          <div
+            class="border-2 border-slate-950 p-6 bg-slate-50 relative shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+          >
+            <span
+              class="absolute -top-6 left-4 text-7xl font-black font-display text-slate-200/80 select-none pointer-events-none"
+              >01</span
+            >
+            <h3
+              class="text-lg font-bold font-display text-slate-950 uppercase tracking-tight mb-2 pt-4"
+            >
+              Call Forwarding
+            </h3>
+            <p class="text-xs text-slate-600 leading-relaxed font-semibold">
+              Incoming calls are routed to your custom AI number whenever you're busy or closed. Callers are greeted instantly by name.
+            </p>
+          </div>
+          <!-- Step 2 -->
+          <div
+            class="border-2 border-slate-950 p-6 bg-slate-50 relative shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+          >
+            <span
+              class="absolute -top-6 left-4 text-7xl font-black font-display text-slate-200/80 select-none pointer-events-none"
+              >02</span
+            >
+            <h3
+              class="text-lg font-bold font-display text-slate-950 uppercase tracking-tight mb-2 pt-4"
+            >
+              Voice Interaction
+            </h3>
+            <p class="text-xs text-slate-600 leading-relaxed font-semibold">
+              The AI answers FAQs, qualifies their inquiry based on your business rules, and gathers essential lead details.
+            </p>
+          </div>
+          <!-- Step 3 -->
+          <div
+            class="border-2 border-slate-950 p-6 bg-slate-50 relative shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+          >
+            <span
+              class="absolute -top-6 left-4 text-7xl font-black font-display text-slate-200/80 select-none pointer-events-none"
+              >03</span
+            >
+            <h3
+              class="text-lg font-bold font-display text-slate-950 uppercase tracking-tight mb-2 pt-4"
+            >
+              CRM & Sync
+            </h3>
+            <p class="text-xs text-slate-600 leading-relaxed font-semibold">
+              The receptionist books the slot on your calendar and transfers the customer file to your CRM (ServiceM8, HubSpot, Xero, etc.).
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- WHY BUSINESSES USE IT: BENEFITS -->
+    <section class="py-16 lg:py-24 border-b-2 border-slate-950">
+      <div class="max-w-5xl mx-auto px-6 lg:px-12">
+        <div class="mb-14 text-center max-w-2xl mx-auto">
+          <span
+            class="text-xs font-mono font-bold text-amber-600 uppercase tracking-widest block mb-2"
+            >BENEFITS</span
+          >
+          <h2
+            class="text-3xl sm:text-4xl font-display font-black text-slate-950 uppercase tracking-tight"
+          >
+            A 24/7 Booking Engine
+          </h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {
+            service.benefits.map((benefit, idx) => (
+              <div class="bg-slate-50 border-2 border-slate-950 p-6 flex items-start gap-4 shadow-[4px_4px_0px_rgba(0,0,0,1)]">
+                <div class="w-10 h-10 bg-amber-500 border-2 border-slate-950 text-slate-950 flex items-center justify-center shrink-0 shadow-[2px_2px_0px_rgba(0,0,0,1)]">
+                  <span class="font-mono font-black text-xs">0{idx + 1}</span>
+                </div>
+                <div>
+                  <h4 class="text-base font-bold font-display uppercase tracking-tight text-slate-950 mb-2">
+                    {service.features[idx]}
+                  </h4>
+                  <p class="text-xs text-slate-600 leading-relaxed font-semibold">
+                    {benefit}
+                  </p>
+                </div>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ: SERVICE-SPECIFIC -->
+    <section class="py-16 lg:py-20 bg-slate-50 border-b-2 border-slate-950">
+      <div class="max-w-3xl mx-auto px-6 lg:px-12">
+        <div class="mb-12 text-center">
+          <span
+            class="text-xs font-mono font-bold text-amber-600 uppercase tracking-widest block mb-2"
+            >FAQ</span
+          >
+          <h2
+            class="text-2xl sm:text-3xl font-black font-display text-slate-950 uppercase tracking-tight"
+          >
+            AI Receptionist FAQ
+          </h2>
+        </div>
+
+        <div class="space-y-4">
+          {
+            faqItems.map((faq) => (
+              <div class="border-2 border-slate-200 p-5 bg-white shadow-sm">
+                <h3 class="text-sm font-black text-slate-950 uppercase tracking-tight mb-2">
+                  {faq.q}
+                </h3>
+                <p class="text-xs text-slate-650 leading-relaxed font-semibold">
+                  {faq.a}
+                </p>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA STRIP -->
+    <section class="bg-amber-50 py-16 border-b-2 border-slate-950">
+      <div
+        class="max-w-4xl mx-auto px-6 lg:px-12 flex flex-col sm:flex-row items-center justify-between gap-8 text-slate-950"
+      >
+        <div>
+          <h2
+            class="text-3xl sm:text-4xl font-black font-display uppercase tracking-tight leading-tight"
+          >
+            Never Miss Another High-Value Lead.<br class="hidden sm:block" /> Let AI Answer for You.
+          </h2>
+          <p class="text-slate-800 text-sm font-bold mt-2">
+            Automate phone calls, follow-ups, and calendar scheduling instantly.
+          </p>
+        </div>
+        <a
+          href="/#onboarding-form"
+          class="shrink-0 bg-white text-slate-950 font-black py-4 px-8 text-xs tracking-widest uppercase transition-all duration-200 border-2 border-slate-950 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none"
+        >
+          Book Strategy Call →
+        </a>
+      </div>
+    </section>
+
+  </main>
+
+  <Footer client:visible />
+</BaseLayout>

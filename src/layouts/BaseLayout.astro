@@ -125,5 +125,29 @@ const publicApiUrl = import.meta.env.PUBLIC_API_URL;
     class="antialiased geo-grid min-h-screen flex flex-col bg-slate-50 text-slate-900"
   >
     <slot />
+
+    <!-- Smooth Scroll-Reveal script -->
+    <script is:inline>
+      document.addEventListener("DOMContentLoaded", () => {
+        const observerOptions = {
+          root: null,
+          rootMargin: "0px 0px -10% 0px", // Trigger when 10% of element is in view
+          threshold: 0.05
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("reveal-active");
+              // Remove observation after reveal
+              observer.unobserve(entry.target);
+            }
+          });
+        }, observerOptions);
+
+        const revealElements = document.querySelectorAll("header, section, .scroll-reveal");
+        revealElements.forEach(el => observer.observe(el));
+      });
+    </script>
   </body>
 </html>

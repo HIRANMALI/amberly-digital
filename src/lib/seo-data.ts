@@ -16,6 +16,7 @@ export interface ServiceInfo {
   benefits: string[];
   features: string[];
   icon: string;
+  path?: string;
 }
 
 export interface ToolInfo {
@@ -110,26 +111,86 @@ export const CITIES: Record<string, CityInfo> = {
 };
 
 export const SERVICES: Record<string, ServiceInfo> = {
-  "ai-development": {
-    title: "AI Development",
-    shortDesc: "Custom AI Agents, RAG systems, and tailored LLM integrations for your business workflows.",
-    longDesc: "We build tailored AI agents and RAG (Retrieval-Augmented Generation) systems that understand your unique business data. Stop relying on generic chat wrappers and deploy intelligent, context-aware AI tools that act as a secure extension of your workforce.",
+  "ai-automation-integration": {
+    title: "AI Automation",
+    shortDesc: "Connects your tools, syncs calendar bookings, and automates invoices to run your business on autopilot.",
+    longDesc: "Stop wasting hours copying details between spreadsheets, invoicing apps, and scheduling calendars. We build customized integrations to connect all your business tools, automating manual data entry so you can focus entirely on completing jobs.",
     benefits: [
-      "Proprietary AI agents trained on your business data",
-      "Seamless integration with your existing CRM and software",
-      "Secure, private LLM deployments with complete data ownership",
-      "Automate complex data analysis and customer service tasks"
+      "Eliminate double data entry across different software tools",
+      "Automates scheduling and invoice creation in real time",
+      "Reduces admin errors and delays in getting paid",
+      "Runs 24/7 in the background so your business works for you"
     ],
     features: [
-      "Custom LLM fine-tuning and prompt engineering",
-      "RAG architecture with vector database integration",
-      "Secure API development and deployment",
-      "Ongoing maintenance and model optimization"
+      "Custom API and Zapier integration layers",
+      "Xero, ServiceM8, CRM, and calendar synchronization",
+      "Automated client onboarding workflow",
+      "Real-time team notification pipelines"
     ],
-    icon: "Cpu",
+    icon: "Layers",
   },
+
+  "ai-receptionist": {
+    title: "Voice Agents",
+    shortDesc: "Automates phone calls, qualifies leads, schedules bookings, and answers FAQs 24/7.",
+    longDesc: "Never miss a lead or support inquiry again. Our custom Voice Agents and AI Receptionists handle incoming phone calls, WhatsApp messages, and website chats 24/7. They qualify leads, schedule jobs directly into your CRM, and answer common questions just like a human operator.",
+    benefits: [
+      "Instantly replies to phone calls and web inquiries 24/7",
+      "Seamlessly schedules appointments directly to calendar/CRM",
+      "Qualifies high-value leads before booking",
+      "Reduces office admin costs while capturing more sales"
+    ],
+    features: [
+      "Natural-sounding Voice Agents with custom prompts",
+      "Integration with ServiceM8, CRM, and calendar apps",
+      "Missed-call automated text-back triggers",
+      "24/7 lead qualification and customer FAQ handling"
+    ],
+    icon: "Phone",
+  },
+
+  "ai-image-gen": {
+    title: "AI Image Gen.",
+    shortDesc: "Create stunning marketing and brand assets instantly.",
+    longDesc: "Generate high-quality, realistic images for marketing, branding, and socials in seconds using our advanced AI studio tools.",
+    benefits: [
+      "Save costs on commercial stock photography",
+      "Instantly visualize creative concepts",
+      "Perfect aspect ratios for every platform",
+      "Zero prompt expertise required to start"
+    ],
+    features: [
+      "High-fidelity image generation",
+      "Multiple format aspect ratios",
+      "Direct downloads and history tracking",
+      "Intuitive web controls"
+    ],
+    icon: "Image",
+    path: "/free-image-generation"
+  },
+
+  "ai-video-gen": {
+    title: "AI Video Gen.",
+    shortDesc: "Generate promotional videos from simple text prompts.",
+    longDesc: "Turn simple text descriptions or static images into cinematic, high-impact videos with custom durations and motion parameters.",
+    benefits: [
+      "Create high-converting video ads in minutes",
+      "Animate static brand images seamlessly",
+      "Scale up your content production budget-free",
+      "Modern keyframe motion controls"
+    ],
+    features: [
+      "Text-to-Video generation",
+      "Image-to-Video animation",
+      "Custom resolution aspect ratios",
+      "Selectable duration outputs"
+    ],
+    icon: "Play",
+    path: "/free-video-generation"
+  },
+
   "mvp-development": {
-    title: "Startup MVP Development",
+    title: "Startup MVPs",
     shortDesc: "Prototyping and core-feature development to validate your startup idea.",
     longDesc: "Launch your product in weeks, not months. We specialize in building Minimum Viable Products (MVPs) that focus strictly on your core value proposition, allowing you to get to market, test with real users, and secure funding faster.",
     benefits: [
@@ -148,7 +209,7 @@ export const SERVICES: Record<string, ServiceInfo> = {
   },
 
   "saas-product-development": {
-    title: "SaaS Product Development",
+    title: "SaaS Product",
     shortDesc: "Scalable, multi-tenant web applications and complex software platforms.",
     longDesc: "We architect and develop robust Software-as-a-Service (SaaS) platforms built for scale. From complex data dashboards to subscription management and secure multi-tenant architectures, we build software that drives recurring revenue.",
     benefits: [
@@ -166,23 +227,23 @@ export const SERVICES: Record<string, ServiceInfo> = {
     icon: "Cloud",
   },
 
-  "ai-automation-integration": {
-    title: "AI Automation & Integration",
-    shortDesc: "Connects your tools, syncs calendar bookings, and automates invoices to run your business on autopilot.",
-    longDesc: "Stop wasting hours copying details between spreadsheets, invoicing apps, and scheduling calendars. We build customized integrations to connect all your business tools, automating manual data entry so you can focus entirely on completing jobs.",
+  "ai-development": {
+    title: "AI Development",
+    shortDesc: "Custom AI Agents, RAG systems, and tailored LLM integrations for your business workflows.",
+    longDesc: "We build tailored AI agents and RAG (Retrieval-Augmented Generation) systems that understand your unique business data. Stop relying on generic chat wrappers and deploy intelligent, context-aware AI tools that act as a secure extension of your workforce.",
     benefits: [
-      "Eliminate double data entry across different software tools",
-      "Automates scheduling and invoice creation in real time",
-      "Reduces admin errors and delays in getting paid",
-      "Runs 24/7 in the background so your business works for you"
+      "Proprietary AI agents trained on your business data",
+      "Seamless integration with your existing CRM and software",
+      "Secure, private LLM deployments with complete data ownership",
+      "Automate complex data analysis and customer service tasks"
     ],
     features: [
-      "Custom API and Zapier integration layers",
-      "Xero, ServiceM8, CRM, and calendar synchronization",
-      "Automated client onboarding workflow",
-      "Real-time team notification pipelines"
+      "Custom LLM fine-tuning and prompt engineering",
+      "RAG architecture with vector database integration",
+      "Secure API development and deployment",
+      "Ongoing maintenance and model optimization"
     ],
-    icon: "Layers",
+    icon: "Cpu",
   },
 };
 
