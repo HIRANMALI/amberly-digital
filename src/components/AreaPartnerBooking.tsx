@@ -193,12 +193,13 @@ export function AreaPartnerBooking() {
                         className="absolute top-full left-0 right-0 mt-1.5 bg-white border-2 border-slate-950 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] z-40 rounded-none overflow-hidden max-h-[240px] overflow-y-auto"
                       >
                         {[
-                          "Custom Websites",
-                          "AI Receptionist",
-                          "AI SMS Follow-Up",
-                          "AI Email Automation",
-                          "Workflow Automation",
-                          "Advanced SEO",
+                          "AI Automation",
+                          "Voice Agents",
+                          "AI Image Gen.",
+                          "AI Video Gen.",
+                          "Startup MVPs",
+                          "SaaS Product",
+                          "AI Development",
                           "Other"
                         ].map((service) => (
                           <button

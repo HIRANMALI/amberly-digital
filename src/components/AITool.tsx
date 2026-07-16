@@ -18,7 +18,8 @@ import {
   Plus,
   Square,
   Smartphone,
-  Download
+  Download,
+  ArrowLeft
 } from 'lucide-react';
 
 function getCookie(name: string) {
@@ -138,7 +139,15 @@ export const AITool = ({ apiUrl, localApiUrl }: { apiUrl: string; localApiUrl?: 
     return [];
   });
   const [isLoadingTasks, setIsLoadingTasks] = useState(false);
+  const [view, setView] = useState<'studio' | 'history'>(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('view') === 'history' ? 'history' : 'studio';
+    }
+    return 'studio';
+  });
 
+  const viewportRef = useRef<HTMLDivElement>(null);
   const wsRef = useRef<WebSocket | null>(null);
 
   // Custom dropdown states & refs
@@ -200,6 +209,20 @@ export const AITool = ({ apiUrl, localApiUrl }: { apiUrl: string; localApiUrl?: 
       setMode(modeParam as any);
     }
 
+    // Check URL for view mode initially
+    const viewParam = params.get('view');
+    if (viewParam === 'history') {
+      setView('history');
+    } else {
+      setView('studio');
+    }
+
+    const handlePopState = () => {
+      const p = new URLSearchParams(window.location.search);
+      setView(p.get('view') === 'history' ? 'history' : 'studio');
+    };
+    window.addEventListener('popstate', handlePopState);
+
     // Fetch fresh profile to check auth state using activeApiUrl
     if (activeApiUrl) {
       (async () => {
@@ -241,6 +264,7 @@ export const AITool = ({ apiUrl, localApiUrl }: { apiUrl: string; localApiUrl?: 
 
     return () => {
       if (wsRef.current) wsRef.current.close();
+      window.removeEventListener('popstate', handlePopState);
     };
   }, [activeApiUrl, apiFetch]);
 
@@ -314,6 +338,15 @@ export const AITool = ({ apiUrl, localApiUrl }: { apiUrl: string; localApiUrl?: 
     }
   };
 
+  const handleBackToStudio = () => {
+    setView('studio');
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('view');
+      window.history.pushState({}, '', url.toString());
+    }
+  };
+
   const handleSelectTask = (t: any) => {
     setErrorMsg(null);
     setSelectedTaskId(t.task_id || t.id || null);
@@ -349,6 +382,20 @@ export const AITool = ({ apiUrl, localApiUrl }: { apiUrl: string; localApiUrl?: 
       setVideoUrl(null);
       setImageUrl(null);
     }
+
+    // Switch view back to studio if on mobile/tablet and scroll to result
+    setView('studio');
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('view');
+      window.history.pushState({}, '', url.toString());
+
+      if (window.innerWidth < 768) {
+        setTimeout(() => {
+          viewportRef.current?.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+      }
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -374,6 +421,12 @@ export const AITool = ({ apiUrl, localApiUrl }: { apiUrl: string; localApiUrl?: 
     setImageUrl(null);
     setProgressVal(0);
     setProgressMsg('Submitting task...');
+
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      setTimeout(() => {
+        viewportRef.current?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    }
 
     const aspectMap: Record<string, string> = {
       '1024x1024': '1:1',
@@ -501,7 +554,6 @@ export const AITool = ({ apiUrl, localApiUrl }: { apiUrl: string; localApiUrl?: 
     } catch (e) {
       console.error(e);
     } finally {
-      document.cookie = "refresh_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
       document.cookie = "user_name=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
       document.cookie = "user_avatar=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
       localStorage.removeItem('user_profile');
@@ -524,10 +576,14 @@ export const AITool = ({ apiUrl, localApiUrl }: { apiUrl: string; localApiUrl?: 
     (mode === 'i2v' && useKeyframes && !endImageFile);
 
   return (
-    <div className="flex flex-col lg:flex-row gap-4 w-full h-full min-h-0 overflow-hidden text-slate-900">
+    <div className={`flex flex-col md:flex-row gap-4 w-full min-h-0 text-slate-900 ${
+      view === 'history' ? 'h-[calc(100vh-120px)] md:h-full' : 'h-auto md:h-full md:overflow-hidden'
+    }`}>
       
       {/* LEFT COLUMN: Controls */}
-      <form onSubmit={handleSubmit} className="w-full lg:w-[350px] h-full shrink-0 bg-white rounded-[1.5rem] border border-slate-300 flex flex-col overflow-hidden shadow-sm">
+      <form onSubmit={handleSubmit} className={`${
+        view === 'history' ? 'hidden' : 'flex'
+      } lg:flex w-full md:w-[320px] lg:w-[350px] h-auto md:h-full shrink-0 bg-white rounded-[1.5rem] border border-slate-300 flex flex-col overflow-hidden shadow-sm`}>
         
         {/* Sticky Top Header containing Tabs (Made smaller) */}
         <div className="p-4 pb-2 border-b border-slate-100 bg-white shrink-0 flex flex-col items-center w-full gap-1.5">
@@ -875,7 +931,9 @@ export const AITool = ({ apiUrl, localApiUrl }: { apiUrl: string; localApiUrl?: 
       </form>
 
       {/* CENTER COLUMN: Visualization Viewport */}
-      <div className="flex-1 min-w-0 bg-white rounded-[1.5rem] border border-slate-300 overflow-hidden relative flex flex-col justify-center items-center p-6 shadow-sm">
+      <div ref={viewportRef} className={`${
+        view === 'history' ? 'hidden' : 'flex'
+      } lg:flex flex-1 min-w-0 min-h-[400px] md:min-h-0 md:h-full bg-white rounded-[1.5rem] border border-slate-300 overflow-hidden relative flex flex-col justify-center items-center p-6 shadow-sm`}>
         {errorMsg && (
           <div className="absolute top-6 left-6 right-6 bg-red-50 border border-red-100 text-red-600 px-4 py-3 rounded-xl flex items-center gap-3 z-10">
             <AlertCircle className="w-5 h-5 shrink-0" />
@@ -956,9 +1014,19 @@ export const AITool = ({ apiUrl, localApiUrl }: { apiUrl: string; localApiUrl?: 
       </div>
 
       {/* RIGHT COLUMN: Task/History Sidebar */}
-      <div className="w-full lg:w-[300px] h-full shrink-0 bg-white rounded-[1.5rem] border border-slate-300 flex flex-col overflow-hidden shadow-sm">
+      <div className={`${
+        view === 'history' ? 'flex w-full h-full' : 'hidden'
+      } lg:flex lg:w-[300px] h-full shrink-0 bg-white rounded-[1.5rem] border border-slate-300 flex flex-col overflow-hidden shadow-sm`}>
         <div className="p-6 border-b border-slate-100 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handleBackToStudio}
+              className="lg:hidden p-2 hover:bg-slate-100 active:bg-slate-200 border border-slate-200 rounded-xl text-slate-600 transition-all mr-1 cursor-pointer"
+              title="Back to Studio"
+            >
+              <ArrowLeft className="w-4 h-4" />
+            </button>
             <div className="p-2 rounded-xl bg-amber-500/10">
               <History className="w-4 h-4 text-amber-600" />
             </div>
