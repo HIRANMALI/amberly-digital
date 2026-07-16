@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 import urllib.parse
 from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
 from fastapi.responses import RedirectResponse, JSONResponse
@@ -24,7 +24,7 @@ async def login_google(req: Request, redirect_to: str | None = None):
         f"redirect_uri={service.GOOGLE_REDIRECT_URI}&"
         f"scope=openid%20email%20profile&"
         f"access_type=offline&"
-        f"prompt=consent&"
+        f"prompt=select_account&"
         f"state={urllib.parse.quote(state)}"
     )
     return RedirectResponse(url)
@@ -66,12 +66,8 @@ async def auth_google_callback(
     # 4. Generate JWT Access Token
     access_token = service.create_access_token(str(user.id), user.email, user.role)
     
-    # 5. Generate Refresh Token and store its hash
-    raw_refresh_token = service.generate_refresh_token(str(user.id), user.email, user.role)
-    token_hash = service.hash_token(raw_refresh_token)
-    expires_at = datetime.now(timezone.utc).replace(tzinfo=None) + service.REFRESH_TOKEN_EXPIRE
-    
-    await crud.create_refresh_token(db, user.id, token_hash, expires_at)
+    # 5. Reuse existing valid refresh token or generate a new one
+    raw_refresh_token = await crud.get_or_create_refresh_token(db, user.id, user.email, user.role)
     
     redirect_target = "/"
     if state and state.startswith("http"):

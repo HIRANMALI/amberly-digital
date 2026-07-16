@@ -34,10 +34,18 @@ class ImageOutput:
 class AgnesImageAPI:
     """Agnes Image generation API wrapper (t2i / i2i)."""
 
-    def __init__(self, api_key: str, model: str = "agnes-image-2.1-flash"):
+    def __init__(
+        self,
+        api_key: str,
+        model: str = "agnes-image-2.1-flash",
+        max_retries: int = 3,
+        retry_base_delay: float = 15.0,
+    ):
         self.api_key = api_key
         self.model = model
         self.i2i_model = "agnes-image-2.0-flash"
+        self.max_retries = max_retries
+        self.retry_base_delay = retry_base_delay
         self.headers = {
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json",
@@ -82,26 +90,40 @@ class AgnesImageAPI:
         logger.info(f"[AgnesImage] Generating ({'i2i' if use_i2i else 't2i'}): {prompt[:80]}...")
 
         resp = None
-        try:
-            resp = await asyncio.to_thread(
-                requests.post,
-                f"{BASE_URL}/images/generations",
-                headers=self.headers,
-                json=payload,
-                timeout=(30, 120),
-            )
-            resp.raise_for_status()
-        except requests.exceptions.HTTPError as e:
-            error_detail = ""
-            status_code = "?"
-            if resp is not None:
-                try:
-                    error_detail = resp.text[:500]
-                    status_code = str(resp.status_code)
-                except Exception:
-                    pass
-            logger.error(f"[AgnesImage] HTTP {status_code}: {error_detail}")
-            raise
+        for attempt in range(self.max_retries):
+            try:
+                resp = await asyncio.to_thread(
+                    requests.post,
+                    f"{BASE_URL}/images/generations",
+                    headers=self.headers,
+                    json=payload,
+                    timeout=(30, 120),
+                )
+                resp.raise_for_status()
+                break
+            except requests.exceptions.RequestException as e:
+                error_detail = ""
+                status_code = "?"
+                if resp is not None:
+                    try:
+                        error_detail = resp.text[:500]
+                        status_code = str(resp.status_code)
+                    except Exception:
+                        pass
+                
+                delay = self.retry_base_delay * (attempt + 1)
+                if attempt < self.max_retries - 1:
+                    logger.warning(
+                        f"[AgnesImage] HTTP {status_code}: {error_detail or e}, "
+                        f"retrying in {delay}s ({attempt + 1}/{self.max_retries})..."
+                    )
+                    await asyncio.sleep(delay)
+                else:
+                    logger.error(
+                        f"[AgnesImage] HTTP {status_code}: {error_detail or e} "
+                        f"permanently failed after {self.max_retries} attempts."
+                    )
+                    raise
 
         if resp is None:
             raise RuntimeError("Agnes image request failed without response")
