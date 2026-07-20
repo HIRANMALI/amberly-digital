@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="120" height="120">
+  <!-- Circular background (black/dark-slate color of the brand) that fills the entire container -->
+  <circle cx="24" cy="24" r="24" fill="#090d16"/>
+  
+  <!-- Vector Letter A from original logo (orange color fill) -->
+  <path fill-rule="evenodd" clip-rule="evenodd" d="M 21.5 10 L 26.5 10 L 36.5 38 L 29.5 38 L 27.5 31 L 20.5 31 L 18.5 38 L 11.5 38 L 21.5 10 Z M 24 16 L 22 25 L 26 25 Z" fill="#f59e0b" />
+</svg>
