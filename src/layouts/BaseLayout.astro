@@ -1,5 +1,6 @@
 ---
 import "@/styles/globals.css";
+import RinggWidget from "../components/RinggWidget.astro";
 export interface Props {
   title?: string;
   description?: string;
@@ -27,6 +28,16 @@ const canonicalUrl = new URL(
 ).toString();
 
 const publicApiUrl = import.meta.env.PUBLIC_API_URL;
+const publicLocalApiUrl = import.meta.env.PUBLIC_LOCAL_API_URL;
+
+// Ringg.AI widget: exclude /ai-studio and /blog routes (and all their sub-pages)
+const showRinggWidget =
+  !Astro.url.pathname.startsWith('/ai-studio') &&
+  !Astro.url.pathname.startsWith('/blog');
+
+// Ringg.AI credentials — sourced from .env (PUBLIC_ prefix required for Astro/Vite to expose them)
+const ringgAgentId = import.meta.env.PUBLIC_RINGG_AGENT_ID;
+const ringgApiKey = import.meta.env.PUBLIC_RINGG_API_KEY;
 ---
 
 <!doctype html>
@@ -111,12 +122,45 @@ const publicApiUrl = import.meta.env.PUBLIC_API_URL;
       gtag("config", "G-9RVKRYLSBV");
     </script>
 
-    <!-- Warm up hosted backend (Render spin-up) on load -->
-    {publicApiUrl && (
-      <script define:vars={{ publicApiUrl }}>
+    <!-- Warm up hosted backend (Render spin-up) and sync user session on load -->
+    {(publicApiUrl || publicLocalApiUrl) && (
+      <script define:vars={{ publicApiUrl, publicLocalApiUrl }}>
         document.addEventListener("DOMContentLoaded", () => {
-          // Asynchronously wake up the backend if sleeping
-          fetch(`${publicApiUrl}/health`).catch(() => {});
+          const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+          const activeApiUrl = (isLocal && publicLocalApiUrl && publicLocalApiUrl !== 'undefined') ? publicLocalApiUrl : publicApiUrl;
+
+          if (activeApiUrl) {
+            // Asynchronously wake up the backend if sleeping
+            fetch(`${activeApiUrl}/health`).catch(() => {});
+
+            // Fetch fresh user profile to sync localStorage with backend session
+            fetch(`${activeApiUrl}/users/me`, { credentials: 'include' })
+              .then(res => {
+                if (res.ok) {
+                  return res.json();
+                } else if (res.status === 401) {
+                  localStorage.removeItem('user_profile');
+                  localStorage.removeItem('user_tasks');
+                }
+                return null;
+              })
+              .then(data => {
+                if (data) {
+                  const userPayload = data.data || data;
+                  const name = userPayload.name || userPayload.full_name || userPayload.user?.name || userPayload.user?.full_name || userPayload.email?.split('@')[0] || userPayload.user?.email?.split('@')[0] || 'User';
+                  const avatar = userPayload.avatar_url || userPayload.picture || userPayload.user?.avatar_url || userPayload.user?.picture || null;
+                  localStorage.setItem('user_profile', JSON.stringify({ name, avatar }));
+                  
+                  // Dispatch event so layout can react if status was changed
+                  window.dispatchEvent(new CustomEvent('authSynced', { detail: { name } }));
+                }
+              })
+              .catch(() => {
+                // If connection is refused, failed, or server is down, clear cached credentials to prevent bypasses
+                localStorage.removeItem('user_profile');
+                localStorage.removeItem('user_tasks');
+              });
+          }
         });
       </script>
     )}
@@ -149,5 +193,18 @@ const publicApiUrl = import.meta.env.PUBLIC_API_URL;
         revealElements.forEach(el => observer.observe(el));
       });
     </script>
+
+
+    <!-- Ringg.AI Voice/Chat Widget — see src/components/RinggWidget.astro for all logic -->
+    {showRinggWidget && ringgAgentId && ringgApiKey && (
+      <RinggWidget
+        agentId={ringgAgentId}
+        apiKey={ringgApiKey}
+        apiUrl={publicApiUrl}
+        localApiUrl={publicLocalApiUrl}
+      />
+    )}
+
+  
   </body>
 </html>
