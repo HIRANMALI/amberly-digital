@@ -78,6 +78,7 @@ export const AITool = ({ apiUrl, localApiUrl }: { apiUrl: string; localApiUrl?: 
     }
     return null;
   });
+  const [avatarError, setAvatarError] = useState(false);
   const [tasksToday, setTasksToday] = useState<number>(0);
   const [dailyLimit, setDailyLimit] = useState<number>(5);
   const [authChecked, setAuthChecked] = useState(() => {
@@ -124,6 +125,8 @@ export const AITool = ({ apiUrl, localApiUrl }: { apiUrl: string; localApiUrl?: 
   const [taskStatus, setTaskStatus] = useState<'idle' | 'running' | 'completed' | 'failed'>('idle');
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [isVideoLoading, setIsVideoLoading] = useState(false);
+  const [videoError, setVideoError] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   
   // Task List States
@@ -347,11 +350,92 @@ export const AITool = ({ apiUrl, localApiUrl }: { apiUrl: string; localApiUrl?: 
     }
   };
 
+  // Auto-poll running tasks every 4 seconds until completed
+  useEffect(() => {
+    const hasRunningTask = tasksList.some(t => t.status === 'running' || t.status === 'processing' || t.status === 'pending') || isSubmitting;
+    
+    if (!hasRunningTask || !user) return;
+
+    const interval = setInterval(async () => {
+      try {
+        const res = await apiFetch('/tasks');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.tasks) {
+            setTasksList(data.tasks);
+            localStorage.setItem('user_tasks', JSON.stringify(data.tasks));
+
+            const targetId = selectedTaskId || taskId;
+            if (targetId) {
+              const currentTask = data.tasks.find((t: any) => (t.task_id || t.id) === targetId);
+              if (currentTask && currentTask.status === 'completed') {
+                const mediaUrl = getValidMediaUrl(currentTask);
+                const taskTypeLower = (currentTask.task_type || '').toLowerCase();
+                const isImage = taskTypeLower.includes('image') || taskTypeLower.includes('i2i');
+                const isVideo = !isImage && (
+                  (currentTask.video_url && currentTask.video_url !== 'None' && currentTask.video_url !== 'null') ||
+                  taskTypeLower.includes('video') || 
+                  taskTypeLower.includes('i2v') || 
+                  taskTypeLower.includes('t2v') ||
+                  (mediaUrl && (mediaUrl.includes('.mp4') || mediaUrl.includes('/video/') || mediaUrl.includes('cloudinary')))
+                );
+
+                setTaskStatus('completed');
+                setIsSubmitting(false);
+                if (isVideo) {
+                  setVideoUrl(mediaUrl);
+                  setImageUrl(null);
+                  setIsVideoLoading(true);
+                  setVideoError(false);
+                } else {
+                  setImageUrl(mediaUrl);
+                  setVideoUrl(null);
+                }
+                refreshProfile();
+              } else if (currentTask && currentTask.status === 'failed') {
+                setTaskStatus('failed');
+                setIsSubmitting(false);
+                setErrorMsg(currentTask.error || "Task generation failed.");
+              }
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Error polling running tasks", err);
+      }
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, [tasksList, isSubmitting, user, selectedTaskId, taskId, apiFetch]);
+
+  const getValidMediaUrl = (t: any): string | null => {
+    if (!t) return null;
+    const candidates = [
+      t.video_url,
+      t.cloudinary_url,
+      t.url,
+      t.media_url,
+      t.result_url,
+      t.image_url
+    ];
+    for (const c of candidates) {
+      if (c && typeof c === 'string' && c !== 'None' && c !== 'null' && c !== 'undefined' && c.trim() !== '') {
+        return c;
+      }
+    }
+    const taskId = t.task_id || t.id;
+    if (t.status === 'completed' && taskId && activeApiUrl) {
+      return `${activeApiUrl}/video/${taskId}`;
+    }
+    return null;
+  };
+
   const handleSelectTask = (t: any) => {
     setErrorMsg(null);
     setSelectedTaskId(t.task_id || t.id || null);
     if (t.status === 'completed') {
-      const mediaUrl = t.video_url || t.cloudinary_url || t.url;
+      setIsSubmitting(false);
+      const mediaUrl = getValidMediaUrl(t);
       const taskTypeLower = (t.task_type || '').toLowerCase();
       const isImage = taskTypeLower.includes('image') || taskTypeLower.includes('i2i');
       const isVideo = !isImage && (
@@ -359,23 +443,27 @@ export const AITool = ({ apiUrl, localApiUrl }: { apiUrl: string; localApiUrl?: 
         taskTypeLower.includes('video') || 
         taskTypeLower.includes('i2v') || 
         taskTypeLower.includes('t2v') ||
-        (mediaUrl && (mediaUrl.includes('.mp4') || mediaUrl.includes('/video/')))
+        (mediaUrl && (mediaUrl.includes('.mp4') || mediaUrl.includes('/video/') || mediaUrl.includes('cloudinary')))
       );
       
       setTaskStatus('completed');
       if (isVideo) {
         setVideoUrl(mediaUrl);
         setImageUrl(null);
+        setIsVideoLoading(true);
+        setVideoError(false);
       } else {
         setImageUrl(mediaUrl);
         setVideoUrl(null);
       }
     } else if (t.status === 'failed') {
+      setIsSubmitting(false);
       setTaskStatus('failed');
       setErrorMsg("This task generation failed.");
       setVideoUrl(null);
       setImageUrl(null);
     } else {
+      setIsSubmitting(true);
       setTaskStatus('running');
       setProgressMsg("Task is currently generating...");
       setProgressVal(0);
@@ -419,6 +507,8 @@ export const AITool = ({ apiUrl, localApiUrl }: { apiUrl: string; localApiUrl?: 
     setTaskStatus('idle');
     setVideoUrl(null);
     setImageUrl(null);
+    setIsVideoLoading(true);
+    setVideoError(false);
     setProgressVal(0);
     setProgressMsg('Submitting task...');
 
@@ -517,9 +607,35 @@ export const AITool = ({ apiUrl, localApiUrl }: { apiUrl: string; localApiUrl?: 
       
       if (msg.status === 'completed') {
         setTaskStatus('completed');
-        setVideoUrl(`${activeApiUrl}/video/${id}`);
+        setSelectedTaskId(id);
+        const directMediaUrl = msg.video_url || msg.cloudinary_url || msg.url || msg.media_url || msg.result_url || `${activeApiUrl}/video/${id}`;
+        setVideoUrl(directMediaUrl);
+        setIsVideoLoading(true);
+        setVideoError(false);
         setIsSubmitting(false);
-        fetchTasks(); // Refresh sidebar tasks
+        
+        // Fetch fresh tasks and update video URL if task record has direct CDN URL
+        apiFetch('/tasks').then(async (res) => {
+          try {
+            if (res.ok) {
+              const data = await res.json();
+              if (data.tasks) {
+                setTasksList(data.tasks);
+                localStorage.setItem('user_tasks', JSON.stringify(data.tasks));
+                const match = data.tasks.find((t: any) => (t.task_id || t.id) === id);
+                if (match) {
+                  const cdnUrl = match.video_url || match.cloudinary_url || match.url;
+                  if (cdnUrl) {
+                    setVideoUrl(cdnUrl);
+                  }
+                }
+              }
+            }
+          } catch (err) {
+            console.error("Error syncing tasks after generation", err);
+          }
+        });
+
         refreshProfile(); // Update daily credit count
         ws.close();
       } else if (msg.status === 'failed') {
@@ -540,6 +656,8 @@ export const AITool = ({ apiUrl, localApiUrl }: { apiUrl: string; localApiUrl?: 
         setErrorMsg("Access denied to this task.");
         setIsSubmitting(false);
         setTaskStatus('failed');
+      } else {
+        fetchTasks();
       }
     };
   };
@@ -973,13 +1091,56 @@ export const AITool = ({ apiUrl, localApiUrl }: { apiUrl: string; localApiUrl?: 
           <div className="h-full w-full flex flex-col justify-center items-center">
             <div className="w-full max-w-4xl h-full max-h-[85vh] flex flex-col items-center justify-center relative rounded-2xl overflow-hidden bg-slate-50 border border-slate-100 group">
               {videoUrl ? (
-                <video 
-                  src={videoUrl} 
-                  controls 
-                  autoPlay
-                  loop
-                  className="w-full h-full object-contain"
-                />
+                <div className="relative w-full h-full flex items-center justify-center bg-black/5">
+                  {/* Video Error Fallback with Reload Button */}
+                  {videoError && (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-950/85 backdrop-blur-md z-20 text-white p-6 text-center gap-3">
+                      <AlertCircle className="w-10 h-10 text-amber-500 mb-1" />
+                      <h4 className="text-sm font-black uppercase tracking-wider text-white">Video Stream Buffering</h4>
+                      <p className="text-xs text-slate-300 max-w-xs">
+                        The video stream is still processing or loading. Click reload to refresh the player.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setVideoError(false);
+                          setIsVideoLoading(true);
+                          setVideoUrl(prev => {
+                            if (!prev) return prev;
+                            const clean = prev.split('?retry=')[0];
+                            return `${clean}?retry=${Date.now()}`;
+                          });
+                        }}
+                        className="mt-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs px-4 py-2 rounded-xl transition-all flex items-center gap-2 cursor-pointer shadow-md"
+                      >
+                        <RefreshCw className="w-4 h-4" />
+                        <span>Reload Video</span>
+                      </button>
+                    </div>
+                  )}
+
+                  <video 
+                    key={videoUrl}
+                    src={videoUrl} 
+                    controls 
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    preload="auto"
+                    onLoadedMetadata={() => setIsVideoLoading(false)}
+                    onLoadedData={() => setIsVideoLoading(false)}
+                    onCanPlay={() => setIsVideoLoading(false)}
+                    onPlay={() => setIsVideoLoading(false)}
+                    onPlaying={() => setIsVideoLoading(false)}
+                    onError={() => {
+                      console.warn("Video stream load error", videoUrl);
+                      setIsVideoLoading(false);
+                      setVideoError(true);
+                    }}
+                    className="w-full h-full object-contain"
+                  />
+                </div>
               ) : (
                 <img 
                   src={imageUrl || ''} 
@@ -1078,7 +1239,7 @@ export const AITool = ({ apiUrl, localApiUrl }: { apiUrl: string; localApiUrl?: 
           ) : (
             <div className="space-y-4">
               {tasksList.map((t, idx) => {
-                const mediaUrl = t.video_url || t.cloudinary_url || t.url;
+                const mediaUrl = getValidMediaUrl(t);
                 const isActive = selectedTaskId === (t.task_id || t.id);
                 
                 return (
@@ -1109,7 +1270,7 @@ export const AITool = ({ apiUrl, localApiUrl }: { apiUrl: string; localApiUrl?: 
                       </span>
                     </div>
 
-                    {mediaUrl && (
+                    {(mediaUrl || t.status === 'completed') && (
                       <div className="flex justify-between items-center mt-1 border-t border-slate-100 pt-3">
                         <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
                           {t.task_type || 'Media'}
@@ -1137,8 +1298,14 @@ export const AITool = ({ apiUrl, localApiUrl }: { apiUrl: string; localApiUrl?: 
         {user && (
           <div className="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between gap-3">
             <div className="flex items-center gap-3 min-w-0">
-              {user.avatar ? (
-                <img src={user.avatar} alt={user.name || 'User'} className="w-8 h-8 rounded-full object-cover border border-slate-200 shrink-0" />
+              {user.avatar && !avatarError ? (
+                <img 
+                  src={user.avatar} 
+                  alt={user.name || 'User'} 
+                  referrerPolicy="no-referrer"
+                  onError={() => setAvatarError(true)}
+                  className="w-8 h-8 rounded-full object-cover border border-slate-200 shrink-0" 
+                />
               ) : (
                 <div className="w-8 h-8 rounded-full bg-amber-500/10 text-amber-600 flex items-center justify-center font-bold text-xs shrink-0">
                   {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
