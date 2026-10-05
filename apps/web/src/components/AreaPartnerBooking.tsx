@@ -101,18 +101,18 @@ export function AreaPartnerBooking() {
   };
 
   return (
-    <section className="py-20 bg-slate-50 border-b-2 border-slate-950" id="onboarding-form">
-      <div className="max-w-4xl mx-auto px-6 lg:px-12">
+    <div id="onboarding-form">
+      <div className="max-w-4xl mx-auto">
         <div className="bg-white border-2 border-slate-950 p-8 sm:p-12 shadow-[8px_8px_0px_0px_rgba(15,23,42,1)] rounded-none relative">
           <div className="text-center max-w-xl mx-auto mb-10">
             <span className="text-xs font-mono font-bold text-amber-600 uppercase tracking-widest block mb-3">
-              ⚡ SEE WHERE YOU'RE LOSING JOBS
+              ⚡ TAILORED AI SOLUTIONS
             </span>
             <h3 className="text-3xl sm:text-4xl font-display font-black text-slate-950 uppercase tracking-tight">
               BOOK A STRATEGY CALL
             </h3>
             <p className="text-base sm:text-lg text-slate-600 mt-4 leading-relaxed font-semibold">
-              Let's discuss your website, online presence, and how AI tools could support your business.
+              Let's discuss your workflows, AI automation needs, and custom AI solutions tailored for your business.
             </p>
           </div>
 
@@ -125,7 +125,7 @@ export function AreaPartnerBooking() {
                   <User className="absolute left-3.5 top-3.5 text-slate-400 w-4 h-4" />
                   <input
                     type="text"
-                    placeholder="Glenn Henderson"
+                    placeholder="Alex Morgan"
                     value={bookingForm.contactName}
                     onChange={(e) => setBookingForm({ ...bookingForm, contactName: e.target.value })}
                     className="w-full bg-white border-2 border-slate-950 p-3 pl-10 rounded-none text-sm text-slate-900 focus:outline-none focus:border-amber-500 font-medium"
@@ -140,7 +140,7 @@ export function AreaPartnerBooking() {
                   <Mail className="absolute left-3.5 top-3.5 text-slate-400 w-4 h-4" />
                   <input
                     type="email"
-                    placeholder="glenn@hendersonplumbing.com.au"
+                    placeholder="alex@acmeagency.com"
                     value={bookingForm.email}
                     onChange={(e) => setBookingForm({ ...bookingForm, email: e.target.value })}
                     className="w-full bg-white border-2 border-slate-950 p-3 pl-10 rounded-none text-sm text-slate-900 focus:outline-none focus:border-amber-500 font-medium"
@@ -158,7 +158,7 @@ export function AreaPartnerBooking() {
                   <Building className="absolute left-3.5 top-3.5 text-slate-400 w-4 h-4" />
                   <input
                     type="text"
-                    placeholder="Henderson Plumbing"
+                    placeholder="Acme Agency"
                     value={bookingForm.businessName}
                     onChange={(e) => setBookingForm({ ...bookingForm, businessName: e.target.value })}
                     className="w-full bg-white border-2 border-slate-950 p-3 pl-10 rounded-none text-sm text-slate-900 focus:outline-none focus:border-amber-500 font-bold"
@@ -291,6 +291,6 @@ export function AreaPartnerBooking() {
           </motion.div>
         )}
       </AnimatePresence>
-    </section>
+    </div>
   );
 }

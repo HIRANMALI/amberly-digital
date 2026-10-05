@@ -6,8 +6,17 @@ coverage/
 *.log
 .env*
 !.env.example
+.astro/
+.wrangler/
 .next/
 next-env.d.ts
+
+# Monorepo nested builds
+apps/*/dist/
+apps/*/.astro/
+apps/*/.wrangler/
+apps/*/.env*
+!apps/*/.env.example
 
 # Blog drafts
 blog.md

@@ -47,7 +47,24 @@ const CDN_VERSION = "2.0.0-beta.15";
     height: 660px !important;
     max-width: 95vw !important;
     max-height: 95vh !important;
-    transition: width 0.2s ease, height 0.2s ease !important;
+    transition:
+      width 0.2s ease,
+      height 0.2s ease !important;
+  }
+  /* Hide any third-party "Powered by" branding, watermarks, or external referral links */
+  #ringg_ai_container [class*="powered"],
+  #ringg_ai_container [class*="watermark"],
+  #ringg_ai_container [class*="branding"],
+  #ringg_ai_container a[href*="ringg.ai"],
+  #ringg_ai_container a[href*="desivocal"],
+  #ringg_ai_container [class*="terms"],
+  #ringg_ai_container [class*="privacy"],
+  #ringg_ai_container [class*="disclaimer"],
+  #ringg_ai_container [class*="footer-text"],
+  #ringg_ai_container [class*="agree"] {
+    display: none !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
   }
 </style>
 
@@ -58,8 +75,7 @@ const CDN_VERSION = "2.0.0-beta.15";
   <button
     id="ringg-unauth-trigger"
     aria-label="Talk to our AI assistant"
-    class="
-      w-[60px] h-[60px]
+    class="w-[60px] h-[60px]
       sm:w-[62px] sm:h-[62px]
       md:w-[64px] md:h-[64px]
       lg:w-[66px] lg:h-[66px]
@@ -67,19 +83,16 @@ const CDN_VERSION = "2.0.0-beta.15";
       2xl:w-[76px] 2xl:h-[76px]
       bg-[#020617]
       rounded-[18px] sm:rounded-[20px] md:rounded-[20px] lg:rounded-[22px] xl:rounded-[24px] 2xl:rounded-[26px]
-      flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-transform cursor-pointer border-2 border-[#020617]
-    "
+      flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-transform cursor-pointer border-2 border-[#020617]"
   >
     <svg
-      class="
-        w-[26px] h-[26px]
+      class="w-[26px] h-[26px]
         sm:w-[27px] sm:h-[27px]
         md:w-[28px] md:h-[28px]
         lg:w-[29px] lg:h-[29px]
         xl:w-[31px] xl:h-[31px]
         2xl:w-[34px] 2xl:h-[34px]
-        text-white
-      "
+        text-white"
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 24 24"
       fill="none"
@@ -88,7 +101,9 @@ const CDN_VERSION = "2.0.0-beta.15";
       stroke-linecap="round"
       stroke-linejoin="round"
     >
-      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+      <path
+        d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"
+      ></path>
     </svg>
   </button>
 </div>
@@ -157,7 +172,7 @@ const CDN_VERSION = "2.0.0-beta.15";
       id="ringg-modal-title"
       class="font-display font-black uppercase tracking-tight text-slate-950 text-xl sm:text-2xl mb-2"
     >
-      Sign In Required
+      Talk to AI Agent
     </h2>
 
     <!-- Description -->
@@ -165,7 +180,7 @@ const CDN_VERSION = "2.0.0-beta.15";
       class="text-slate-500 leading-relaxed font-semibold text-sm mb-5 sm:mb-6 max-w-xs"
     >
       Please sign up or log in to start a call or chat with our 24/7 AI
-      receptionist.
+      Receptionist.
     </p>
 
     <!-- Google Sign-in Button -->
@@ -267,17 +282,29 @@ const CDN_VERSION = "2.0.0-beta.15";
       var bRadius = 18;
 
       if (w >= 1536) {
-        launcherSize = 76; iconSize = 34; bRadius = 26;
+        launcherSize = 76;
+        iconSize = 34;
+        bRadius = 26;
       } else if (w >= 1280) {
-        launcherSize = 70; iconSize = 31; bRadius = 24;
+        launcherSize = 70;
+        iconSize = 31;
+        bRadius = 24;
       } else if (w >= 1024) {
-        launcherSize = 66; iconSize = 29; bRadius = 22;
+        launcherSize = 66;
+        iconSize = 29;
+        bRadius = 22;
       } else if (w >= 768) {
-        launcherSize = 64; iconSize = 28; bRadius = 20;
+        launcherSize = 64;
+        iconSize = 28;
+        bRadius = 20;
       } else if (w >= 640) {
-        launcherSize = 62; iconSize = 27; bRadius = 20;
+        launcherSize = 62;
+        iconSize = 27;
+        bRadius = 20;
       } else {
-        launcherSize = 60; iconSize = 26; bRadius = 18;
+        launcherSize = 60;
+        iconSize = 26;
+        bRadius = 18;
       }
 
       loadCdn(CDN_VERSION, function () {
@@ -292,7 +319,13 @@ const CDN_VERSION = "2.0.0-beta.15";
           },
           defaultTab: "audio",
           title: "Amberly AI",
+          description:
+            "Amberly Digital offers 24/7 support to handle all your customer queries",
           logoUrl: "/amberly-digital-logo-icon-round.svg?v=2",
+          privacyUrl: "https://amberlydigital.com/privacy-policy",
+          termsUrl: "https://amberlydigital.com/terms",
+          privacyPolicyUrl: "https://amberlydigital.com/privacy-policy",
+          termsOfServiceUrl: "https://amberlydigital.com/terms",
           theme: {
             primaryColor: "#020617",
             primaryTextColor: "#ffffff",
@@ -312,7 +345,7 @@ const CDN_VERSION = "2.0.0-beta.15";
                 border: "2px solid #020617",
                 width: launcherSize + "px",
                 height: launcherSize + "px",
-                borderRadius: bRadius + "px"
+                borderRadius: bRadius + "px",
               },
               icon: { size: iconSize },
             },
@@ -418,7 +451,10 @@ const CDN_VERSION = "2.0.0-beta.15";
             (p.user && (p.user.avatar_url || p.user.picture)) ||
             null;
 
-          localStorage.setItem("user_profile", JSON.stringify({ name: name, avatar: avatar }));
+          localStorage.setItem(
+            "user_profile",
+            JSON.stringify({ name: name, avatar: avatar }),
+          );
 
           hideSignInPrompt();
           mountWidget(name);
@@ -433,7 +469,7 @@ const CDN_VERSION = "2.0.0-beta.15";
     // ─ Setup expanded observer ───────────────────────────────────────
     // Periodically monitor the DOM for the Ringg container. If the inner
     // iframe has expanded, we append a CSS class to scale the widget size.
-    setInterval(function() {
+    setInterval(function () {
       var container = document.getElementById("ringg_ai_container");
       if (!container) return;
 
@@ -441,7 +477,8 @@ const CDN_VERSION = "2.0.0-beta.15";
       if (!iframe) return;
 
       var rect = iframe.getBoundingClientRect();
-      var isExpanded = rect.height > 120 && window.getComputedStyle(iframe).display !== "none";
+      var isExpanded =
+        rect.height > 120 && window.getComputedStyle(iframe).display !== "none";
 
       if (isExpanded) {
         container.classList.add("ringg-widget-expanded");
@@ -450,6 +487,44 @@ const CDN_VERSION = "2.0.0-beta.15";
         container.classList.remove("ringg-widget-expanded");
         iframe.classList.remove("ringg-widget-expanded");
       }
+      // Hide "By continuing, you agree to..." disclaimer inside iframe document if accessible
+      try {
+        var doc =
+          iframe.contentDocument ||
+          (iframe.contentWindow && iframe.contentWindow.document);
+        if (doc) {
+          if (!doc.getElementById("ringg-hide-disclaimer-style")) {
+            var st = doc.createElement("style");
+            st.id = "ringg-hide-disclaimer-style";
+            st.textContent = `
+              [class*="privacy"], [class*="terms"], [class*="disclaimer"], [class*="agree"], [class*="footer"],
+              p:has(a), div:has(a[href*="privacy"]), div:has(a[href*="terms"]) {
+                display: none !important;
+                visibility: hidden !important;
+                opacity: 0 !important;
+              }
+            `;
+            (doc.head || doc.documentElement).appendChild(st);
+          }
+          var els = doc.querySelectorAll("p, div, span, small, footer, a");
+          for (var i = 0; i < els.length; i++) {
+            var text = els[i].textContent || "";
+            if (
+              text.indexOf("By continuing") !== -1 ||
+              text.indexOf("agree to") !== -1 ||
+              text.indexOf("Privacy Policy") !== -1 ||
+              text.indexOf("T&C") !== -1
+            ) {
+              els[i].style.display = "none";
+              els[i].style.visibility = "hidden";
+              els[i].style.height = "0px";
+              els[i].style.margin = "0px";
+              els[i].style.padding = "0px";
+              els[i].style.overflow = "hidden";
+            }
+          }
+        }
+      } catch (e) {}
     }, 250);
 
     // ─ Boot ──────────────────────────────────────────────────────────
