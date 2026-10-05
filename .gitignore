@@ -20,3 +20,15 @@ apps/*/.env*
 
 # Blog drafts
 blog.md
+
+# Python
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+apps/api/venv/
+apps/api/.venv/
+
