@@ -1,9 +1,0 @@
-{
-  "name": "api",
-  "private": true,
-  "version": "1.0.0",
-  "scripts": {
-    "dev": "echo \"API dev placeholder\"",
-    "build": "echo \"API build placeholder\""
-  }
-}
