@@ -1,0 +1,799 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Navbar from "@/components/Navbar.astro";
+import { Footer } from "@/components/Footer";
+import { SERVICES, generateFAQSchema } from "@/lib/seo-data";
+import {
+  Phone,
+  CheckCircle2,
+  Calendar,
+  MessageSquare,
+  Mic,
+  Zap,
+  Play,
+  Volume2,
+  ArrowRight,
+  Sparkles,
+  Bot,
+  User,
+  Clock,
+  ShieldCheck,
+  Building2,
+  Stethoscope,
+  Scale,
+  Wrench,
+  Home,
+  Calculator,
+  Check,
+  Flame,
+  Radio,
+} from "lucide-react";
+
+const service = SERVICES["ai-receptionist"];
+
+const faqItems = [
+  {
+    q: "How does the AI Receptionist answer phone calls?",
+    a: "We set up a dedicated business number or configure conditional call forwarding on your line. When you're busy or closed, calls redirect to your Voice AI agent. It greets callers, answers questions, qualifies lead intent, and books appointments directly into your calendar.",
+  },
+  {
+    q: "Can the voice agent book jobs directly into our CRM?",
+    a: "Yes. Through direct APIs, webhooks, or Zapier, the AI Receptionist schedules jobs, reserves calendar slots, and syncs caller details into ServiceM8, HubSpot, Salesforce, Xero, or Google Calendar in real time.",
+  },
+  {
+    q: "Will the AI voice sound robotic?",
+    a: "No. We utilize state-of-the-art conversational voice AI with natural human intonation, subtle pauses, and realistic speech patterns. Callers experience a friendly, articulate operator who listens and responds in under 2 seconds.",
+  },
+  {
+    q: "How do I forward my missed calls to the AI?",
+    a: "It's simple. You enable conditional call forwarding on your mobile or office phone line (*21* or carrier setting). When you don't answer within 3 rings or are after-hours, the call instantly transfers to your AI Receptionist.",
+  },
+  {
+    q: "Can callers get an instant SMS confirmation?",
+    a: "Yes! As soon as the call ends, the AI Receptionist fires an automated SMS confirmation with appointment details, address links, or intake forms directly to the caller's mobile phone.",
+  },
+];
+
+const faqSchemaJson = generateFAQSchema(faqItems);
+
+const targetIndustries = [
+  { name: "Plumbing & Trades", icon: Wrench, color: "bg-amber-100 text-amber-900 border-amber-300" },
+  { name: "Electrical & HVAC", icon: Flame, color: "bg-sky-100 text-sky-900 border-sky-300" },
+  { name: "Dental & Healthcare", icon: Stethoscope, color: "bg-emerald-100 text-emerald-900 border-emerald-300" },
+  { name: "Law Firms & Legal", icon: Scale, color: "bg-indigo-100 text-indigo-900 border-indigo-300" },
+  { name: "Real Estate & Housing", icon: Home, color: "bg-purple-100 text-purple-900 border-purple-300" },
+  { name: "Accounting & Tax", icon: Calculator, color: "bg-pink-100 text-pink-900 border-pink-300" },
+  { name: "Field Services", icon: Building2, color: "bg-amber-100 text-amber-900 border-amber-300" },
+  { name: "Auto Repair & Care", icon: Wrench, color: "bg-slate-200 text-slate-900 border-slate-400" },
+];
+
+const outcomeBenefits = [
+  {
+    title: "Books Appointments Automatically",
+    description: "Fills your scheduling calendar 24/7/365 while you are out on site, in meetings, or sleeping.",
+    icon: Calendar,
+    color: "bg-[#FCD34D]",
+  },
+  {
+    title: "Qualifies Every Caller Before You Speak",
+    description: "Asks crucial job details, location, urgency, and budget — filtering out spam and price-shoppers.",
+    icon: ShieldCheck,
+    color: "bg-[#87E6F9]",
+  },
+  {
+    title: "Responds in Under 2 Seconds",
+    description: "Stop losing 60% of callers to competitors who answer first. Zero waiting on hold or voicemail.",
+    icon: Zap,
+    color: "bg-[#A4E8D7]",
+  },
+  {
+    title: "100% CRM & Calendar Sync",
+    description: "Direct integration with ServiceM8, HubSpot, Salesforce, Xero, and Google Calendar.",
+    icon: CheckCircle2,
+    color: "bg-[#F9A8D4]",
+  },
+  {
+    title: "Instant SMS Confirmations & Reminders",
+    description: "Cuts no-shows by 80% by firing automated text confirmations and calendar links immediately after calls.",
+    icon: MessageSquare,
+    color: "bg-[#C084FC]",
+  },
+  {
+    title: "Zero Voicemail Waste",
+    description: "Converts 3x more phone leads into paying clients compared to standard voicemail recording boxes.",
+    icon: Phone,
+    color: "bg-[#A3E635]",
+  },
+];
+---
+
+<BaseLayout
+  title="24/7 AI Receptionist & Voice Agents | Amberly Digital"
+  description="Never miss another lead. Our 24/7 Voice AI Receptionist answers phone calls in under 2 seconds, qualifies prospects, and books appointments into your CRM."
+>
+  <script type="application/ld+json" set:html={JSON.stringify(faqSchemaJson)} />
+
+  <Navbar />
+
+  <!-- TOP LIVE STATUS STRIP (Home Page Style) -->
+  <div
+    class="bg-amber-500 border-b-2 border-slate-950 py-2.5 px-4 text-center text-slate-950 text-xs font-mono font-black uppercase tracking-widest flex items-center justify-center gap-2 flex-wrap"
+  >
+    <svg
+      class="w-4 h-4 text-slate-950 fill-current animate-pulse"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+    >
+      <path d="M17.66 11.2C17.43 10.9 17.15 10.64 16.89 10.38C16.22 9.78 15.46 9.35 14.82 8.72C13.33 7.26 13 4.85 13.95 3C13 3.23 12.17 3.75 11.46 4.32C8.87 6.4 7.85 10.07 9.07 13.22C9.11 13.32 9.15 13.42 9.15 13.55C9.15 13.77 9 13.97 8.8 14.05C8.57 14.15 8.33 14.09 8.14 13.93C8.08 13.88 8.04 13.83 8 13.76C6.87 12.33 6.69 10.28 7.45 8.64C5.78 10 4.87 12.3 5 14.47C5.06 14.97 5.12 15.47 5.29 15.97C5.43 16.57 5.7 17.17 6 17.7C7.08 19.43 8.95 20.67 10.96 20.92C13.1 21.19 15.39 20.8 17.03 19.32C18.86 17.66 19.5 15 18.56 12.72L18.43 12.46C18.22 12 17.66 11.2 17.66 11.2Z"></path>
+    </svg>
+    <span>📞 24/7 LIVE VOICE AGENTS & AI RECEPTIONIST PIPELINE ONLINE</span>
+  </div>
+
+  <main class="bg-white">
+    <!-- HERO SECTION -->
+    <header
+      class="border-b-2 border-slate-950 bg-slate-50 py-16 lg:py-24 relative overflow-hidden"
+    >
+      <div class="absolute top-0 right-1/2 translate-x-1/2 w-[600px] h-[300px] bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="max-w-8xl mx-auto px-6 lg:px-12 relative z-10 text-center space-y-8">
+        
+        <!-- Top Pill Badges -->
+        <div class="flex flex-wrap items-center justify-center gap-3">
+          <span
+            class="px-4 py-1.5 rounded-full text-xs font-mono font-bold border-2 border-slate-950 bg-[#FCD34D] text-slate-950 shadow-[2px_2px_0px_0px_rgba(2,6,23,1)] uppercase tracking-wider"
+          >
+            ⚡ CONVERSATIONAL VOICE AI
+          </span>
+          <span
+            class="px-4 py-1.5 rounded-full text-xs font-mono font-bold border-2 border-slate-950 bg-white text-slate-950 shadow-[2px_2px_0px_0px_rgba(2,6,23,1)] uppercase tracking-wider hidden sm:inline-block"
+          >
+            🔒 100% CRM & CALENDAR SYNC
+          </span>
+        </div>
+
+        <!-- Main Hard-Hitting Headline -->
+        <h1
+          class="text-4xl sm:text-6xl lg:text-7xl xl:text-8xl font-black font-display leading-none text-slate-950 uppercase tracking-tight max-w-5xl mx-auto"
+        >
+          Never Miss a Lead.<br class="hidden sm:block" />
+          <span class="text-amber-500">24/7 LIVE VOICE AGENTS.</span>
+        </h1>
+
+        <!-- Subheadline -->
+        <p
+          class="text-base sm:text-xl lg:text-2xl text-slate-700 font-medium max-w-3xl mx-auto leading-relaxed"
+        >
+          Our conversational Voice AI answers missed calls in under 2 seconds, qualifies prospects, books appointments, and syncs directly with your CRM.
+        </p>
+
+        <!-- HERO CTAs (ALL USING HOME PAGE AMBER CTA BUTTON COLORS) -->
+        <div class="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4 max-w-2xl mx-auto">
+          <button
+            id="trigger-voice-demo-btn"
+            class="w-full sm:w-auto bg-[#FCD34D] hover:bg-[#FBBF24] text-slate-950 font-black py-4 px-8 rounded-2xl text-xs sm:text-sm tracking-widest uppercase transition-all duration-300 border-2 border-slate-950 shadow-[4px_4px_0px_0px_rgba(2,6,23,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 flex items-center justify-center gap-3 cursor-pointer group"
+          >
+            <Phone className="w-4 h-4 fill-slate-950 text-slate-950" />
+            <span>📞 Try Live Demo</span>
+          </button>
+
+          <a
+            href="#sample-call-section"
+            class="w-full sm:w-auto bg-[#FCD34D] hover:bg-[#FBBF24] text-slate-950 font-black py-4 px-8 rounded-2xl text-xs sm:text-sm tracking-widest uppercase transition-all duration-300 border-2 border-slate-950 shadow-[4px_4px_0px_0px_rgba(2,6,23,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 flex items-center justify-center gap-3"
+          >
+            <Volume2 className="w-4 h-4 text-slate-950" />
+            <span>🎧 Listen to Sample Call</span>
+          </a>
+
+          <a
+            href="/#onboarding-form"
+            class="w-full sm:w-auto bg-[#FCD34D] hover:bg-[#FBBF24] text-slate-950 font-black py-4 px-8 rounded-2xl text-xs sm:text-sm tracking-widest uppercase transition-all duration-300 border-2 border-slate-950 shadow-[4px_4px_0px_0px_rgba(2,6,23,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 flex items-center justify-center gap-2"
+          >
+            <span>📅 Book Demo</span>
+          </a>
+        </div>
+
+        <!-- Trust Highlights Bar -->
+        <div class="pt-6 border-t border-slate-300/80 max-w-2xl mx-auto flex flex-wrap items-center justify-center gap-6 text-xs text-slate-800 font-mono font-bold">
+          <span class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> &lt; 2-Second Answering Speed
+          </span>
+          <span class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> 24/7/365 Availability
+          </span>
+          <span class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Calendar Booking Included
+          </span>
+        </div>
+
+        <!-- Problem vs Outcome Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 text-left max-w-5xl mx-auto">
+          <div
+            class="bg-gradient-to-b from-[#FFFDF5] to-white border-2 border-slate-950 p-8 rounded-3xl shadow-[6px_6px_0px_0px_rgba(2,6,23,1)]"
+          >
+            <span
+              class="text-[10px] font-mono font-black text-red-600 bg-red-100 border border-red-300 px-2.5 py-1 rounded-md uppercase tracking-widest inline-block mb-3"
+            >
+              ✖ THE PROBLEM: MISSED CALLS & REVENUE LEAKS
+            </span>
+            <h3 class="text-lg font-bold font-display text-slate-950 uppercase mb-2">
+              60% of Unanswered Callers Call Competitors
+            </h3>
+            <p class="text-xs text-slate-600 leading-relaxed font-semibold">
+              When you're on a job, in a meeting, or closed after hours, incoming calls go straight to voicemail. Callers rarely leave messages; they hang up and hire a competitor instead.
+            </p>
+          </div>
+
+          <div
+            class="bg-gradient-to-b from-[#F0FDFD] to-white border-2 border-slate-950 p-8 rounded-3xl shadow-[6px_6px_0px_0px_rgba(2,6,23,1)]"
+          >
+            <span
+              class="text-[10px] font-mono font-black text-emerald-700 bg-emerald-100 border border-emerald-300 px-2.5 py-1 rounded-md uppercase tracking-widest inline-block mb-3"
+            >
+              ✔ THE AMBERLY WAY: INSTANT CAPTURE & BOOKING
+            </span>
+            <h3 class="text-lg font-bold font-display text-slate-950 uppercase mb-2">
+              Every Call Answered & Booked 24/7
+            </h3>
+            <p class="text-xs text-slate-600 leading-relaxed font-semibold">
+              Our Voice AI agent answers instantly in a warm, articulate voice. It qualifies caller intent, answers business FAQs, reserves appointment slots in your CRM, and fires an instant SMS text-back.
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </header>
+
+    <!-- LIVE DEMO & CONVERSATION PREVIEW SECTION (ITEM 1 & ITEM 7) -->
+    <section id="sample-call-section" class="py-20 bg-white border-b-2 border-slate-950 scroll-reveal">
+      <div class="max-w-8xl mx-auto px-6 lg:px-12 space-y-12">
+        
+        <div class="text-center max-w-3xl mx-auto">
+          <span
+            class="px-4 py-1.5 rounded-full text-xs font-mono font-bold border-2 border-slate-950 bg-[#FCD34D] text-slate-950 shadow-[2px_2px_0px_0px_rgba(2,6,23,1)] uppercase tracking-wider inline-block mb-4"
+          >
+            ⭐ LIVE INTERACTIVE DEMO
+          </span>
+          <h2
+            class="text-4xl lg:text-5xl font-black text-slate-950 uppercase tracking-tight font-display leading-tight"
+          >
+            Hear Your AI Receptionist in Action
+          </h2>
+          <p class="text-slate-600 text-base font-medium mt-3">
+            Experience how natural and intelligent our voice agents sound when answering client calls.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch max-w-6xl mx-auto">
+          
+          <!-- LEFT CARD: REAL-TIME CALL TRIGGER -->
+          <div class="lg:col-span-5 bg-slate-950 border-2 border-slate-950 p-8 rounded-3xl text-white shadow-[8px_8px_0px_0px_rgba(252,211,77,1)] flex flex-col justify-between space-y-6">
+            <div>
+              <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-6">
+                <span class="flex items-center gap-2 text-xs font-mono font-bold text-amber-400">
+                  <Radio className="w-4 h-4 text-emerald-400 animate-pulse" /> VOICE AI AGENT READY
+                </span>
+                <span class="text-[10px] font-mono font-bold text-emerald-400 bg-emerald-950 px-2.5 py-1 border border-emerald-500/40 rounded">
+                  🟢 Online 24/7
+                </span>
+              </div>
+
+              <div class="text-center py-6 space-y-4">
+                <div class="w-20 h-20 rounded-full bg-amber-500/20 border-2 border-amber-400/50 mx-auto flex items-center justify-center text-amber-400 shadow-lg relative">
+                  <span class="absolute inset-0 rounded-full bg-amber-400/10 animate-ping"></span>
+                  <Mic className="w-10 h-10 relative z-10" />
+                </div>
+                <div>
+                  <h3 class="text-2xl font-bold font-display uppercase text-white">
+                    Talk to AI Receptionist
+                  </h3>
+                  <p class="text-xs text-slate-400 font-medium mt-1">
+                    Click below to test our live voice assistant right now using your microphone.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <button
+              id="talk-ai-receptionist-btn"
+              class="w-full bg-[#FCD34D] hover:bg-[#FBBF24] text-slate-950 font-black py-4 px-6 rounded-2xl text-xs sm:text-sm tracking-widest uppercase transition-all duration-300 border-2 border-slate-950 shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 flex items-center justify-center gap-3 cursor-pointer"
+            >
+              <Phone className="w-4 h-4 fill-slate-950 text-slate-950" />
+              <span>📞 Talk to AI Receptionist Now</span>
+            </button>
+          </div>
+
+          <!-- RIGHT CARD: SAMPLE CONVERSATION PREVIEW -->
+          <div class="lg:col-span-7 bg-slate-900 border-2 border-slate-950 p-8 rounded-3xl text-white shadow-[8px_8px_0px_0px_rgba(2,6,23,1)] flex flex-col justify-between space-y-6">
+            <div>
+              <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-6">
+                <span class="flex items-center gap-2 text-xs font-mono font-bold text-slate-300">
+                  <Volume2 className="w-4 h-4 text-amber-400" /> SAMPLE CALL TRANSCRIPT (45 SEC)
+                </span>
+                <span class="text-[10px] font-mono font-bold text-amber-400 bg-amber-950 px-2.5 py-1 border border-amber-500/40 rounded">
+                  Recorded Call Simulation
+                </span>
+              </div>
+
+              <!-- Dialogue Bubbles -->
+              <div class="space-y-4 text-xs font-medium leading-relaxed">
+                
+                <!-- AI Bubble -->
+                <div class="flex items-start gap-3 bg-slate-950 p-4 rounded-2xl border border-slate-800">
+                  <div class="w-7 h-7 rounded-lg bg-amber-500 text-slate-950 font-mono font-black flex items-center justify-center text-[10px] shrink-0">
+                    AI
+                  </div>
+                  <div>
+                    <span class="text-[10px] font-mono text-amber-400 font-bold block mb-1">AI Receptionist:</span>
+                    <p class="text-slate-200">
+                      "Hi, thanks for calling ABC Plumbing & Electrical! How can I help you today?"
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Customer Bubble -->
+                <div class="flex items-start gap-3 bg-slate-800/80 p-4 rounded-2xl border border-slate-700/60">
+                  <div class="w-7 h-7 rounded-lg bg-sky-500 text-white font-mono font-black flex items-center justify-center text-[10px] shrink-0">
+                    C
+                  </div>
+                  <div>
+                    <span class="text-[10px] font-mono text-sky-300 font-bold block mb-1">Customer:</span>
+                    <p class="text-slate-200">
+                      "My hot water system stopped working and I need someone out ASAP."
+                    </p>
+                  </div>
+                </div>
+
+                <!-- AI Bubble -->
+                <div class="flex items-start gap-3 bg-slate-950 p-4 rounded-2xl border border-slate-800">
+                  <div class="w-7 h-7 rounded-lg bg-amber-500 text-slate-950 font-mono font-black flex items-center justify-center text-[10px] shrink-0">
+                    AI
+                  </div>
+                  <div>
+                    <span class="text-[10px] font-mono text-amber-400 font-bold block mb-1">AI Receptionist:</span>
+                    <p class="text-slate-200">
+                      "I can help with that emergency right away! Are you available tomorrow morning at 9:00 AM or 11:30 AM for a technician visit?"
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Customer Bubble -->
+                <div class="flex items-start gap-3 bg-slate-800/80 p-4 rounded-2xl border border-slate-700/60">
+                  <div class="w-7 h-7 rounded-lg bg-sky-500 text-white font-mono font-black flex items-center justify-center text-[10px] shrink-0">
+                    C
+                  </div>
+                  <div>
+                    <span class="text-[10px] font-mono text-sky-300 font-bold block mb-1">Customer:</span>
+                    <p class="text-slate-200">
+                      "Tomorrow at 9:00 AM works perfectly."
+                    </p>
+                  </div>
+                </div>
+
+                <!-- AI Bubble -->
+                <div class="flex items-start gap-3 bg-slate-950 p-4 rounded-2xl border border-emerald-500/40">
+                  <div class="w-7 h-7 rounded-lg bg-emerald-500 text-slate-950 font-mono font-black flex items-center justify-center text-[10px] shrink-0">
+                    AI
+                  </div>
+                  <div>
+                    <span class="text-[10px] font-mono text-emerald-400 font-bold block mb-1">AI Receptionist (Booked & Synced):</span>
+                    <p class="text-slate-200">
+                      "Great! I've reserved 9:00 AM for you. I just sent an SMS confirmation to your phone with job details. Have a great day!"
+                    </p>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <div class="pt-2 border-t border-slate-800 flex items-center justify-between text-[11px] font-mono text-slate-400 font-bold">
+              <span>✔ CRM Logged: ServiceM8 / Xero</span>
+              <span>✔ SMS Delivered in 1.2s</span>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- STEP-BY-STEP METHODOLOGY (ITEM 3 VISUAL FLOWCHART) -->
+    <section class="py-20 bg-slate-50 border-b-2 border-slate-950">
+      <div class="max-w-8xl mx-auto px-6 lg:px-12">
+        
+        <div class="text-center max-w-3xl mx-auto mb-16">
+          <span
+            class="text-xs font-mono font-bold text-amber-600 uppercase tracking-widest block mb-2"
+            >⚡ HOW IT WORKS</span
+          >
+          <h2
+            class="text-4xl lg:text-5xl font-black text-slate-950 uppercase tracking-tight font-display leading-tight"
+          >
+            End-to-End Call Flow
+          </h2>
+          <p class="text-slate-600 text-base font-medium mt-3">
+            From missed call to booked calendar slot and SMS confirmation in 6 automated steps.
+          </p>
+        </div>
+
+        <!-- Visual Flow Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+          <!-- Step 1 -->
+          <div class="bg-white border-2 border-slate-950 p-5 rounded-2xl shadow-[4px_4px_0px_0px_rgba(2,6,23,1)] flex flex-col justify-between">
+            <div>
+              <span class="text-xs font-mono font-black text-slate-400 block mb-2">STEP 01</span>
+              <div class="w-10 h-10 rounded-xl bg-red-100 text-red-600 border border-red-300 flex items-center justify-center mb-3">
+                <Phone className="w-5 h-5" />
+              </div>
+              <h3 class="text-sm font-bold font-display uppercase text-slate-950 mb-1">
+                Missed Call
+              </h3>
+              <p class="text-[11px] text-slate-600 leading-relaxed font-semibold">
+                Caller dials when you're busy, on a job site, or closed.
+              </p>
+            </div>
+            <div class="text-amber-500 font-mono text-center font-bold pt-3">➔</div>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="bg-white border-2 border-slate-950 p-5 rounded-2xl shadow-[4px_4px_0px_0px_rgba(2,6,23,1)] flex flex-col justify-between">
+            <div>
+              <span class="text-xs font-mono font-black text-amber-600 block mb-2">STEP 02</span>
+              <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-900 border border-amber-300 flex items-center justify-center mb-3">
+                <Zap className="w-5 h-5" />
+              </div>
+              <h3 class="text-sm font-bold font-display uppercase text-slate-950 mb-1">
+                AI Answers Instantly
+              </h3>
+              <p class="text-[11px] text-slate-600 leading-relaxed font-semibold">
+                Answers within 2 seconds in a warm, articulate voice.
+              </p>
+            </div>
+            <div class="text-amber-500 font-mono text-center font-bold pt-3">➔</div>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="bg-white border-2 border-slate-950 p-5 rounded-2xl shadow-[4px_4px_0px_0px_rgba(2,6,23,1)] flex flex-col justify-between">
+            <div>
+              <span class="text-xs font-mono font-black text-sky-600 block mb-2">STEP 03</span>
+              <div class="w-10 h-10 rounded-xl bg-sky-100 text-sky-900 border border-sky-300 flex items-center justify-center mb-3">
+                <ShieldCheck className="w-5 h-5" />
+              </div>
+              <h3 class="text-sm font-bold font-display uppercase text-slate-950 mb-1">
+                Qualifies Lead
+              </h3>
+              <p class="text-[11px] text-slate-600 leading-relaxed font-semibold">
+                Gathers job details, service location, and urgency.
+              </p>
+            </div>
+            <div class="text-amber-500 font-mono text-center font-bold pt-3">➔</div>
+          </div>
+
+          <!-- Step 4 -->
+          <div class="bg-white border-2 border-slate-950 p-5 rounded-2xl shadow-[4px_4px_0px_0px_rgba(2,6,23,1)] flex flex-col justify-between">
+            <div>
+              <span class="text-xs font-mono font-black text-purple-600 block mb-2">STEP 04</span>
+              <div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-900 border border-purple-300 flex items-center justify-center mb-3">
+                <Calendar className="w-5 h-5" />
+              </div>
+              <h3 class="text-sm font-bold font-display uppercase text-slate-950 mb-1">
+                Books Appointment
+              </h3>
+              <p class="text-[11px] text-slate-600 leading-relaxed font-semibold">
+                Checks open slots and reserves your calendar automatically.
+              </p>
+            </div>
+            <div class="text-amber-500 font-mono text-center font-bold pt-3">➔</div>
+          </div>
+
+          <!-- Step 5 -->
+          <div class="bg-white border-2 border-slate-950 p-5 rounded-2xl shadow-[4px_4px_0px_0px_rgba(2,6,23,1)] flex flex-col justify-between">
+            <div>
+              <span class="text-xs font-mono font-black text-orange-600 block mb-2">STEP 05</span>
+              <div class="w-10 h-10 rounded-xl bg-orange-100 text-orange-900 border border-orange-300 flex items-center justify-center mb-3">
+                <CheckCircle2 className="w-5 h-5" />
+              </div>
+              <h3 class="text-sm font-bold font-display uppercase text-slate-950 mb-1">
+                Updates CRM
+              </h3>
+              <p class="text-[11px] text-slate-600 leading-relaxed font-semibold">
+                Logs contact info, job notes, and tags in your CRM.
+              </p>
+            </div>
+            <div class="text-amber-500 font-mono text-center font-bold pt-3">➔</div>
+          </div>
+
+          <!-- Step 6 -->
+          <div class="bg-white border-2 border-slate-950 p-5 rounded-2xl shadow-[4px_4px_0px_0px_rgba(2,6,23,1)] flex flex-col justify-between border-emerald-500">
+            <div>
+              <span class="text-xs font-mono font-black text-emerald-600 block mb-2">STEP 06</span>
+              <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-900 border border-emerald-300 flex items-center justify-center mb-3">
+                <MessageSquare className="w-5 h-5" />
+              </div>
+              <h3 class="text-sm font-bold font-display uppercase text-slate-950 mb-1">
+                Sends SMS Confirmation
+              </h3>
+              <p class="text-[11px] text-slate-600 leading-relaxed font-semibold">
+                Fires instant text confirmation with job details to caller.
+              </p>
+            </div>
+            <div class="text-emerald-600 font-mono text-center font-bold pt-3">✔ DONE</div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- OUTCOME-FOCUSED BENEFITS SECTION (ITEM 4) -->
+    <section class="py-20 bg-white border-b-2 border-slate-950">
+      <div class="max-w-8xl mx-auto px-6 lg:px-12">
+        
+        <div class="text-center max-w-3xl mx-auto mb-16">
+          <span
+            class="text-xs font-mono font-bold text-amber-600 uppercase tracking-widest block mb-2"
+            >⚡ OUTCOMES & RESULTS</span
+          >
+          <h2
+            class="text-4xl lg:text-5xl font-black text-slate-950 uppercase tracking-tight font-display leading-tight"
+          >
+            Built for Measurable Business Outcomes
+          </h2>
+          <p class="text-slate-600 text-base font-medium mt-3">
+            Stop paying for passive voicemail boxes. Turn every phone call into booked revenue.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {
+            outcomeBenefits.map((benefit) => {
+              const IconComp = benefit.icon;
+              return (
+                <div class="bg-white border-2 border-slate-950 p-7 rounded-3xl shadow-[6px_6px_0px_0px_rgba(2,6,23,1)] hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group">
+                  <div>
+                    <div class="flex items-center justify-between mb-6">
+                      <div class={`w-12 h-12 rounded-2xl ${benefit.color} border-2 border-slate-950 flex items-center justify-center text-slate-950 shadow-[3px_3px_0px_0px_rgba(2,6,23,1)] group-hover:scale-105 transition-transform`}>
+                        <IconComp className="w-6 h-6 stroke-[2.5]" />
+                      </div>
+                      <span class="inline-flex items-center gap-1.5 text-[10px] font-mono font-black text-emerald-700 bg-emerald-100 px-3 py-1 rounded-full border border-emerald-300">
+                        <Check className="w-3 h-3 stroke-[3]" /> OUTCOME
+                      </span>
+                    </div>
+
+                    <h3 class="text-xl font-bold font-display text-slate-950 uppercase tracking-tight mb-3">
+                      {benefit.title}
+                    </h3>
+                    <p class="text-xs text-slate-600 leading-relaxed font-semibold">
+                      {benefit.description}
+                    </p>
+                  </div>
+                </div>
+              );
+            })
+          }
+        </div>
+
+      </div>
+    </section>
+
+    <!-- PERFECT FOR INDUSTRY TRUST GRID (ITEM 5) -->
+    <section class="py-20 bg-slate-50 border-b-2 border-slate-950">
+      <div class="max-w-8xl mx-auto px-6 lg:px-12">
+        
+        <div class="text-center max-w-3xl mx-auto mb-16">
+          <span
+            class="text-xs font-mono font-bold text-amber-600 uppercase tracking-widest block mb-2"
+            >⚡ TARGET INDUSTRIES</span
+          >
+          <h2
+            class="text-4xl lg:text-5xl font-black text-slate-950 uppercase tracking-tight font-display leading-tight"
+          >
+            Perfect For Client & Service Businesses
+          </h2>
+          <p class="text-slate-600 text-base font-medium mt-3">
+            Designed for businesses where inbound calls directly correlate to revenue.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5">
+          {
+            targetIndustries.map((ind) => {
+              const IconComp = ind.icon;
+              return (
+                <div class="bg-white border-2 border-slate-950 p-5 rounded-2xl shadow-[4px_4px_0px_0px_rgba(2,6,23,1)] hover:-translate-y-1 transition-all duration-300 flex items-center gap-4">
+                  <div class={`w-10 h-10 rounded-xl border border-slate-950/20 flex items-center justify-center shrink-0 ${ind.color}`}>
+                    <IconComp className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 class="text-sm font-bold font-display text-slate-950 uppercase tracking-tight">
+                      {ind.name}
+                    </h3>
+                    <span class="text-[10px] font-mono text-emerald-700 font-bold block mt-0.5">
+                      ✔ 24/7 Voice Ready
+                    </span>
+                  </div>
+                </div>
+              );
+            })
+          }
+        </div>
+
+      </div>
+    </section>
+
+    <!-- OPERATIONAL METRICS SECTION (ITEM 6) -->
+    <section class="py-20 bg-white border-b-2 border-slate-950">
+      <div class="max-w-8xl mx-auto px-6 lg:px-12">
+        
+        <div class="text-center max-w-3xl mx-auto mb-16">
+          <span
+            class="text-xs font-mono font-bold text-amber-600 uppercase tracking-widest block mb-2"
+            >⚡ PERFORMANCE METRICS</span
+          >
+          <h2
+            class="text-4xl lg:text-5xl font-black text-slate-950 uppercase tracking-tight font-display leading-tight"
+          >
+            Key Voice AI Metrics
+          </h2>
+          <p class="text-slate-600 text-base font-medium mt-3">
+            What happens to call conversion when you deploy automated voice intelligence.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <!-- Metric 1 -->
+          <div class="bg-gradient-to-br from-[#FFFDF5] to-white border-2 border-slate-950 p-8 rounded-3xl shadow-[6px_6px_0px_0px_rgba(252,211,77,1)] hover:-translate-y-1 transition-all duration-300">
+            <div class="text-4xl lg:text-5xl font-black font-display text-slate-950 mb-3">
+              0 Missed
+            </div>
+            <h3 class="text-lg font-bold font-display uppercase text-slate-950 mb-2">
+              Never Miss Another Lead
+            </h3>
+            <p class="text-xs text-slate-600 font-semibold leading-relaxed">
+              100% call capture rate 24 hours a day, 7 days a week, 365 days a year.
+            </p>
+          </div>
+
+          <!-- Metric 2 -->
+          <div class="bg-gradient-to-br from-[#F0FDFD] to-white border-2 border-slate-950 p-8 rounded-3xl shadow-[6px_6px_0px_0px_rgba(135,230,249,1)] hover:-translate-y-1 transition-all duration-300">
+            <div class="text-4xl lg:text-5xl font-black font-display text-slate-950 mb-3">
+              &lt; 2 Sec
+            </div>
+            <h3 class="text-lg font-bold font-display uppercase text-slate-950 mb-2">
+              Respond Under 2 Seconds
+            </h3>
+            <p class="text-xs text-slate-600 font-semibold leading-relaxed">
+              Instant call pickup ensures prospects never hang up to call a competitor.
+            </p>
+          </div>
+
+          <!-- Metric 3 -->
+          <div class="bg-gradient-to-br from-[#FDF2F8] to-white border-2 border-slate-950 p-8 rounded-3xl shadow-[6px_6px_0px_0px_rgba(249,168,212,1)] hover:-translate-y-1 transition-all duration-300">
+            <div class="text-4xl lg:text-5xl font-black font-display text-slate-950 mb-3">
+              24 / 7
+            </div>
+            <h3 class="text-lg font-bold font-display uppercase text-slate-950 mb-2">
+              24/7 Availability
+            </h3>
+            <p class="text-xs text-slate-600 font-semibold leading-relaxed">
+              Full coverage during peak trade hours, lunch breaks, weekends, and late nights.
+            </p>
+          </div>
+
+          <!-- Metric 4 -->
+          <div class="bg-gradient-to-br from-[#F7FEE7] to-white border-2 border-slate-950 p-8 rounded-3xl shadow-[6px_6px_0px_0px_rgba(163,230,53,1)] hover:-translate-y-1 transition-all duration-300">
+            <div class="text-4xl lg:text-5xl font-black font-display text-slate-950 mb-3">
+              100% Sync
+            </div>
+            <h3 class="text-lg font-bold font-display uppercase text-slate-950 mb-2">
+              Calendar Booking Included
+            </h3>
+            <p class="text-xs text-slate-600 font-semibold leading-relaxed">
+              Direct live sync with Google Calendar, ServiceM8, Xero, and major CRMs.
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- FAQ SECTION -->
+    <section class="py-20 bg-slate-50 border-b-2 border-slate-950">
+      <div class="max-w-8xl mx-auto px-6 lg:px-12">
+        <div class="mb-14 text-center max-w-3xl mx-auto">
+          <span
+            class="text-xs font-mono font-bold text-amber-600 uppercase tracking-widest block mb-2"
+            >⚡ FAQ</span
+          >
+          <h2
+            class="text-3xl sm:text-4xl font-black font-display text-slate-950 uppercase tracking-tight"
+          >
+            AI Receptionist FAQ
+          </h2>
+        </div>
+
+        <div class="space-y-4 max-w-4xl mx-auto">
+          {
+            faqItems.map((faq) => (
+              <div class="border-2 border-slate-950 p-6 rounded-2xl bg-white shadow-[4px_4px_0px_0px_rgba(2,6,23,1)]">
+                <h3 class="text-base font-black text-slate-950 uppercase tracking-tight mb-2 font-display">
+                  {faq.q}
+                </h3>
+                <p class="text-xs text-slate-650 leading-relaxed font-semibold">
+                  {faq.a}
+                </p>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- STRONGER FINAL CTA SECTION (ITEM 8) -->
+    <section class="bg-[#FCD34D] py-20 border-b-2 border-slate-950">
+      <div
+        class="max-w-8xl mx-auto px-6 lg:px-12 flex flex-col md:flex-row items-center justify-between gap-8 text-slate-950"
+      >
+        <div>
+          <h2
+            class="text-3xl sm:text-5xl font-black font-display uppercase tracking-tight leading-tight"
+          >
+            Ready to Stop Missing Calls?
+          </h2>
+          <p class="text-slate-950 text-base font-bold mt-3 max-w-2xl">
+            Book a free demo and see how your own AI receptionist answers calls, qualifies leads, and books appointments automatically.
+          </p>
+        </div>
+        <div class="flex flex-col sm:flex-row items-center gap-4 shrink-0">
+          <a
+            href="/#onboarding-form"
+            class="bg-slate-950 text-white font-black py-4 px-8 rounded-2xl text-xs tracking-widest uppercase transition-all duration-300 border-2 border-slate-950 shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none"
+          >
+            Book Free Demo & Strategy Call →
+          </a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <Footer client:visible />
+
+  <!-- SCRIPTS: RINGG AI WIDGET DEMO TRIGGER BINDINGS -->
+  <script is:inline>
+    function triggerRinggDemo() {
+      // 1. Try unauthenticated sign-in modal first
+      var unauthBtn = document.getElementById("ringg-unauth-btn");
+      if (unauthBtn) {
+        unauthBtn.click();
+        return;
+      }
+      // 2. Try auth-gated Ringg container
+      var container = document.getElementById("ringg_ai_container");
+      if (container) {
+        var btn = container.querySelector("button") || container.querySelector("iframe");
+        if (btn) {
+          btn.click();
+          return;
+        }
+      }
+      // 3. Fallback smooth scroll to live sample transcript
+      var sampleSection = document.getElementById("sample-call-section");
+      if (sampleSection) {
+        sampleSection.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+      var triggerBtn = document.getElementById("trigger-voice-demo-btn");
+      var talkBtn = document.getElementById("talk-ai-receptionist-btn");
+      if (triggerBtn) {
+        triggerBtn.addEventListener("click", triggerRinggDemo);
+      }
+      if (talkBtn) {
+        talkBtn.addEventListener("click", triggerRinggDemo);
+      }
+    });
+  </script>
+</BaseLayout>

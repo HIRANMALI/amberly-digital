@@ -1,0 +1,25 @@
+# Amberly Digital
+
+> Custom AI Agents, Voice Intelligence, and Enterprise Workflow Automations built for scaling companies.
+
+## Overview
+Amberly Digital is an AI software development agency specializing in custom LLM fine-tuning, RAG knowledge retrieval systems, voice AI receptionists, and enterprise workflow automations.
+
+## Core Capabilities & Services
+- [AI Automation & Integration](https://amberlydigital.com/services/ai-automation-integration): Workflow automations connecting CRMs, ERPs, databases, and scheduling platforms.
+- [Voice Agents & Telephony](https://amberlydigital.com/services/ai-receptionist): 24/7 AI Receptionists handling inbound phone calls, lead qualification, and calendar bookings.
+- [AI Image Generation](https://amberlydigital.com/services/ai-image-gen): Custom AI image generation and marketing visual assets studio.
+- [AI Video Generation](https://amberlydigital.com/services/ai-video-gen): Automated video creation and promotional media tools.
+- [Startup MVP Development](https://amberlydigital.com/services/startup-mvp-development): Rapid 2–4 week AI product prototypes for startups and founders.
+- [SaaS Product Architecture](https://amberlydigital.com/services/saas-product-development): Multi-tenant scalable web platforms and custom AI backends.
+
+## Key Principles & Guarantees
+- **100% IP Ownership**: Clients retain full ownership of all source code, IP rights, fine-tuned models, and infrastructure.
+- **Private Data Security**: Enterprise data is stored securely and never used to train public LLM models.
+- **Rapid Sprints**: Most AI solutions ship in 2 to 4 weeks with working prototypes delivered in week one.
+- **Build Before You Buy**: Try live AI demos and interactive prototypes before making any financial commitment.
+
+## Contact & Booking
+- **Strategy Call**: [Book a Free 20-Min Discovery Call](https://amberlydigital.com/#book-a-call)
+- **Direct Email**: hello@amberlydigital.com
+- **Website**: https://amberlydigital.com
