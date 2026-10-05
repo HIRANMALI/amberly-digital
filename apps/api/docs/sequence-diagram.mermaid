@@ -1,0 +1,145 @@
+sequenceDiagram
+    %% ── Type 1: Simple Video Generation ──
+    actor User as 👤 User
+    participant FE as 🌐 Browser (Tab 1)
+    participant Server as ⚡ FastAPI Server
+    participant SP as SimpleVideoPipeline
+    participant API as AgnesVideoAPI
+    participant Agnes as Agnes Video API
+
+    rect rgb(40, 50, 80)
+        Note over User,Agnes: Type 1: Simple Video Generation (Simple Video)
+
+        User->>FE: Input prompt + Select mode + Params
+        FE->>Server: POST /api/tasks/simple<br/>{prompt, mode, duration, seed...}
+
+        Server->>SP: new SimpleVideoPipeline(api_key, task_id, dir_name)
+        Server->>SP: asyncio.create_task(pipeline.run(state))
+
+        SP->>SP: Create task_state.json (status=running)
+        SP->>FE: WS progress: init
+
+        alt mode = t2v (Text-to-Video)
+            SP->>API: submit_video(prompt, refs=[])
+        else mode = i2v/ti2vid (Image-to-Video)
+            SP->>API: submit_video(prompt, refs=[ref_image])
+        else mode = keyframes (Keyframes)
+            SP->>API: submit_video(prompt, refs=[first_frame, end_frame])
+        end
+
+        API->>Agnes: POST /v1/videos (mode=t2v/ti2vid/keyframes)
+        Agnes-->>API: {video_id: "xxx"}
+        API-->>SP: video_id
+
+        SP->>SP: Save task.json (video_id)
+
+        loop Polling (every 15s)
+            SP->>API: wait_for_video(video_id)
+            API->>Agnes: GET /agnesapi?video_id=xxx
+            Agnes-->>API: {status: "processing", progress: 45%}
+            SP->>FE: WS progress: video_gen (running, 45%)
+        end
+
+        Agnes-->>API: {status: "completed", video_url: "..."}
+        API-->>SP: VideoOutput(url)
+        SP->>SP: Download video → final_video.mp4
+        SP->>SP: Update task_state.json (status=completed)
+        SP->>FE: WS progress: done (completed, 100%)
+        FE->>User: Display video preview + Download button
+    end
+
+    ---
+
+    %% ── Type 2: Creative Video Generation ──
+    rect rgb(60, 40, 80)
+        Note over User,Agnes: Type 2: Creative Video Generation (Creative Video, Enhanced)
+
+        User->>FE: Input creative idea + Configure audio
+        FE->>Server: POST /api/tasks/creative<br/>{idea, style, audio_config...}
+
+        Server->>SP: new CreativeVideoPipeline(...)
+        Server->>SP: asyncio.create_task(pipeline.run(state))
+
+        SP->>SP: Step 0: Image Analysis (if ref image present)
+        SP->>SP: Step 1: Story Generation (Screenwriter.develop_story)
+        SP->>SP: Step 2: Character Reference Image (Screenwriter → AgnesImageAPI)
+        SP->>SP: Step 3: Script Writing (Screenwriter.write_script + narration)
+        SP->>SP: Step 3.5: End Frame Prompts (keyframes mode)
+        SP->>SP: Step 3.6: Pregenerate End Frames (AgnesImageAPI)
+        SP->>SP: Step 4: Video Generation (AgnesVideoAPI × N scenes)
+
+        Note over SP: === New: Audio & Subtitle Steps ===
+        SP->>SP: Step 5: Audio + Subtitle Composition
+
+        loop Each scene scene_i
+            SP->>TTSEngine: EdgeTTSEngine.generate(narration_text[i])
+            TTSEngine-->>SP: (audio_path, sub_maker with cues)
+
+            SP->>SubtitleGen: SubtitleGenerator.cues_to_srt(cues)
+            SubtitleGen-->>SP: subtitle.srt
+
+            SP->>SubtitleGen: overlay_subtitles_to_video(video_path, srt, style)
+            SubtitleGen-->>SP: scene_i_with_subtitle.mp4
+
+            SP->>Concatenator: Composite audio + video for scene_i
+            Concatenator-->>SP: scene_i_final.mp4
+        end
+
+        SP->>SP: Step 6: Video Concatenation
+        SP->>Concatenator: concat_with_audio(scene_files)
+        Concatenator-->>SP: final_video.mp4
+
+        SP->>FE: WS progress: done
+        FE->>User: Display video preview
+    end
+
+    ---
+
+    %% ── Type 3: Manuscript Video Generation ──
+    rect rgb(40, 70, 70)
+        Note over User,Agnes: Type 3: Manuscript Video Generation (Manuscript Video)
+
+        User->>FE: Input long text + Configure audio
+        FE->>Server: POST /api/tasks/manuscript<br/>{manuscript_text, audio_config...}
+
+        Server->>MP: new ManuscriptVideoPipeline(...)
+        Server->>MP: asyncio.create_task(pipeline.run(state))
+
+        MP->>MP: Step 1: Text Preprocessing
+        Note over MP: Split into N paragraphs by newlines
+
+        loop Each paragraph para_i
+            MP->>Screenwriter: generate_scene_prompt(para_i.text)
+            Screenwriter-->>MP: scene_prompt_i
+            MP->>MP: Store scene_prompt in state
+        end
+
+        MP->>MP: Step 2: Scene Clustering
+        Note over MP: Adjacent paragraphs with similar scene_prompt semantics → Same scene
+
+        loop Each paragraph/scene group
+            alt Continuous paragraphs in same scene
+                MP->>API: submit_video(keyframes, [first, end])
+            else Independent scene
+                MP->>API: submit_video(t2v, prompt)
+            end
+            API-->>MP: video_id
+            MP->>API: wait_for_video(video_id)
+            API-->>MP: video_file
+        end
+
+        Note over MP: Step 3: Audio + Subtitle Composition
+        loop Each paragraph para_i
+            MP->>TTSEngine: EdgeTTSEngine.generate(para_i.text)
+            TTSEngine-->>MP: (audio_path, sub_maker)
+            MP->>SubtitleGen: cues_to_srt → overlay
+            SubtitleGen-->>MP: para_i_final.mp4
+        end
+
+        MP->>MP: Step 4: Concatenation
+        MP->>Concatenator: concat_with_audio(all_paras)
+        Concatenator-->>MP: final_video.mp4
+
+        MP->>FE: WS progress: done
+        FE->>User: Display video preview
+    end
