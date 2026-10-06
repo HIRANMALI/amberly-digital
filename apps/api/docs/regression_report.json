@@ -1,0 +1,228 @@
+{
+  "version": "2.0",
+  "created_at": "2026-06-19T11:18:18.823775+00:00",
+  "updated_at": "2026-06-19T12:02:06.941838+00:00",
+  "git_commit": "fbe52bf Merge branch 'v2.0-dev'",
+  "scenarios": {
+    "S1": {
+      "label": "Pure Text t2v",
+      "type": "simple",
+      "status": "skipped",
+      "result": {
+        "checks": {
+          "F1_final_video_exists": true,
+          "F1_final_video_nonempty": true,
+          "F2_duration": "skip",
+          "F2_duration_gt_0": "skip",
+          "F3_width": "skip",
+          "F3_height": "skip",
+          "F4_has_audio_stream": "skip",
+          "F7_duration_reasonable": "skip",
+          "F4_has_speech": "N/A",
+          "F6_asr_text": "N/A",
+          "F6_text_match": "N/A",
+          "R1_task_state_valid": true,
+          "R2_task_type": "simple",
+          "R2_task_type_matches": true,
+          "R3_step_count": 0,
+          "R3_all_completed": "N/A",
+          "R4_final_path_exists": true,
+          "R5_task_json": true,
+          "R5_has_video_id": true,
+          "R6_curl_sh": true,
+          "R6_has_video_id_in_curl": true,
+          "R7_sub_dirs_exist": "N/A",
+          "R7_audio_files": "N/A",
+          "R8_subtitle_srt": "N/A",
+          "R9_full_narration": "N/A",
+          "R10_full_subtitle": "N/A",
+          "R10_srt_entries": "N/A"
+        }
+      },
+      "errors": [
+        "No completed task"
+      ]
+    },
+    "S2": {
+      "label": "Image to Video ti2vid",
+      "type": "simple",
+      "status": "skipped",
+      "result": {
+        "checks": {
+          "F1_final_video_exists": true,
+          "F1_final_video_nonempty": true,
+          "F2_duration": "skip",
+          "F2_duration_gt_0": "skip",
+          "F3_width": "skip",
+          "F3_height": "skip",
+          "F4_has_audio_stream": "skip",
+          "F7_duration_reasonable": "skip",
+          "F4_has_speech": "N/A",
+          "F6_asr_text": "N/A",
+          "F6_text_match": "N/A",
+          "R1_task_state_valid": true,
+          "R2_task_type": "simple",
+          "R2_task_type_matches": true,
+          "R3_step_count": 0,
+          "R3_all_completed": "N/A",
+          "R4_final_path_exists": true,
+          "R5_task_json": true,
+          "R5_has_video_id": true,
+          "R6_curl_sh": true,
+          "R6_has_video_id_in_curl": true,
+          "R7_sub_dirs_exist": "N/A",
+          "R7_audio_files": "N/A",
+          "R8_subtitle_srt": "N/A",
+          "R9_full_narration": "N/A",
+          "R10_full_subtitle": "N/A",
+          "R10_srt_entries": "N/A"
+        }
+      },
+      "errors": [
+        "No completed task"
+      ]
+    },
+    "S3": {
+      "label": "Keyframes keyframes",
+      "type": "simple",
+      "status": "skipped",
+      "result": {
+        "checks": {
+          "F1_final_video_exists": true,
+          "F1_final_video_nonempty": true,
+          "F2_duration": "skip",
+          "F2_duration_gt_0": "skip",
+          "F3_width": "skip",
+          "F3_height": "skip",
+          "F4_has_audio_stream": "skip",
+          "F7_duration_reasonable": "skip",
+          "F4_has_speech": "N/A",
+          "F6_asr_text": "N/A",
+          "F6_text_match": "N/A",
+          "R1_task_state_valid": true,
+          "R2_task_type": "simple",
+          "R2_task_type_matches": true,
+          "R3_step_count": 0,
+          "R3_all_completed": "N/A",
+          "R4_final_path_exists": true,
+          "R5_task_json": true,
+          "R5_has_video_id": true,
+          "R6_curl_sh": true,
+          "R6_has_video_id_in_curl": true,
+          "R7_sub_dirs_exist": "N/A",
+          "R7_audio_files": "N/A",
+          "R8_subtitle_srt": "N/A",
+          "R9_full_narration": "N/A",
+          "R10_full_subtitle": "N/A",
+          "R10_srt_entries": "N/A"
+        }
+      },
+      "errors": [
+        "No completed task"
+      ]
+    },
+    "C1": {
+      "label": "Pure Text + Independent + No Voice",
+      "type": "creative",
+      "status": "skipped",
+      "result": null,
+      "errors": [
+        "No completed task"
+      ]
+    },
+    "C2": {
+      "label": "With Ref Image + Keyframes + No Voice",
+      "type": "creative",
+      "status": "skipped",
+      "result": null,
+      "errors": [
+        "No completed task"
+      ]
+    },
+    "C3": {
+      "label": "Ref Image Generates End Frame + Keyframes + No Voice",
+      "type": "creative",
+      "status": "failed",
+      "result": null,
+      "errors": [
+        "HTTPConnectionPool(host='localhost', port=8765): Max retries exceeded with url: /api/tasks (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x0000029CB521B130>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))"
+      ]
+    },
+    "C4": {
+      "label": "Independent Scenes + Voice & Subtitles",
+      "type": "creative",
+      "status": "failed",
+      "result": null,
+      "errors": [
+        "HTTPConnectionPool(host='localhost', port=8765): Max retries exceeded with url: /api/tasks (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x0000029CB521B350>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))"
+      ]
+    },
+    "M1": {
+      "label": "Short Manuscript + Voice",
+      "type": "manuscript",
+      "status": "failed",
+      "result": null,
+      "errors": [
+        "HTTPConnectionPool(host='localhost', port=8765): Max retries exceeded with url: /api/tasks (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x0000029CB521B020>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))"
+      ]
+    },
+    "M2": {
+      "label": "Short Manuscript + Custom Subtitles",
+      "type": "manuscript",
+      "status": "failed",
+      "result": null,
+      "errors": [
+        "HTTPConnectionPool(host='localhost', port=8765): Max retries exceeded with url: /api/tasks (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x0000029CB521AF10>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))"
+      ]
+    }
+  },
+  "endpoints": {
+    "E1": {
+      "status": "failed",
+      "detail": "HTTPConnectionPool(host='localhost', port=8765): Max retries exceeded with url: / (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x0000029CB521B240>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))"
+    },
+    "E2": {
+      "status": "failed",
+      "detail": "HTTPConnectionPool(host='localhost', port=8765): Max retries exceeded with url: /api/config (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x0000029CB521A7A0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))"
+    },
+    "E3": {
+      "status": "failed",
+      "detail": "HTTPConnectionPool(host='localhost', port=8765): Max retries exceeded with url: /api/tasks/simple (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x0000029CB521A8B0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))"
+    },
+    "E4": {
+      "status": "failed",
+      "detail": "HTTPConnectionPool(host='localhost', port=8765): Max retries exceeded with url: /api/tasks/creative (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x0000029CB521A9C0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))"
+    },
+    "E5": {
+      "status": "failed",
+      "detail": "HTTPConnectionPool(host='localhost', port=8765): Max retries exceeded with url: /api/tasks/manuscript (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x0000029CB521A470>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))"
+    },
+    "E6": {
+      "status": "failed",
+      "detail": "HTTPConnectionPool(host='localhost', port=8765): Max retries exceeded with url: /api/tasks (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x0000029CB521A580>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))"
+    },
+    "E7": {
+      "status": "failed",
+      "detail": "HTTPConnectionPool(host='localhost', port=8765): Max retries exceeded with url: /api/tasks (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x0000029CB5219040>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))"
+    },
+    "E8": {
+      "status": "failed",
+      "detail": "HTTPConnectionPool(host='localhost', port=8765): Max retries exceeded with url: /api/tasks (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x0000029CB5219BF0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))"
+    },
+    "E9": {
+      "status": "failed",
+      "detail": "HTTPConnectionPool(host='localhost', port=8765): Max retries exceeded with url: /api/tasks (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x0000029CB521A030>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))"
+    }
+  },
+  "summary": {
+    "total": 9,
+    "completed": 0,
+    "failed": 4,
+    "skipped": 5,
+    "running": 0,
+    "pending": 0,
+    "passed_checks": 27,
+    "total_checks": 63
+  },
+  "server_pid": null
+}
