@@ -32,3 +32,9 @@ __pycache__/
 apps/api/venv/
 apps/api/.venv/
 
+# Credentials & secrets
+*credentials*.json*
+*.pem
+*.key
+
+

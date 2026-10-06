@@ -24,12 +24,11 @@ def font_dir() -> str:
     return os.path.join(_PROJECT_ROOT, "resource", "fonts")
 
 
-# Default CJK font file name (must be located under resource/fonts/)
-DEFAULT_CHINESE_FONT = "STHeitiMedium.ttc"
+# Default fallback font file name (must be located under resource/fonts/)
+DEFAULT_FONT = "Roboto-Bold.ttf"
+DEFAULT_CHINESE_FONT = "Roboto-Bold.ttf"
 
-# Common font names that do not support CJK characters (for backward compatibility with legacy tasks)
-# These fonts do not render CJK characters correctly in moviepy/pillow TextClip,
-# and will fall back to DEFAULT_CHINESE_FONT when detected.
+# Common font names for fallback resolution
 _NON_CJK_FONTS = frozenset({
     "arial", "arial bold", "arial italic", "arial black",
     "helvetica", "times", "times new roman", "courier",
@@ -44,7 +43,7 @@ def resolve_font_path(font: str) -> str:
     Priority:
     1. Absolute path and file exists -> return directly
     2. File name (with extension) -> look inside resource/fonts/ directory
-    3. Known non-CJK font name -> fall back to DEFAULT_CHINESE_FONT (legacy task compatibility)
+    3. Known font name -> fall back to DEFAULT_FONT (legacy task compatibility)
     4. Other system font names -> return directly
     """
     # Already an absolute path, return directly
@@ -57,15 +56,10 @@ def resolve_font_path(font: str) -> str:
         if os.path.exists(candidate):
             return candidate
 
-    # Check if it is a known non-CJK font (backward compatibility: legacy task font might be "Arial")
-    if font.strip().lower() in _NON_CJK_FONTS:
-        fallback = os.path.join(font_dir(), DEFAULT_CHINESE_FONT)
-        if os.path.exists(fallback):
-            logger.warning(
-                f"Font '{font}' does not support CJK characters, "
-                f"falling back to {DEFAULT_CHINESE_FONT}"
-            )
-            return fallback
+    # Check if it is a known font (fallback to Roboto-Bold.ttf)
+    fallback = os.path.join(font_dir(), DEFAULT_FONT)
+    if os.path.exists(fallback):
+        return fallback
 
     # Return as system font name
     return font

@@ -51,7 +51,7 @@ class VideoMode(str, Enum):
 class SubtitleStyle(BaseModel):
     """Subtitle style configuration"""
 
-    font: str = "STHeitiMedium.ttc"
+    font: str = "Roboto-Bold.ttf"
     color: str = "white"
     position: tuple = ("center", "bottom-80")
     fontsize: int = 48
