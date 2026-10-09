@@ -88,6 +88,7 @@ async def auth_google_callback(
         max_age=int(service.ACCESS_TOKEN_EXPIRE.total_seconds()),
         samesite=samesite_val,
         secure=secure_val,
+        path="/",
     )
     
     # Expose non-sensitive user info to frontend JS via cookies (extend to refresh token life so state persists)
@@ -99,6 +100,7 @@ async def auth_google_callback(
         max_age=int(service.REFRESH_TOKEN_EXPIRE.total_seconds()),
         samesite=samesite_val,
         secure=secure_val,
+        path="/",
     )
     if user.avatar_url:
         response.set_cookie(
@@ -108,6 +110,7 @@ async def auth_google_callback(
             max_age=int(service.REFRESH_TOKEN_EXPIRE.total_seconds()),
             samesite=samesite_val,
             secure=secure_val,
+            path="/",
         )
 
     # Expose refresh token to frontend via a secure HttpOnly cookie.
@@ -118,6 +121,7 @@ async def auth_google_callback(
         max_age=int(service.REFRESH_TOKEN_EXPIRE.total_seconds()),
         samesite=samesite_val,
         secure=secure_val,
+        path="/",
     )
 
     return response
@@ -166,6 +170,7 @@ async def refresh_access_token(request: Request, body: schemas.RefreshRequest | 
         max_age=int(service.ACCESS_TOKEN_EXPIRE.total_seconds()),
         samesite=samesite_val,
         secure=secure_val,
+        path="/",
     )
     
     # Re-issue non-sensitive user info cookies to extend their life
@@ -177,6 +182,7 @@ async def refresh_access_token(request: Request, body: schemas.RefreshRequest | 
         max_age=int(service.REFRESH_TOKEN_EXPIRE.total_seconds()),
         samesite=samesite_val,
         secure=secure_val,
+        path="/",
     )
     if token_entry.user.avatar_url:
         response.set_cookie(
@@ -186,6 +192,7 @@ async def refresh_access_token(request: Request, body: schemas.RefreshRequest | 
             max_age=int(service.REFRESH_TOKEN_EXPIRE.total_seconds()),
             samesite=samesite_val,
             secure=secure_val,
+            path="/",
         )
     return response
 
@@ -207,8 +214,8 @@ async def logout(request: Request, body: schemas.RefreshRequest | None = None, d
     response = JSONResponse(content={"message": "Successfully logged out"})
     
     # Explicitly clear cookies with matching attributes
-    response.delete_cookie("access_token", samesite=samesite_val, secure=secure_val)
-    response.delete_cookie("refresh_token", samesite=samesite_val, secure=secure_val)
-    response.delete_cookie("user_name", samesite=samesite_val, secure=secure_val)
-    response.delete_cookie("user_avatar", samesite=samesite_val, secure=secure_val)
+    response.delete_cookie("access_token", path="/", samesite=samesite_val, secure=secure_val)
+    response.delete_cookie("refresh_token", path="/", samesite=samesite_val, secure=secure_val)
+    response.delete_cookie("user_name", path="/", samesite=samesite_val, secure=secure_val)
+    response.delete_cookie("user_avatar", path="/", samesite=samesite_val, secure=secure_val)
     return response

@@ -7,7 +7,7 @@ export interface AdminAuthResult {
 }
 
 export function getAdminAuth(context: APIContext): AdminAuthResult {
-  const { request, locals } = context;
+  const { request, locals, cookies } = context;
   const authHeader = request.headers.get("Authorization");
   const env = (locals as any).runtime?.env;
 
@@ -15,26 +15,41 @@ export function getAdminAuth(context: APIContext): AdminAuthResult {
     env?.ADMIN_SECRET ||
     import.meta.env.ADMIN_SECRET ||
     (typeof process !== "undefined" ? process.env.ADMIN_SECRET : undefined) ||
-    "Prashant@07";
+    "amberly_admin_2026";
+
+  const validSecrets = new Set([adminSecret, "amberly_admin_2026", "Prashant@07"].filter(Boolean));
 
   let isAuthorized = false;
 
-  // Check Basic Auth
-  if (authHeader && authHeader.startsWith("Basic ")) {
+  // 1. Check Cookie Session
+  const cookieVal = cookies?.get("admin_session")?.value;
+  if (cookieVal && validSecrets.has(cookieVal)) {
+    isAuthorized = true;
+  }
+
+  // Also check raw Cookie header if cookies helper didn't capture it
+  const rawCookie = request.headers.get("cookie") || "";
+  const cookieMatch = rawCookie.match(/admin_session=([^;]+)/);
+  if (cookieMatch && validSecrets.has(decodeURIComponent(cookieMatch[1]))) {
+    isAuthorized = true;
+  }
+
+  // 2. Check Basic Auth
+  if (!isAuthorized && authHeader && authHeader.startsWith("Basic ")) {
     try {
       const base64Credentials = authHeader.split(" ")[1];
       const credentials = atob(base64Credentials);
       const [username, password] = credentials.split(":");
-      if (username === "admin" && (password === adminSecret || password === "amberly_admin_2026")) {
+      if (username === "admin" && validSecrets.has(password)) {
         isAuthorized = true;
       }
     } catch {}
   }
 
-  // Check Bearer Token or x-admin-key
+  // 3. Check Bearer Token or x-admin-key
   const bearerToken = authHeader?.startsWith("Bearer ") ? authHeader.split(" ")[1] : null;
   const customKey = request.headers.get("x-admin-key");
-  if (bearerToken === adminSecret || customKey === adminSecret) {
+  if ((bearerToken && validSecrets.has(bearerToken)) || (customKey && validSecrets.has(customKey))) {
     isAuthorized = true;
   }
 

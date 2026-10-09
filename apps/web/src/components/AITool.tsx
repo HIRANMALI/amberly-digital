@@ -59,6 +59,25 @@ const durationOptions = [
   { value: 20, label: '20 Seconds (Pro)', disabled: true },
 ];
 
+const PROHIBITED_WORDS = [
+  'nsfw', 'porn', 'porno', 'xxx', 'sex', 'sexy', 'nude', 'nudity', 'naked',
+  'boobs', 'breast', 'nipple', 'vagina', 'pussy', 'penis', 'dick', 'cock',
+  'orgasm', 'cum', 'blowjob', 'fetish', 'bdsm', 'hentai', 'ecchi', 'erotic',
+  'gore', 'decapitation', 'torture', 'suicide', 'self-harm', 'rape', 'pedophile', 'csam'
+];
+
+function checkPromptSafety(text: string): string | null {
+  if (!text || !text.trim()) return null;
+  const normalized = text.toLowerCase().replace(/[^a-z0-9\s]/g, '');
+  for (const word of PROHIBITED_WORDS) {
+    const regex = new RegExp(`\\b${word}`, 'i');
+    if (regex.test(normalized)) {
+      return `Prohibited content: The word "${word}" violates content safety guidelines.`;
+    }
+  }
+  return null;
+}
+
 export const AITool = ({ apiUrl, localApiUrl }: { apiUrl: string; localApiUrl?: string }) => {
   const [activeApiUrl, setActiveApiUrl] = useState<string>(() => {
     const isLocal = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
@@ -180,24 +199,41 @@ export const AITool = ({ apiUrl, localApiUrl }: { apiUrl: string; localApiUrl?: 
   }, [tasksToday]);
 
   const apiFetch = useCallback(async (url: string, options: RequestInit = {}, preventRedirect: boolean = false) => {
-    let res = await fetch(`${activeApiUrl}${url}`, { ...options, credentials: 'include' });
-    if (res.status !== 401) return res;
+    try {
+      let res = await fetch(`${activeApiUrl}${url}`, { ...options, credentials: 'include' });
+      if (res.status !== 401) return res;
 
-    // Try to refresh using HttpOnly cookie credentials (handled automatically via credentials: 'include')
-    const r = await fetch(`${activeApiUrl}/auth/refresh`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({}),
-      credentials: 'include'
-    });
+      // Try to refresh using HttpOnly cookie credentials (handled automatically via credentials: 'include')
+      try {
+        const r = await fetch(`${activeApiUrl}/auth/refresh`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({}),
+          credentials: 'include'
+        });
 
-    if (r.ok) return fetch(`${activeApiUrl}${url}`, { ...options, credentials: 'include' });
+        if (r.ok) {
+          return fetch(`${activeApiUrl}${url}`, { ...options, credentials: 'include' });
+        }
+      } catch (refreshErr) {
+        console.warn("Token refresh attempt failed", refreshErr);
+      }
 
-    // Refresh failed
-    if (!preventRedirect) {
-      document.location.href = `${activeApiUrl}/auth/google?redirect_to=${encodeURIComponent(window.location.origin + '/ai-studio')}`;
+      // Refresh failed or invalid session -> Clear stale user state
+      setUser(null);
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('user_profile');
+        localStorage.removeItem('user_tasks');
+      }
+
+      if (!preventRedirect) {
+        document.location.href = `${activeApiUrl}/auth/google?redirect_to=${encodeURIComponent(window.location.origin + '/ai-studio')}`;
+      }
+      return res;
+    } catch (networkErr: any) {
+      console.error("Network or CORS error during apiFetch:", networkErr);
+      throw networkErr;
     }
-    return res;
   }, [activeApiUrl]);
 
   useEffect(() => {
@@ -231,7 +267,7 @@ export const AITool = ({ apiUrl, localApiUrl }: { apiUrl: string; localApiUrl?: 
       (async () => {
         try {
           const res = await apiFetch('/users/me', {}, true);
-          if (res.ok) {
+          if (res && res.ok) {
             const data = await res.json();
             let nameCookie = getCookie('user_name');
             let avatarCookie = getCookie('user_avatar');
@@ -250,13 +286,16 @@ export const AITool = ({ apiUrl, localApiUrl }: { apiUrl: string; localApiUrl?: 
             // Extract daily usage counters
             setTasksToday(userPayload.tasks_today ?? 0);
             setDailyLimit(userPayload.daily_task_limit ?? 5);
-          } else if (res.status === 401) {
+          } else {
             setUser(null);
             localStorage.removeItem('user_profile');
             localStorage.removeItem('user_tasks');
           }
         } catch (e) {
-          console.error("Failed to fetch user profile", e);
+          console.warn("Could not verify session with backend:", e);
+          setUser(null);
+          localStorage.removeItem('user_profile');
+          localStorage.removeItem('user_tasks');
         } finally {
           setAuthChecked(true);
         }
@@ -501,6 +540,13 @@ export const AITool = ({ apiUrl, localApiUrl }: { apiUrl: string; localApiUrl?: 
       return;
     }
     
+    // Check prompt safety / prohibited content
+    const safetyErr = checkPromptSafety(prompt);
+    if (safetyErr) {
+      setErrorMsg(safetyErr);
+      return;
+    }
+    
     setErrorMsg(null);
     setSelectedTaskId(null);
     setIsSubmitting(true);
@@ -556,9 +602,17 @@ export const AITool = ({ apiUrl, localApiUrl }: { apiUrl: string; localApiUrl?: 
           body: form
         });
         
+        if (res.status === 401) {
+          setErrorMsg("Your session has expired. Please sign in again.");
+          setIsSubmitting(false);
+          setTaskStatus('idle');
+          return;
+        }
+
         const data = await res.json();
         if (!res.ok) {
-          throw new Error(data.detail || "Failed to generate image");
+          const msg = data.message || data.detail || (typeof data.data === 'string' ? data.data : "Failed to generate image");
+          throw new Error(msg);
         }
         
         if (data.ok) {
@@ -575,9 +629,17 @@ export const AITool = ({ apiUrl, localApiUrl }: { apiUrl: string; localApiUrl?: 
           body: form
         });
         
+        if (res.status === 401) {
+          setErrorMsg("Your session has expired. Please sign in again.");
+          setIsSubmitting(false);
+          setTaskStatus('idle');
+          return;
+        }
+
         const data = await res.json();
         if (!res.ok) {
-          throw new Error(data.detail || "Failed to submit task");
+          const msg = data.message || data.detail || (typeof data.data === 'string' ? data.data : "Failed to submit task");
+          throw new Error(msg);
         }
         
         if (data.ok && data.task_id) {
@@ -988,7 +1050,27 @@ export const AITool = ({ apiUrl, localApiUrl }: { apiUrl: string; localApiUrl?: 
         </div>
 
         {/* Sticky Form Footer containing button centered and matching content width */}
-        <div className="p-6 pt-2 pb-6 border-t border-slate-100 bg-white shrink-0 flex items-center justify-center">
+        <div className="p-6 pt-2 pb-6 border-t border-slate-100 bg-white shrink-0 flex flex-col gap-2.5">
+          {errorMsg && (
+            <motion.div 
+              initial={{ opacity: 0, y: -4 }} 
+              animate={{ opacity: 1, y: 0 }}
+              className="p-2.5 bg-red-50/90 border border-red-200/80 rounded-xl flex items-start gap-2 text-xs text-red-700 shadow-sm"
+            >
+              <AlertCircle className="w-4 h-4 shrink-0 text-red-500 mt-0.5" />
+              <div className="flex-1 text-[11px] leading-snug">
+                <span className="font-bold text-red-900 block mb-0.5">Content Moderation Notice</span>
+                <span className="text-red-700 font-medium">{errorMsg}</span>
+              </div>
+              <button 
+                type="button" 
+                onClick={() => setErrorMsg(null)} 
+                className="text-red-400 hover:text-red-700 p-0.5 rounded cursor-pointer transition-colors"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </motion.div>
+          )}
 
           {!authChecked ? (
             <div className="w-full py-2.5 bg-slate-100 rounded-xl flex items-center justify-center gap-2 border border-slate-200">

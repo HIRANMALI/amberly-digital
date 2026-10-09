@@ -19,8 +19,9 @@ export const GET: APIRoute = async (context) => {
     });
 
     if (backendRes.ok) {
-      const data = await backendRes.json();
-      return new Response(JSON.stringify(data), {
+      const json = await backendRes.json();
+      const payload = json.data || json;
+      return new Response(JSON.stringify(payload), {
         status: 200,
         headers: { "Content-Type": "application/json" },
       });

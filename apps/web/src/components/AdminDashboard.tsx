@@ -65,6 +65,40 @@ interface TaskRecord {
   updated_at?: string;
 }
 
+function MediaThumbnail({ url, isVideo, className = "w-full h-full object-contain" }: { url: string; isVideo: boolean; className?: string }) {
+  const [loadError, setLoadError] = useState(false);
+
+  if (!url || loadError) {
+    return (
+      <div className="w-full h-full flex flex-col items-center justify-center text-slate-500 bg-slate-900/60 p-2 text-center">
+        {isVideo ? <Film className="w-5 h-5 text-slate-500 mb-1" /> : <Sparkles className="w-5 h-5 text-slate-500 mb-1" />}
+        <span className="text-[9px] font-mono text-slate-400 uppercase tracking-tighter block">
+          {loadError ? "Media Restricted" : "No Media"}
+        </span>
+      </div>
+    );
+  }
+
+  if (isVideo) {
+    return (
+      <video
+        src={url}
+        className={className}
+        onError={() => setLoadError(true)}
+      />
+    );
+  }
+
+  return (
+    <img
+      src={url}
+      alt=""
+      className={className}
+      onError={() => setLoadError(true)}
+    />
+  );
+}
+
 export function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<"overview" | "users" | "tasks" | "system">("overview");
   
@@ -99,10 +133,14 @@ export function AdminDashboard() {
   // Fetch Stats
   const fetchStats = async () => {
     try {
-      const res = await fetch("/api/admin/stats");
+      const res = await fetch("/api/admin/stats", { credentials: "same-origin" });
       if (res.ok) {
-        const data = await res.json();
-        setStats(data.stats || data);
+        const json = await res.json();
+        const payload = json.data || json;
+        const statsObj = payload.stats || payload;
+        setStats(statsObj);
+      } else if (res.status === 401) {
+        setErrorMsg("Admin session expired or unauthorized. Please reload the page to log in.");
       }
     } catch (e) {
       console.error("Failed to load admin stats", e);
@@ -112,10 +150,14 @@ export function AdminDashboard() {
   // Fetch Users
   const fetchUsers = async () => {
     try {
-      const res = await fetch(`/api/admin/users?search=${encodeURIComponent(userSearch)}`);
+      const res = await fetch(`/api/admin/users?search=${encodeURIComponent(userSearch)}`, { credentials: "same-origin" });
       if (res.ok) {
-        const data = await res.json();
-        setUsers(data.users || data.data || []);
+        const json = await res.json();
+        const payload = json.data || json;
+        const list = Array.isArray(payload.users)
+          ? payload.users
+          : (Array.isArray(payload) ? payload : (Array.isArray(payload.data) ? payload.data : []));
+        setUsers(list);
       }
     } catch (e) {
       console.error("Failed to load users", e);
@@ -131,10 +173,14 @@ export function AdminDashboard() {
       if (taskTypeFilter !== "all") params.append("task_type", taskTypeFilter);
       if (taskSearch) params.append("search", taskSearch);
 
-      const res = await fetch(`/api/admin/tasks?${params.toString()}`);
+      const res = await fetch(`/api/admin/tasks?${params.toString()}`, { credentials: "same-origin" });
       if (res.ok) {
-        const data = await res.json();
-        setTasks(data.tasks || data.data || []);
+        const json = await res.json();
+        const payload = json.data || json;
+        const list = Array.isArray(payload.tasks)
+          ? payload.tasks
+          : (Array.isArray(payload) ? payload : (Array.isArray(payload.data) ? payload.data : []));
+        setTasks(list);
       }
     } catch (e) {
       console.error("Failed to load tasks", e);
@@ -172,6 +218,7 @@ export function AdminDashboard() {
       const res = await fetch("/api/admin/credits", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
         body: JSON.stringify({
           userId: creditModalUser.id,
           amount: creditAmount,
@@ -196,20 +243,23 @@ export function AdminDashboard() {
 
   // Helper to extract clean media URL
   const getMediaUrl = (task: TaskRecord) => {
-    return (
+    const raw =
       task.result_url ||
       task.video_url ||
       task.cloudinary_url ||
       task.media_url ||
       task.image_url ||
-      ""
-    );
+      "";
+    if (typeof raw === "string" && (raw.startsWith("http://") || raw.startsWith("https://") || raw.startsWith("data:"))) {
+      return raw;
+    }
+    return "";
   };
 
   // Helper for task type detection
   const isVideoTask = (task: TaskRecord) => {
     const t = (task.task_type || "").toLowerCase();
-    return t.includes("video") || t === "t2v" || t === "i2v";
+    return t.includes("video") || t === "t2v" || t === "i2v" || t === "simple" || t === "creative" || t === "manuscript";
   };
 
   // Filtered lists
@@ -521,11 +571,7 @@ export function AdminDashboard() {
                         }`}
                       >
                         {mediaUrl ? (
-                          isVideo ? (
-                            <video src={mediaUrl} className="w-full h-full object-cover" />
-                          ) : (
-                            <img src={mediaUrl} alt="" className="w-full h-full object-cover" />
-                          )
+                          <MediaThumbnail url={mediaUrl} isVideo={isVideo} />
                         ) : (
                           <Sparkles className="w-4 h-4 text-slate-600" />
                         )}
@@ -789,11 +835,7 @@ export function AdminDashboard() {
                     }`}
                   >
                     {mediaUrl ? (
-                      isVideo ? (
-                        <video src={mediaUrl} className="w-full h-full object-contain" />
-                      ) : (
-                        <img src={mediaUrl} alt="" className="w-full h-full object-contain" />
-                      )
+                      <MediaThumbnail url={mediaUrl} isVideo={isVideo} />
                     ) : (
                       <div className="text-center p-4">
                         {task.status === "failed" ? (
@@ -1149,3 +1191,5 @@ export function AdminDashboard() {
     </div>
   );
 }
+
+export default AdminDashboard;
