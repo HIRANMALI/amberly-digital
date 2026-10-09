@@ -30,10 +30,11 @@ const canonicalUrl = new URL(
 const publicApiUrl = import.meta.env.PUBLIC_API_URL;
 const publicLocalApiUrl = import.meta.env.PUBLIC_LOCAL_API_URL;
 
-// Ringg.AI widget: exclude /ai-studio and /blog routes (and all their sub-pages)
+// Ringg.AI widget: exclude /ai-studio, /blog, and /admin routes (and all their sub-pages)
 const showRinggWidget =
   !Astro.url.pathname.startsWith('/ai-studio') &&
-  !Astro.url.pathname.startsWith('/blog');
+  !Astro.url.pathname.startsWith('/blog') &&
+  !Astro.url.pathname.startsWith('/admin');
 
 // Ringg.AI credentials — sourced from .env (PUBLIC_ prefix required for Astro/Vite to expose them)
 const ringgAgentId = import.meta.env.PUBLIC_RINGG_AGENT_ID;

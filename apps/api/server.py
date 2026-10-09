@@ -64,6 +64,11 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Agnes Video Generator", lifespan=lifespan)
 
+# Register standardized response formatting & exception handlers
+from core.middleware import register_standardized_responses
+register_standardized_responses(app)
+
+# Register CORSMiddleware LAST so that it is the outermost middleware and wraps all responses (including 401/500 errors)
 from fastapi.middleware.cors import CORSMiddleware
 
 # Read custom origins from env var (comma-separated list), fallback to default list
@@ -73,6 +78,8 @@ origins = [
     "http://127.0.0.1:4321",
     "http://localhost:8765",
     "http://127.0.0.1:8765",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
     "https://amberlydigital.com",
     "https://www.amberlydigital.com"
 ]
@@ -87,8 +94,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-from core.middleware import register_standardized_responses
-register_standardized_responses(app)
 
 # Import and include routers modularly
 from modules.auth.router import router as auth_router
@@ -101,6 +106,9 @@ app.include_router(ws_router, tags=["ws"])
 
 from modules.users.router import router as users_router
 app.include_router(users_router, prefix="/api/v1/users", tags=["users"])
+
+from modules.admin.router import router as admin_router
+app.include_router(admin_router, prefix="/api/v1/admin", tags=["admin"])
 
 
 # ═══════════════════════════════════════════════════
@@ -172,22 +180,4 @@ async def get_voices():
 
 if __name__ == "__main__":
     import uvicorn
-
-    config = uvicorn.Config("server:app", host="0.0.0.0", port=8765, log_level="info", reload=True)
-    server = uvicorn.Server(config)
-
-    original_handle_exit = server.handle_exit
-
-    def _handle_exit(sig, frame):
-        from modules.tasks.router import shutdown_event
-        if shutdown_event.is_set():
-            logger.warning("Force exiting...")
-            os._exit(1)
-        logger.info("Shutting down gracefully (Ctrl+C again to force)...")
-        shutdown_event.set()
-        if callable(original_handle_exit):
-            original_handle_exit(sig, frame)
-
-    server.handle_exit = _handle_exit
-
-    server.run()
+    uvicorn.run("server:app", host="0.0.0.0", port=8765, log_level="info", reload=True)

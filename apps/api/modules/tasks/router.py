@@ -11,10 +11,13 @@ from fastapi import APIRouter, WebSocket, WebSocketDisconnect, UploadFile, File,
 from fastapi.responses import FileResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
+import cloudinary
+import cloudinary.uploader
 from db.database import get_db, AsyncSessionLocal
 from dependencies import get_current_user, require_admin
 from modules.users.models import User, UserRole
 from . import crud, schemas
+from core.moderation import validate_prompt_safety, upload_and_moderate_image
 
 from core.config import get_api_key, get_working_dir, AVAILABLE_VOICES
 from core.pipelines import (
@@ -179,26 +182,25 @@ async def _run_pipeline(pipeline: BasePipeline, state: BaseTaskState):
     try:
         logger.info(f"[Pipeline] Starting run for task {pipeline.task_id}, type={state.task_type}")
 
-        # Upload input images to Cloudinary in the background
+        # Upload input images to Cloudinary in the background with AI moderation
         import cloudinary
-        import cloudinary.uploader
         if cloudinary.config().cloud_name:
             async def _upload_input(filepath: str, upload_name: str, state_field: str):
                 if filepath and os.path.exists(filepath):
                     try:
-                        logger.info(f"[Cloudinary] Uploading {upload_name}...")
+                        logger.info(f"[Cloudinary] Uploading and moderating {upload_name}...")
                         response = await asyncio.to_thread(
-                            cloudinary.uploader.upload, 
+                            upload_and_moderate_image, 
                             filepath,
                             folder=f"agnes_video_tool/{pipeline.task_id}",
-                            public_id=upload_name,
-                            overwrite=True,
-                            invalidate=True
+                            public_id=upload_name
                         )
                         url = response.get("secure_url")
                         if url:
                             pipeline.task_manager.update_state(**{state_field: url})
-                            logger.info(f"[Cloudinary] {upload_name} uploaded: {url}")
+                            logger.info(f"[Cloudinary] {upload_name} passed moderation and uploaded: {url}")
+                    except HTTPException as he:
+                        logger.error(f"[Cloudinary Moderation Block] {upload_name}: {he.detail}")
                     except Exception as e:
                         logger.error(f"[Cloudinary] Failed to upload {upload_name}: {e}")
 
@@ -438,6 +440,9 @@ async def create_image_task(
     db: AsyncSession = Depends(get_db)
 ):
     """Synchronously generate an image (t2i or i2i)."""
+    # 1. Validate prompt for NSFW / prohibited content
+    validate_prompt_safety(prompt, "Prompt")
+
     await check_daily_limit(db, current_user)
     if resolution:
         size = resolution
@@ -457,21 +462,24 @@ async def create_image_task(
     
     task_id = uuid.uuid4().hex[:12]
     
+    # 2. Moderate and upload reference image if present
     ref_url = ""
     if ref_paths:
         import cloudinary
-        import cloudinary.uploader
         if cloudinary.config().cloud_name:
             try:
                 response = await asyncio.to_thread(
-                    cloudinary.uploader.upload, 
+                    upload_and_moderate_image, 
                     ref_paths[0],
                     folder=f"agnes_video_tool/{task_id}",
-                    public_id="reference_image",
-                    overwrite=True,
-                    invalidate=True
+                    public_id="reference_image"
                 )
                 ref_url = response.get("secure_url", "")
+            except HTTPException:
+                # Clean up local file if moderation fails
+                if os.path.exists(ref_paths[0]):
+                    os.remove(ref_paths[0])
+                raise
             except Exception as e:
                 logger.error(f"[Cloudinary] Failed to upload image gen reference: {e}")
 
@@ -496,12 +504,38 @@ async def create_image_task(
             size=size
         )
         
+        # Upload generated image to Cloudinary for permanent storage
+        cloudinary_url = ""
+        import cloudinary
+        if cloudinary.config().cloud_name:
+            try:
+                logger.info(f"[Cloudinary] Uploading generated image for task {task_id}...")
+                upload_source = output.data
+                if output.fmt == "b64":
+                    upload_source = f"data:image/{output.ext or 'png'};base64,{output.data}"
+                c_res = await asyncio.to_thread(
+                    cloudinary.uploader.upload,
+                    upload_source,
+                    folder=f"agnes_video_tool/{task_id}",
+                    public_id="generated_image",
+                    overwrite=True,
+                    invalidate=True
+                )
+                cloudinary_url = c_res.get("secure_url", "")
+                if cloudinary_url:
+                    logger.info(f"[Cloudinary] Generated image uploaded successfully: {cloudinary_url}")
+            except Exception as ce:
+                logger.error(f"[Cloudinary] Failed to upload generated image: {ce}")
+
         # Update database on success
-        url_or_base64 = output.data if output.fmt == "url" else ""
+        url_or_base64 = cloudinary_url or (output.data if output.fmt == "url" else "")
         await update_task(db, db_task, TaskUpdate(
             status="completed",
             video_url=url_or_base64
         ))
+        
+        final_url = cloudinary_url or (output.data if output.fmt == "url" else None)
+        final_b64 = None if cloudinary_url else (output.data if output.fmt == "b64" else None)
         
     except Exception as e:
         logger.error(f"[ImageGen] Failed: {e}")
@@ -516,10 +550,10 @@ async def create_image_task(
                 
     return {
         "ok": True,
-        "format": output.fmt,
+        "format": "url" if final_url else output.fmt,
         "ext": output.ext,
-        "url": output.data if output.fmt == "url" else None,
-        "base64": output.data if output.fmt == "b64" else None
+        "url": final_url,
+        "base64": final_b64
     }
 
 @router.post("/simple")
@@ -538,6 +572,10 @@ async def create_simple_task(
     db: AsyncSession = Depends(get_db)
 ):
     """Create simple video task (Type 1)."""
+    # Validate prompt for NSFW / prohibited content
+    validate_prompt_safety(prompt, "Prompt")
+    validate_prompt_safety(negative_prompt, "Negative prompt")
+
     await check_daily_limit(db, current_user)
     if resolution and "x" in resolution:
         try:
@@ -639,6 +677,10 @@ async def create_creative_task(
     db: AsyncSession = Depends(get_db)
 ):
     """Create creative long video task (Type 2)."""
+    # Validate prompts for NSFW / prohibited content
+    validate_prompt_safety(idea, "Idea / Prompt")
+    validate_prompt_safety(user_requirement, "User Requirements")
+
     await check_daily_limit(db, current_user)
     api_key = get_api_key()
     if not api_key:
@@ -736,6 +778,9 @@ async def create_manuscript_task(
     db: AsyncSession = Depends(get_db)
 ):
     """Create manuscript long video task (Type 3)."""
+    # Validate manuscript title / prompt for NSFW / prohibited content
+    validate_prompt_safety(creative_name, "Title / Prompt")
+
     await check_daily_limit(db, current_user)
     api_key = get_api_key()
     if not api_key:
